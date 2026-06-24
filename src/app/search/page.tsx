@@ -1,30 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import Link from 'next/link'
+import { useSearch } from '@/hooks/useSearch'
 import PosterCard from '@/components/search/PosterCard'
 import PosterSkeleton from '@/components/search/PosterSkeleton'
 import Input from '@/components/ui/Input'
-import Link from 'next/link'
-import { mockResults } from '@/lib/mockData'
 
 export default function SearchPage() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [query, setQuery] = useState(searchParams.get('q') || '')
-  const [loading, setLoading] = useState(true)
+  const initialQuery = searchParams.get('q') || ''
+
+  const { query, setQuery, results, loading, error, search } =
+    useSearch(initialQuery)
 
   useEffect(() => {
-    setQuery(searchParams.get('q') || '')
-    const t = setTimeout(() => setLoading(false), 400)
-    return () => clearTimeout(t)
-  }, [searchParams])
-
-  const filtered = query
-    ? mockResults.filter((item) =>
-        item.title.toLowerCase().includes(query.toLowerCase())
-      )
-    : mockResults
+    search(initialQuery)
+  }, [initialQuery])
 
   const handleSearch = () => {
     if (!query.trim()) return
@@ -54,13 +48,23 @@ export default function SearchPage() {
       </header>
 
       <section className="mx-auto max-w-6xl px-6 py-10">
+        {!initialQuery && !loading && (
+          <p className="text-parchment/30 mb-8 font-mono text-xs tracking-widest">
+            TRENDING THIS WEEK
+          </p>
+        )}
+
+        {error && (
+          <p className="font-body text-rose py-20 text-center">{error}</p>
+        )}
+
         {loading ? (
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {Array.from({ length: 10 }).map((_, i) => (
               <PosterSkeleton key={i} />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : results.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 py-32">
             <span className="text-gold/20 font-mono text-4xl">◎</span>
             <p className="font-display text-parchment/30 text-3xl">
@@ -72,7 +76,7 @@ export default function SearchPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {filtered.map((item) => (
+            {results.map((item) => (
               <PosterCard key={item.id} item={item} />
             ))}
           </div>
