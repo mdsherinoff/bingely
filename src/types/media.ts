@@ -4,10 +4,25 @@ export interface MediaItem {
   id: number
   title: string
   posterPath: string | null
+  backdropPath: string | null
   releaseYear: string
   mediaType: MediaType
   voteAverage: number
+  overview: string
+  genres: string[]
+  // Movies
+  runtime?: number
+  // TV
   episodeCount?: number
   seasonCount?: number
-  runtime?: number
+  seasons?: Season[]
+  status?: string
+}
+
+export interface Season {
+  id: number
+  seasonNumber: number
+  episodeCount: number
+  name: string
+  airDate: string | null
 }

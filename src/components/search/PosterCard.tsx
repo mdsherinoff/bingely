@@ -13,7 +13,10 @@ export default function PosterCard({ item }: PosterCardProps) {
       : `${item.runtime} min`
 
   return (
-    <Link href={`/plan/${item.id}`} className="group flex flex-col gap-3">
+    <Link
+      href={`/plan/${item.id}?type=${item.mediaType}`}
+      className="group flex flex-col gap-3"
+    >
       {/* Poster */}
       <div className="bg-ink border-gold/10 group-hover:border-gold/40 relative aspect-[2/3] overflow-hidden rounded-sm border transition-colors">
         {item.posterPath ? (

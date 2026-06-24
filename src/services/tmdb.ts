@@ -93,3 +93,71 @@ export async function getTrending(): Promise<MediaItem[]> {
     .slice(0, 18)
     .map(normalizeResult)
 }
+
+export async function getMovieDetails(id: number): Promise<MediaItem> {
+  const res = await fetch(`${BASE_URL}/movie/${id}`, { headers })
+
+  if (!res.ok) throw new Error('Failed to fetch movie details')
+
+  const data = await res.json()
+
+  return {
+    id: data.id,
+    title: data.title,
+    posterPath: data.poster_path ? getPosterUrl(data.poster_path) : null,
+    backdropPath: data.backdrop_path
+      ? getPosterUrl(data.backdrop_path, 'original')
+      : null,
+    releaseYear: data.release_date?.slice(0, 4) || 'Unknown',
+    mediaType: 'movie',
+    voteAverage: Math.round(data.vote_average * 10) / 10,
+    overview: data.overview || '',
+    genres: data.genres?.map((g: { name: string }) => g.name) || [],
+    runtime: data.runtime || null,
+  }
+}
+
+export async function getTVDetails(id: number): Promise<MediaItem> {
+  const res = await fetch(`${BASE_URL}/tv/${id}`, { headers })
+
+  if (!res.ok) throw new Error('Failed to fetch TV details')
+
+  const data = await res.json()
+
+  const validSeasons =
+    data.seasons?.filter(
+      (s: { season_number: number }) => s.season_number > 0
+    ) || []
+
+  return {
+    id: data.id,
+    title: data.name,
+    posterPath: data.poster_path ? getPosterUrl(data.poster_path) : null,
+    backdropPath: data.backdrop_path
+      ? getPosterUrl(data.backdrop_path, 'original')
+      : null,
+    releaseYear: data.first_air_date?.slice(0, 4) || 'Unknown',
+    mediaType: 'tv',
+    voteAverage: Math.round(data.vote_average * 10) / 10,
+    overview: data.overview || '',
+    genres: data.genres?.map((g: { name: string }) => g.name) || [],
+    episodeCount: data.number_of_episodes || 0,
+    seasonCount: validSeasons.length,
+    status: data.status,
+    seasons: validSeasons.map(
+      (s: {
+        id: number
+        season_number: number
+        episode_count: number
+        name: string
+        air_date: string | null
+      }) => ({
+        id: s.id,
+        seasonNumber: s.season_number,
+        episodeCount: s.episode_count,
+        name: s.name,
+        airDate: s.air_date,
+      })
+    ),
+  }
+}
