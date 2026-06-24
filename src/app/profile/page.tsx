@@ -1,24 +1,24 @@
 export default function ProfilePage() {
   return (
-    <main className="min-h-screen bg-espresso px-6 py-12">
+    <main className="bg-espresso min-h-screen px-6 py-12">
       {/* User header — avatar, name, stats */}
-      <section className="max-w-4xl mx-auto mb-12" />
+      <section className="mx-auto mb-12 max-w-4xl" />
 
       {/* Saved plans grid */}
-      <section className="max-w-4xl mx-auto mb-12">
-        <h2 className="font-display text-3xl text-parchment mb-6">
+      <section className="mx-auto mb-12 max-w-4xl">
+        <h2 className="font-display text-parchment mb-6 text-3xl">
           Your Plans
         </h2>
-        <div className="grid md:grid-cols-2 gap-6" />
+        <div className="grid gap-6 md:grid-cols-2" />
       </section>
 
       {/* Achievements */}
-      <section className="max-w-4xl mx-auto">
-        <h2 className="font-display text-3xl text-parchment mb-6">
+      <section className="mx-auto max-w-4xl">
+        <h2 className="font-display text-parchment mb-6 text-3xl">
           Achievements
         </h2>
-        <div className="grid grid-cols-3 sm:grid-cols-4 gap-4" />
+        <div className="grid grid-cols-3 gap-4 sm:grid-cols-4" />
       </section>
     </main>
-  );
+  )
 }
