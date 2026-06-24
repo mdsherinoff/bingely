@@ -123,6 +123,16 @@ export async function getTVDetails(id: number): Promise<MediaItem> {
   if (!res.ok) throw new Error('Failed to fetch TV details')
 
   const data = await res.json()
+  const rawRuntime = data.episode_run_time
+
+  let episodeRuntime: number
+  if (Array.isArray(rawRuntime) && rawRuntime.length > 0) {
+    // TMDB returns an array, take the most common value
+    episodeRuntime = rawRuntime[0]
+  } else {
+    // Fallback: assume 24 minutes (anime) or 45 minutes (drama)
+    episodeRuntime = 24
+  }
 
   const validSeasons =
     data.seasons?.filter(
@@ -142,6 +152,7 @@ export async function getTVDetails(id: number): Promise<MediaItem> {
     overview: data.overview || '',
     genres: data.genres?.map((g: { name: string }) => g.name) || [],
     episodeCount: data.number_of_episodes || 0,
+    episodeRuntime: episodeRuntime,
     seasonCount: validSeasons.length,
     status: data.status,
     seasons: validSeasons.map(
@@ -155,6 +166,7 @@ export async function getTVDetails(id: number): Promise<MediaItem> {
         id: s.id,
         seasonNumber: s.season_number,
         episodeCount: s.episode_count,
+        episodeRuntime: episodeRuntime,
         name: s.name,
         airDate: s.air_date,
       })

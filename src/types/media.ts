@@ -17,6 +17,7 @@ export interface MediaItem {
   seasonCount?: number
   seasons?: Season[]
   status?: string
+  episodeRuntime?: number // minutes per episode
 }
 
 export interface Season {
