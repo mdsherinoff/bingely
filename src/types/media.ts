@@ -27,3 +27,23 @@ export interface Season {
   name: string
   airDate: string | null
 }
+
+export type PaceMode = 'casual' | 'balanced' | 'binge' | 'hardcore'
+
+export interface TimeWindow {
+  start: string // "19:00"
+  end: string // "22:00"
+}
+
+export interface DaySchedule {
+  enabled: boolean
+  windows: TimeWindow[]
+}
+
+export type WeekSchedule = Record<string, DaySchedule>
+
+export interface AvailabilityConfig {
+  schedule: WeekSchedule
+  pace: PaceMode
+  episodeRuntime: number
+}
