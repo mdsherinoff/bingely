@@ -1,7 +1,6 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Colors */
   --color-espresso: #1a1410;
   --color-espresso-light: #2c1810;
   --color-parchment: #f2e8d5;
@@ -12,25 +11,18 @@
   --color-rose-muted: #a36256;
   --color-ink: #2c1810;
 
-  /* Fonts */
   --font-display: var(--font-playfair), serif;
   --font-body: var(--font-crimson), serif;
   --font-mono: var(--font-space-mono), monospace;
 
-  /* Marquee animation */
   --animate-marquee: marquee 40s linear infinite;
-
-  @keyframes marquee {
-    0% {
-      transform: translateX(0%);
-    }
-    100% {
-      transform: translateX(-50%);
-    }
-  }
 }
 
-/* Film grain overlay */
+@keyframes marquee {
+  0%   { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
 .grain::after {
   content: '';
   position: absolute;
