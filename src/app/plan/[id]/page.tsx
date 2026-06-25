@@ -14,6 +14,8 @@ import MediaSummary from '@/components/plan/MediaSummary'
 import DaySelector from '@/components/plan/DaySelector'
 import PaceSelector from '@/components/plan/PaceSelector'
 import { Button } from '@/components/ui'
+import GoalModeSelector from '@/components/plan/GoalModeSelector'
+import { WatchGoal } from '@/types/media'
 
 const paceMultiplier: Record<PaceMode, number> = {
   casual: 0.6,
@@ -37,6 +39,7 @@ export default function PlanPage({
   const [schedule, setSchedule] = useState<WeekSchedule>(defaultSchedule())
   const [pace, setPace] = useState<PaceMode>('balanced')
   const [episodeRuntime, setEpisodeRuntime] = useState<number | null>(null)
+  const [goal, setGoal] = useState<WatchGoal>({ mode: 'standard' })
 
   const runtime =
     episodeRuntime ?? media?.episodeRuntime ?? media?.runtime ?? 24
@@ -54,7 +57,10 @@ export default function PlanPage({
       episodeRuntime: runtime,
     }
     const encoded = encodeURIComponent(JSON.stringify(config))
-    router.push(`/plan/${id}/results?type=${type}&config=${encoded}`)
+    const goalEncoded = encodeURIComponent(JSON.stringify(goal))
+    router.push(
+      `/plan/${id}/results?type=${type}&config=${encoded}&goal=${goalEncoded}`
+    )
   }
 
   if (loading) {
@@ -102,6 +108,14 @@ export default function PlanPage({
             </div>
           </div>
         )}
+
+        {/* Goal mode */}
+        <div className="flex flex-col gap-3">
+          <h2 className="font-display text-parchment text-2xl">
+            What's your goal?
+          </h2>
+          <GoalModeSelector value={goal} onChange={setGoal} />
+        </div>
 
         {/* Form */}
         <div className="grid gap-10 md:grid-cols-2">

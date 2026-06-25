@@ -95,3 +95,19 @@ export interface ChallengeItem {
   tmdbId: number
   mediaType: MediaType
 }
+
+export type GoalMode = 'standard' | 'finish-before' | 'vacation'
+
+export interface FinishBeforeGoal {
+  mode: 'finish-before'
+  targetDate: string // ISO date string
+}
+
+export interface VacationGoal {
+  mode: 'vacation'
+  startDate: string
+  endDate: string
+  hoursPerDay: number
+}
+
+export type WatchGoal = FinishBeforeGoal | VacationGoal | { mode: 'standard' }

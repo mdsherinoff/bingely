@@ -121,3 +121,129 @@ export function generateWatchPlan(
     mediaType,
   }
 }
+
+export function generateFinishBeforePlan(
+  targetDate: string,
+  totalEpisodes: number,
+  episodeRuntime: number,
+  mediaType: 'movie' | 'tv',
+  runtime?: number
+): WatchPlan {
+  const now = new Date()
+  const target = new Date(targetDate)
+  const daysUntil = Math.max(
+    1,
+    Math.floor((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  )
+  const weeksUntil = Math.max(1, Math.floor(daysUntil / 7))
+
+  if (mediaType === 'movie') {
+    return generateWatchPlan(
+      { schedule: {}, pace: 'balanced', episodeRuntime: runtime || 120 },
+      1,
+      'movie',
+      runtime
+    )
+  }
+
+  const episodesPerWeek = Math.ceil(totalEpisodes / weeksUntil)
+  const totalMinutes = totalEpisodes * episodeRuntime
+  const totalHours = Math.round((totalMinutes / 60) * 10) / 10
+
+  const weeklyBlocks: WeeklyBlock[] = []
+  let remaining = totalEpisodes
+
+  for (let week = 1; week <= weeksUntil; week++) {
+    const eps = Math.min(episodesPerWeek, remaining)
+    const start = (week - 1) * episodesPerWeek + 1
+    const end = start + eps - 1
+    const pct = Math.min(100, Math.round((end / totalEpisodes) * 100))
+    weeklyBlocks.push({
+      week,
+      episodes: eps,
+      startEpisode: start,
+      endEpisode: end,
+      hoursWatched: Math.round(((eps * episodeRuntime) / 60) * 10) / 10,
+      cumulativePercent: pct,
+    })
+    remaining -= eps
+    if (remaining <= 0) break
+  }
+
+  return {
+    totalEpisodes,
+    totalWeeks: weeksUntil,
+    totalHours,
+    episodesPerWeek,
+    completionDate: target.toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    }),
+    weeklyBlocks,
+    milestones: generateMilestones(totalEpisodes, weeklyBlocks),
+    pace: 'balanced',
+    mediaType,
+  }
+}
+
+export function generateVacationPlan(
+  startDate: string,
+  endDate: string,
+  hoursPerDay: number,
+  totalEpisodes: number,
+  episodeRuntime: number,
+  mediaType: 'movie' | 'tv',
+  runtime?: number
+): WatchPlan {
+  const start = new Date(startDate)
+  const end = new Date(endDate)
+  const days = Math.max(
+    1,
+    Math.floor((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1
+  )
+  const minutesTotal = days * hoursPerDay * 60
+  const episodesTotal = Math.floor(minutesTotal / episodeRuntime)
+  const canFinish = episodesTotal >= totalEpisodes
+
+  const effectiveEpisodes = Math.min(episodesTotal, totalEpisodes)
+  const weeks = Math.ceil(days / 7)
+  const episodesPerWeek = Math.ceil(effectiveEpisodes / weeks)
+  const totalHours =
+    Math.round(((effectiveEpisodes * episodeRuntime) / 60) * 10) / 10
+
+  const weeklyBlocks: WeeklyBlock[] = []
+  let remaining = effectiveEpisodes
+
+  for (let week = 1; week <= weeks; week++) {
+    const eps = Math.min(episodesPerWeek, remaining)
+    const s = (week - 1) * episodesPerWeek + 1
+    const e = s + eps - 1
+    const pct = Math.min(100, Math.round((e / totalEpisodes) * 100))
+    weeklyBlocks.push({
+      week,
+      episodes: eps,
+      startEpisode: s,
+      endEpisode: e,
+      hoursWatched: Math.round(((eps * episodeRuntime) / 60) * 10) / 10,
+      cumulativePercent: pct,
+    })
+    remaining -= eps
+    if (remaining <= 0) break
+  }
+
+  const completionLabel = canFinish
+    ? end.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : `${effectiveEpisodes} of ${totalEpisodes} episodes by vacation end`
+
+  return {
+    totalEpisodes: effectiveEpisodes,
+    totalWeeks: weeks,
+    totalHours,
+    episodesPerWeek,
+    completionDate: completionLabel,
+    weeklyBlocks,
+    milestones: generateMilestones(totalEpisodes, weeklyBlocks),
+    pace: 'binge',
+    mediaType,
+  }
+}

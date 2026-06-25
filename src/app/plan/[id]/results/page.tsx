@@ -16,6 +16,8 @@ import ExportButton from '@/components/results/ExportButton'
 import ShareButton from '@/components/results/ShareButton'
 import { useAchievements } from '@/hooks/useAchievements'
 import AchievementToast from '@/components/achievements/AchievementToast'
+import { generateFinishBeforePlan, generateVacationPlan } from '@/lib/scheduler'
+import { WatchGoal } from '@/types/media'
 
 export default function ResultsPage({
   params,
@@ -37,16 +39,54 @@ export default function ResultsPage({
     }
   }, [rawConfig])
 
+  const rawGoal = searchParams.get('goal')
+  const goal: WatchGoal = useMemo(() => {
+    if (!rawGoal) return { mode: 'standard' }
+    try {
+      return JSON.parse(decodeURIComponent(rawGoal))
+    } catch {
+      return { mode: 'standard' }
+    }
+  }, [rawGoal])
+
   const { media, loading: mediaLoading } = useMediaDetails(Number(id), type)
   const totalEpisodes = media?.episodeCount ?? 1
   const runtime = media?.runtime ?? config?.episodeRuntime ?? 24
 
-  const { plan, loading: planLoading } = useWatchPlan(
-    config,
+  const standardPlan = useWatchPlan(
+    goal.mode === 'standard' ? config : null,
     totalEpisodes,
     type,
     runtime
   )
+
+  const goalPlan = useMemo(() => {
+    if (!config || !media) return null
+    if (goal.mode === 'finish-before') {
+      return generateFinishBeforePlan(
+        goal.targetDate,
+        totalEpisodes,
+        config.episodeRuntime,
+        type,
+        runtime
+      )
+    }
+    if (goal.mode === 'vacation') {
+      return generateVacationPlan(
+        goal.startDate,
+        goal.endDate,
+        goal.hoursPerDay,
+        totalEpisodes,
+        config.episodeRuntime,
+        type,
+        runtime
+      )
+    }
+    return null
+  }, [goal, config, media, totalEpisodes, type, runtime])
+
+  const plan = goalPlan ?? standardPlan.plan
+  const planLoading = goal.mode === 'standard' ? standardPlan.loading : false
 
   const { unlock, newUnlock, clearNewUnlock } = useAchievements()
 
@@ -126,6 +166,13 @@ export default function ResultsPage({
               <p className="font-body text-parchment/40 italic">
                 {media.releaseYear} · {media.genres.slice(0, 3).join(', ')}
               </p>
+              {goal.mode !== 'standard' && (
+                <p className="text-rose/70 font-mono text-xs tracking-widest">
+                  {goal.mode === 'finish-before'
+                    ? `◈ FINISH BEFORE · ${new Date(goal.targetDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
+                    : `◉ VACATION MODE · ${goal.hoursPerDay}h/day`}
+                </p>
+              )}
             </div>
             {media.posterPath && (
               <div className="border-gold/10 hidden aspect-[2/3] w-48 flex-shrink-0 overflow-hidden rounded-sm border md:block">
