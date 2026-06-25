@@ -18,6 +18,7 @@ import GoalModeSelector from '@/components/plan/GoalModeSelector'
 import { WatchGoal } from '@/types/media'
 import { checkFeasibility, PlanFeasibility } from '@/lib/scheduler'
 import FeasibilityIndicator from '@/components/plan/FeasibilityIndicator'
+import SmartSuggestions from '@/components/plan/SmartSuggestions'
 
 const paceMultiplier: Record<PaceMode, number> = {
   casual: 0.6,
@@ -178,6 +179,56 @@ export default function PlanPage({
                   {media.runtime} min · watch in one session
                 </p>
               )}
+            </div>
+
+            {/* Right — pace + generate */}
+            <div className="flex flex-col gap-4">
+              <h2 className="font-display text-parchment text-2xl">
+                What's your pace?
+              </h2>
+              <PaceSelector value={pace} onChange={setPace} />
+
+              {/* Live preview */}
+              <div className="border-gold/10 bg-ink mt-2 rounded-sm border p-4">
+                <p className="text-parchment/30 mb-3 font-mono text-xs tracking-widest">
+                  ESTIMATED PLAN
+                </p>
+                {media.mediaType === 'tv' ? (
+                  <>
+                    <p className="font-body text-parchment text-lg">
+                      {adjustedEpsPerWeek} episodes / week
+                    </p>
+                    <p className="text-gold/60 mt-1 font-mono text-xs">
+                      {adjustedEpsPerWeek > 0
+                        ? `Done in ~${Math.ceil((media.episodeCount || 0) / adjustedEpsPerWeek)} weeks`
+                        : 'Select at least one day'}
+                    </p>
+                  </>
+                ) : (
+                  <p className="font-body text-parchment text-lg">
+                    {media.runtime} min · watch in one session
+                  </p>
+                )}
+              </div>
+
+              {/* Smart suggestions */}
+              {media.mediaType === 'tv' && (
+                <SmartSuggestions
+                  schedule={schedule}
+                  pace={pace}
+                  episodeRuntime={runtime}
+                  totalEpisodes={media.episodeCount ?? 0}
+                  mediaType={media.mediaType}
+                />
+              )}
+
+              <Button
+                onClick={handleGenerate}
+                className="mt-2 w-full"
+                disabled={adjustedEpsPerWeek === 0 && media.mediaType === 'tv'}
+              >
+                Generate Watch Plan →
+              </Button>
             </div>
 
             <Button
