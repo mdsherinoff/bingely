@@ -47,3 +47,32 @@ export interface AvailabilityConfig {
   pace: PaceMode
   episodeRuntime: number
 }
+
+export interface WeeklyBlock {
+  week: number
+  episodes: number
+  startEpisode: number
+  endEpisode: number
+  hoursWatched: number
+  cumulativePercent: number
+}
+
+export interface Milestone {
+  label: string
+  episode: number
+  week: number
+  percent: number
+}
+
+export interface WatchPlan {
+  totalEpisodes: number
+  totalWeeks: number
+  totalHours: number
+  episodesPerWeek: number
+  completionDate: string
+  weeklyBlocks: WeeklyBlock[]
+  milestones: Milestone[]
+  pace: PaceMode
+  mediaType: MediaType
+  runtime?: number
+}
