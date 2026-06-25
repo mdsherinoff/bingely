@@ -5,7 +5,9 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useMediaDetails } from '@/hooks/useMediaDetails'
 import { useWatchPlan } from '@/hooks/useWatchPlan'
 import { AvailabilityConfig, MediaType } from '@/types/media'
-import PlanSummary from '@/components/results/PlanSummary'
+import CompletionCard from '@/components/results/CompletionCard'
+import RuntimeCard from '@/components/results/RuntimeCard'
+import ProgressChart from '@/components/results/ProgressChart'
 import MilestoneCard from '@/components/results/MilestoneCard'
 import WeekRow from '@/components/results/WeekRow'
 import { Button } from '@/components/ui'
@@ -76,11 +78,49 @@ export default function ResultsPage({
           ← BACK TO PLANNER
         </Link>
 
-        {/* Summary stats */}
-        <PlanSummary plan={plan} title={media.title} />
+        {/* Header */}
+        <div className="flex flex-col gap-4">
+          <p className="text-gold/60 font-mono text-xs tracking-widest">
+            WATCH PLAN
+          </p>
+          <div className="flex items-center justify-between">
+            <div className="my-auto flex flex-col gap-2">
+              <h1 className="font-display text-parchment text-6xl leading-none">
+                {media.title}
+              </h1>
+              <p className="font-body text-parchment/40 italic">
+                {media.releaseYear} · {media.genres.slice(0, 3).join(', ')}
+              </p>
+            </div>
+            {media.posterPath && (
+              <div className="border-gold/10 hidden aspect-[2/3] w-48 flex-shrink-0 overflow-hidden rounded-sm border md:block">
+                <img
+                  src={media.posterPath}
+                  alt={media.title}
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            )}
+          </div>
+        </div>
 
+        {/* Top row — completion + runtime */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <CompletionCard plan={plan} title={media.title} />
+          <div className="flex flex-col gap-4">
+            <RuntimeCard plan={plan} />
+          </div>
+        </div>
+
+        {/* Progress chart */}
+        {plan.mediaType === 'tv' && plan.weeklyBlocks.length > 1 && (
+          <div className="border-gold/10 rounded-sm border p-6">
+            <ProgressChart blocks={plan.weeklyBlocks} />
+          </div>
+        )}
+
+        {/* Bottom row — weekly breakdown + milestones */}
         <div className="grid gap-10 md:grid-cols-3">
-          {/* Left — weekly breakdown */}
           <div className="flex flex-col gap-4 md:col-span-2">
             <h2 className="font-display text-parchment text-2xl">
               Week by week
@@ -96,7 +136,6 @@ export default function ResultsPage({
             </div>
           </div>
 
-          {/* Right — milestones */}
           <div className="flex flex-col gap-4">
             <h2 className="font-display text-parchment text-2xl">Milestones</h2>
             <div className="flex flex-col">
@@ -108,17 +147,6 @@ export default function ResultsPage({
                 />
               ))}
             </div>
-
-            {/* Poster */}
-            {media.posterPath && (
-              <div className="border-gold/10 mt-4 aspect-[2/3] w-full overflow-hidden rounded-sm border">
-                <img
-                  src={media.posterPath}
-                  alt={media.title}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            )}
           </div>
         </div>
       </div>
