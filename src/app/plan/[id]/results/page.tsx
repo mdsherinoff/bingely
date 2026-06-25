@@ -12,6 +12,8 @@ import MilestoneCard from '@/components/results/MilestoneCard'
 import WeekRow from '@/components/results/WeekRow'
 import { Button } from '@/components/ui'
 import Link from 'next/link'
+import ExportButton from '@/components/results/ExportButton'
+import ShareButton from '@/components/results/ShareButton'
 
 export default function ResultsPage({
   params,
@@ -147,6 +149,31 @@ export default function ResultsPage({
                 />
               ))}
             </div>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          <h2 className="font-display text-parchment text-2xl">Milestones</h2>
+          <div className="flex flex-col">
+            {plan.milestones.map((m, i) => (
+              <MilestoneCard
+                key={m.percent}
+                milestone={m}
+                isLast={i === plan.milestones.length - 1}
+              />
+            ))}
+          </div>
+
+          {/* Export actions */}
+          <div className="border-gold/10 mt-4 flex flex-col gap-3 border-t pt-6">
+            <p className="text-parchment/30 font-mono text-xs tracking-widest">
+              EXPORT
+            </p>
+            <ExportButton
+              plan={plan}
+              title={media.title}
+              releaseYear={media.releaseYear}
+            />
+            <ShareButton />
           </div>
         </div>
       </div>
