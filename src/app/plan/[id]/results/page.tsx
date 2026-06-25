@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useMemo } from 'react'
+import { use, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useMediaDetails } from '@/hooks/useMediaDetails'
 import { useWatchPlan } from '@/hooks/useWatchPlan'
@@ -14,6 +14,8 @@ import { Button } from '@/components/ui'
 import Link from 'next/link'
 import ExportButton from '@/components/results/ExportButton'
 import ShareButton from '@/components/results/ShareButton'
+import { useAchievements } from '@/hooks/useAchievements'
+import AchievementToast from '@/components/achievements/AchievementToast'
 
 export default function ResultsPage({
   params,
@@ -46,7 +48,38 @@ export default function ResultsPage({
     runtime
   )
 
+  const { unlock, newUnlock, clearNewUnlock } = useAchievements()
+
   const loading = mediaLoading || planLoading
+
+  useEffect(() => {
+    if (!plan || !media) return
+
+    unlock('first-plan')
+
+    if (media.mediaType === 'tv') {
+      if ((media.episodeCount ?? 0) >= 100) unlock('marathon-runner')
+      if ((media.episodeCount ?? 0) >= 500) unlock('anime-survivor')
+    }
+
+    if (plan.pace === 'hardcore') unlock('hardcore')
+    if (plan.totalWeeks <= 2) unlock('speed-runner')
+
+    if (rawConfig) {
+      try {
+        const parsedConfig = JSON.parse(
+          decodeURIComponent(rawConfig)
+        ) as AvailabilityConfig
+        const activeDays = Object.entries(parsedConfig.schedule)
+          .filter(([, d]) => d.enabled)
+          .map(([day]) => day)
+        const onlyWeekends = activeDays.every((d) =>
+          ['Saturday', 'Sunday'].includes(d)
+        )
+        if (onlyWeekends) unlock('weekend-warrior')
+      } catch {}
+    }
+  }, [plan, media])
 
   if (loading) {
     return (
@@ -121,7 +154,7 @@ export default function ResultsPage({
           </div>
         )}
 
-        {/* Bottom row — weekly breakdown + milestones */}
+        {/* Bottom row — weekly breakdown + milestones + export */}
         <div className="grid gap-10 md:grid-cols-3">
           <div className="flex flex-col gap-4 md:col-span-2">
             <h2 className="font-display text-parchment text-2xl">
@@ -149,34 +182,24 @@ export default function ResultsPage({
                 />
               ))}
             </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-4">
-          <h2 className="font-display text-parchment text-2xl">Milestones</h2>
-          <div className="flex flex-col">
-            {plan.milestones.map((m, i) => (
-              <MilestoneCard
-                key={m.percent}
-                milestone={m}
-                isLast={i === plan.milestones.length - 1}
-              />
-            ))}
-          </div>
 
-          {/* Export actions */}
-          <div className="border-gold/10 mt-4 flex flex-col gap-3 border-t pt-6">
-            <p className="text-parchment/30 font-mono text-xs tracking-widest">
-              EXPORT
-            </p>
-            <ExportButton
-              plan={plan}
-              title={media.title}
-              releaseYear={media.releaseYear}
-            />
-            <ShareButton />
+            {/* Export actions */}
+            <div className="border-gold/10 mt-4 flex flex-col gap-3 border-t pt-6">
+              <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                EXPORT
+              </p>
+              <ExportButton
+                plan={plan}
+                title={media.title}
+                releaseYear={media.releaseYear}
+              />
+              <ShareButton />
+            </div>
           </div>
         </div>
       </div>
+
+      <AchievementToast achievement={newUnlock} onDismiss={clearNewUnlock} />
     </main>
   )
 }

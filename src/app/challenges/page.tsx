@@ -1,6 +1,7 @@
 import { challenges } from '@/lib/challenges'
 import ChallengeCard from '@/components/challenges/ChallengeCard'
 import Link from 'next/link'
+import ChallengeUnlock from '@/components/challenges/ChallengeUnlock'
 
 const categories = [
   { key: 'director', label: 'Directors' },
@@ -50,6 +51,7 @@ export default function ChallengesPage() {
           )
         })}
       </div>
+      <ChallengeUnlock />
     </main>
   )
 }
