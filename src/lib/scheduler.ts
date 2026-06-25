@@ -233,7 +233,7 @@ export function generateVacationPlan(
 
   const completionLabel = canFinish
     ? end.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-    : `${effectiveEpisodes} of ${totalEpisodes} episodes by vacation end`
+    : `${effectiveEpisodes} of ${totalEpisodes}\nby vacation end`
 
   return {
     totalEpisodes: effectiveEpisodes,
