@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 const features = [
   {
     icon: '◎',
@@ -29,6 +31,14 @@ export default function Features() {
             </p>
           </div>
         ))}
+      </div>
+      <div className="mx-auto mt-12 max-w-5xl text-center">
+        <Link
+          href="/challenges"
+          className="text-gold/50 hover:text-gold font-mono text-xs tracking-widest transition-colors"
+        >
+          EXPLORE FILM CHALLENGES →
+        </Link>
       </div>
     </section>
   )

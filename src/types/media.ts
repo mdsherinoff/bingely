@@ -76,3 +76,22 @@ export interface WatchPlan {
   mediaType: MediaType
   runtime?: number
 }
+
+export interface FilmChallenge {
+  id: string
+  title: string
+  description: string
+  category: 'director' | 'franchise' | 'genre' | 'studio'
+  icon: string
+  totalRuntime: number
+  itemCount: number
+  items: ChallengeItem[]
+}
+
+export interface ChallengeItem {
+  title: string
+  year: string
+  runtime: number
+  tmdbId: number
+  mediaType: MediaType
+}
