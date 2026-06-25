@@ -4,6 +4,7 @@ import Features from '@/components/landing/Features'
 import ExamplePlan from '@/components/landing/ExamplePlan'
 import Footer from '@/components/landing/Footer'
 import MysteryReel from '@/components/easter-eggs/MysteryReel'
+import KonamiEgg from '@/components/easter-eggs/KonamiEgg'
 
 export default function LandingPage() {
   return (
@@ -14,6 +15,7 @@ export default function LandingPage() {
       <ExamplePlan />
       <Footer />
       <MysteryReel />
+      <KonamiEgg />
     </main>
   )
 }

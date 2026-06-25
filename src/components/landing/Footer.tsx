@@ -15,6 +15,13 @@ export default function Footer() {
             CHALLENGES
           </Link>
           <Link
+            href="/room237"
+            className="text-espresso hover:text-gold/10 transition-colors duration-700 select-none"
+            title=""
+          >
+            LUMOS
+          </Link>
+          <Link
             href="/achievements"
             className="text-parchment/20 hover:text-parchment/40 font-mono text-xs tracking-widest transition-colors"
           >

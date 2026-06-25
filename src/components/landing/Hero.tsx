@@ -5,13 +5,28 @@ import { useRouter } from 'next/navigation'
 import Input from '@/components/ui/Input'
 import Button from '@/components/ui/Button'
 
+const hiddenQuotes = [
+  '"Here\'s looking at you, kid." — Casablanca',
+  '"I\'ll be back." — The Terminator',
+  '"May the Force be with you." — Star Wars',
+  '"All those moments will be lost in time, like tears in rain." — Blade Runner',
+  '"You talkin\' to me?" — Taxi Driver',
+]
+
 export default function Hero() {
   const [query, setQuery] = useState('')
+  const [quote, setQuote] = useState<string | null>(null)
   const router = useRouter()
 
   const handleSearch = () => {
     if (!query.trim()) return
     router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+  }
+
+  const revealQuote = () => {
+    const random = hiddenQuotes[Math.floor(Math.random() * hiddenQuotes.length)]
+    setQuote(random)
+    setTimeout(() => setQuote(null), 3000)
   }
 
   return (
@@ -25,10 +40,20 @@ export default function Hero() {
           Your personal cinema planner
         </p>
 
-        {/* Title */}
-        <h1 className="font-display text-parchment text-[6rem] leading-none tracking-tight">
+        {/* Title — clickable easter egg */}
+        <h1
+          className="font-display text-parchment cursor-default text-[6rem] leading-none tracking-tight select-none"
+          onClick={revealQuote}
+        >
           Bingely
         </h1>
+
+        {/* Hidden quote reveal */}
+        {quote && (
+          <p className="font-body text-gold/60 animate-in max-w-sm text-sm italic">
+            {quote}
+          </p>
+        )}
 
         {/* Tagline */}
         <p className="font-body text-parchment/50 max-w-md text-xl italic">
