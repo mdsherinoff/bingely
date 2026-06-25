@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { GoalMode, WatchGoal } from '@/types/media'
+import { GoalMode, WatchGoal, NewSeasonGoal } from '@/types/media'
+import NewSeasonForm from './NewSeasonForm'
 
 interface GoalModeSelectorProps {
   value: WatchGoal
   onChange: (goal: WatchGoal) => void
+  totalEpisodes?: number
 }
 
 const modes: { mode: GoalMode; label: string; desc: string; icon: string }[] = [
@@ -27,30 +29,55 @@ const modes: { mode: GoalMode; label: string; desc: string; icon: string }[] = [
     desc: 'Concentrated viewing over a trip',
     icon: '◉',
   },
+  {
+    mode: 'new-season',
+    label: 'New Season Prep',
+    desc: 'Catch up before the next season drops',
+    icon: '◆',
+  },
 ]
 
 export default function GoalModeSelector({
   value,
   onChange,
+  totalEpisodes,
 }: GoalModeSelectorProps) {
+  const today = new Date().toISOString().split('T')[0]
+
   const [localDate, setLocalDate] = useState('')
   const [vacStart, setVacStart] = useState('')
   const [vacEnd, setVacEnd] = useState('')
   const [hoursPerDay, setHoursPerDay] = useState(4)
-
-  const today = new Date().toISOString().split('T')[0]
+  const [newSeasonData, setNewSeasonData] = useState<{
+    seasonName: string
+    targetDate: string
+    currentEpisode: number
+  }>({
+    seasonName: '',
+    targetDate: today,
+    currentEpisode: 1,
+  })
 
   const handleModeChange = (mode: GoalMode) => {
-    if (mode === 'standard') onChange({ mode: 'standard' })
-    else if (mode === 'finish-before')
+    if (mode === 'standard') {
+      onChange({ mode: 'standard' })
+    } else if (mode === 'finish-before') {
       onChange({ mode: 'finish-before', targetDate: localDate || today })
-    else
+    } else if (mode === 'vacation') {
       onChange({
         mode: 'vacation',
         startDate: vacStart || today,
         endDate: vacEnd || today,
         hoursPerDay,
       })
+    } else if (mode === 'new-season') {
+      onChange({
+        mode: 'new-season',
+        seasonName: newSeasonData.seasonName,
+        targetDate: newSeasonData.targetDate,
+        currentEpisode: newSeasonData.currentEpisode,
+      })
+    }
   }
 
   const updateFinishBefore = (date: string) => {
@@ -166,6 +193,22 @@ export default function GoalModeSelector({
             </div>
           </div>
         </div>
+      )}
+
+      {/* New Season inputs */}
+      {value.mode === 'new-season' && (
+        <NewSeasonForm
+          value={value as NewSeasonGoal}
+          totalEpisodes={totalEpisodes ?? 100}
+          onChange={(updated) => {
+            setNewSeasonData({
+              seasonName: updated.seasonName,
+              targetDate: updated.targetDate,
+              currentEpisode: updated.currentEpisode,
+            })
+            onChange(updated)
+          }}
+        />
       )}
     </div>
   )

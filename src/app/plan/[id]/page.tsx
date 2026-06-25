@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState, use, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useMediaDetails } from '@/hooks/useMediaDetails'
 import { defaultSchedule, weeklyEpisodes } from '@/lib/scheduleUtils'
@@ -16,6 +16,8 @@ import PaceSelector from '@/components/plan/PaceSelector'
 import { Button } from '@/components/ui'
 import GoalModeSelector from '@/components/plan/GoalModeSelector'
 import { WatchGoal } from '@/types/media'
+import { checkFeasibility, PlanFeasibility } from '@/lib/scheduler'
+import FeasibilityIndicator from '@/components/plan/FeasibilityIndicator'
 
 const paceMultiplier: Record<PaceMode, number> = {
   casual: 0.6,
@@ -62,6 +64,22 @@ export default function PlanPage({
       `/plan/${id}/results?type=${type}&config=${encoded}&goal=${goalEncoded}`
     )
   }
+
+  const feasibility: PlanFeasibility | null = useMemo(() => {
+    if ((goal.mode !== 'finish-before' && goal.mode !== 'new-season') || !media)
+      return null
+
+    const targetDate =
+      goal.mode === 'finish-before' ? goal.targetDate : goal.targetDate
+    const remainingEpisodes =
+      goal.mode === 'new-season'
+        ? (media.episodeCount ?? 0) - goal.currentEpisode + 1
+        : (media.episodeCount ?? 0)
+
+    if (!targetDate || remainingEpisodes <= 0) return null
+
+    return checkFeasibility(targetDate, remainingEpisodes, runtime, schedule)
+  }, [goal, media, runtime, schedule])
 
   if (loading) {
     return (
@@ -114,7 +132,12 @@ export default function PlanPage({
           <h2 className="font-display text-parchment text-2xl">
             What's your goal?
           </h2>
-          <GoalModeSelector value={goal} onChange={setGoal} />
+          <GoalModeSelector
+            value={goal}
+            onChange={setGoal}
+            totalEpisodes={media?.episodeCount}
+          />
+          {feasibility && <FeasibilityIndicator feasibility={feasibility} />}
         </div>
 
         {/* Form */}

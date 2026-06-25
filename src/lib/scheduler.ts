@@ -3,6 +3,7 @@ import {
   WatchPlan,
   WeeklyBlock,
   Milestone,
+  WeekSchedule,
 } from '@/types/media'
 import { weeklyEpisodes, weeklyMinutes } from './scheduleUtils'
 
@@ -246,4 +247,66 @@ export function generateVacationPlan(
     pace: 'binge',
     mediaType,
   }
+}
+
+export interface PlanFeasibility {
+  feasible: boolean
+  requiredHoursPerDay: number
+  availableHoursPerDay: number
+  recommendation: string
+}
+
+export function checkFeasibility(
+  targetDate: string,
+  totalEpisodes: number,
+  episodeRuntime: number,
+  schedule: WeekSchedule
+): PlanFeasibility {
+  const now = new Date()
+  const target = new Date(targetDate)
+  const daysUntil = Math.max(
+    1,
+    Math.floor((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+  )
+
+  const totalMinutesNeeded = totalEpisodes * episodeRuntime
+  const requiredMinutesPerDay = totalMinutesNeeded / daysUntil
+  const requiredHoursPerDay = Math.round((requiredMinutesPerDay / 60) * 10) / 10
+
+  const avgDailyMinutes = weeklyMinutes(schedule) / 7
+  const availableHoursPerDay = Math.round((avgDailyMinutes / 60) * 10) / 10
+
+  const feasible = requiredHoursPerDay <= availableHoursPerDay
+
+  let recommendation: string
+  if (feasible) {
+    recommendation = `You have enough time. You need ${requiredHoursPerDay}h/day and have ${availableHoursPerDay}h/day available.`
+  } else if (requiredHoursPerDay <= availableHoursPerDay * 1.5) {
+    recommendation = `Tight but possible. Add ${Math.ceil(requiredHoursPerDay - availableHoursPerDay)}h/day to your schedule to hit this deadline.`
+  } else {
+    recommendation = `This deadline is very ambitious. You'd need ${requiredHoursPerDay}h/day — consider extending your deadline.`
+  }
+
+  return {
+    feasible,
+    requiredHoursPerDay,
+    availableHoursPerDay,
+    recommendation,
+  }
+}
+
+export function generateNewSeasonPlan(
+  targetDate: string,
+  currentEpisode: number,
+  totalEpisodes: number,
+  episodeRuntime: number,
+  mediaType: 'movie' | 'tv'
+): WatchPlan {
+  const remainingEpisodes = Math.max(0, totalEpisodes - currentEpisode + 1)
+  return generateFinishBeforePlan(
+    targetDate,
+    remainingEpisodes,
+    episodeRuntime,
+    mediaType
+  )
 }

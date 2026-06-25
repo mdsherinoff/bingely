@@ -96,7 +96,7 @@ export interface ChallengeItem {
   mediaType: MediaType
 }
 
-export type GoalMode = 'standard' | 'finish-before' | 'vacation'
+export type GoalMode = 'standard' | 'finish-before' | 'vacation' | 'new-season'
 
 export interface FinishBeforeGoal {
   mode: 'finish-before'
@@ -110,4 +110,15 @@ export interface VacationGoal {
   hoursPerDay: number
 }
 
-export type WatchGoal = FinishBeforeGoal | VacationGoal | { mode: 'standard' }
+export interface NewSeasonGoal {
+  mode: 'new-season'
+  seasonName: string
+  targetDate: string
+  currentEpisode: number
+}
+
+export type WatchGoal =
+  | { mode: 'standard' }
+  | FinishBeforeGoal
+  | VacationGoal
+  | NewSeasonGoal

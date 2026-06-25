@@ -4,7 +4,6 @@ import { use, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useMediaDetails } from '@/hooks/useMediaDetails'
 import { useWatchPlan } from '@/hooks/useWatchPlan'
-import { AvailabilityConfig, MediaType } from '@/types/media'
 import CompletionCard from '@/components/results/CompletionCard'
 import RuntimeCard from '@/components/results/RuntimeCard'
 import ProgressChart from '@/components/results/ProgressChart'
@@ -17,7 +16,13 @@ import ShareButton from '@/components/results/ShareButton'
 import { useAchievements } from '@/hooks/useAchievements'
 import AchievementToast from '@/components/achievements/AchievementToast'
 import { generateFinishBeforePlan, generateVacationPlan } from '@/lib/scheduler'
-import { WatchGoal } from '@/types/media'
+import { generateNewSeasonPlan } from '@/lib/scheduler'
+import {
+  AvailabilityConfig,
+  MediaType,
+  WatchGoal,
+  NewSeasonGoal,
+} from '@/types/media'
 
 export default function ResultsPage({
   params,
@@ -62,6 +67,7 @@ export default function ResultsPage({
 
   const goalPlan = useMemo(() => {
     if (!config || !media) return null
+
     if (goal.mode === 'finish-before') {
       return generateFinishBeforePlan(
         goal.targetDate,
@@ -71,6 +77,7 @@ export default function ResultsPage({
         runtime
       )
     }
+
     if (goal.mode === 'vacation') {
       return generateVacationPlan(
         goal.startDate,
@@ -82,6 +89,18 @@ export default function ResultsPage({
         runtime
       )
     }
+
+    if (goal.mode === 'new-season') {
+      const newSeasonGoal = goal as NewSeasonGoal
+      return generateNewSeasonPlan(
+        newSeasonGoal.targetDate,
+        newSeasonGoal.currentEpisode,
+        totalEpisodes,
+        config.episodeRuntime,
+        type
+      )
+    }
+
     return null
   }, [goal, config, media, totalEpisodes, type, runtime])
 
@@ -166,11 +185,25 @@ export default function ResultsPage({
               <p className="font-body text-parchment/40 italic">
                 {media.releaseYear} · {media.genres.slice(0, 3).join(', ')}
               </p>
-              {goal.mode !== 'standard' && (
+              {goal.mode === 'finish-before' && (
                 <p className="text-rose/70 font-mono text-xs tracking-widest">
-                  {goal.mode === 'finish-before'
-                    ? `◈ FINISH BEFORE · ${new Date(goal.targetDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}`
-                    : `◉ VACATION MODE · ${goal.hoursPerDay}h/day`}
+                  ◈ FINISH BEFORE ·{' '}
+                  {new Date(goal.targetDate).toLocaleDateString('en-US', {
+                    month: 'long',
+                    day: 'numeric',
+                    year: 'numeric',
+                  })}
+                </p>
+              )}
+              {goal.mode === 'vacation' && (
+                <p className="text-rose/70 font-mono text-xs tracking-widest">
+                  ◉ VACATION MODE · {goal.hoursPerDay}h/day
+                </p>
+              )}
+              {goal.mode === 'new-season' && (
+                <p className="text-rose/70 font-mono text-xs tracking-widest">
+                  ◆ NEW SEASON PREP ·{' '}
+                  {(goal as NewSeasonGoal).seasonName || 'Catch up plan'}
                 </p>
               )}
             </div>
