@@ -42,7 +42,7 @@ export default function Hero() {
 
         {/* Title — clickable easter egg */}
         <h1
-          className="font-display text-parchment cursor-default text-[6rem] leading-none tracking-tight select-none"
+          className="font-display text-parchment cursor-default text-[4rem] leading-none tracking-tight select-none sm:text-[5rem] md:text-[6rem]"
           onClick={revealQuote}
         >
           Bingely
@@ -61,7 +61,7 @@ export default function Hero() {
         </p>
 
         {/* Search */}
-        <div className="mt-4 flex w-full max-w-xl gap-3">
+        <div className="mt-4 flex w-full max-w-xl flex-col gap-3 sm:flex-row">
           <Input
             placeholder="Search a film, series, or anime..."
             value={query}
@@ -69,7 +69,9 @@ export default function Hero() {
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             className="flex-1"
           />
-          <Button onClick={handleSearch}>Plan It</Button>
+          <Button onClick={handleSearch} className="sm:flex-shrink-0">
+            Plan It
+          </Button>
         </div>
 
         {/* Suggestions */}

@@ -19,9 +19,9 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
         )
 
   return (
-    <div className="flex items-start gap-6">
-      {/* Poster */}
-      <div className="bg-ink border-gold/10 aspect-[2/3] w-24 flex-shrink-0 overflow-hidden rounded-sm border">
+    <div className="flex items-start gap-4">
+      {/* Poster — smaller on mobile */}
+      <div className="bg-ink border-gold/10 aspect-[2/3] w-16 flex-shrink-0 overflow-hidden rounded-sm border sm:w-24">
         {media.posterPath ? (
           <img
             src={media.posterPath}
@@ -36,9 +36,9 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
       </div>
 
       {/* Info */}
-      <div className="flex flex-col gap-3">
+      <div className="flex min-w-0 flex-col gap-2">
         <div>
-          <h1 className="font-display text-parchment text-4xl leading-tight">
+          <h1 className="font-display text-parchment text-3xl leading-tight sm:text-4xl">
             {media.title}
           </h1>
           <p className="text-parchment/30 mt-1 font-mono text-xs">
@@ -49,7 +49,7 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
           <Badge variant={media.mediaType === 'tv' ? 'rose' : 'gold'}>
             {media.mediaType === 'tv' ? 'Series' : 'Film'}
           </Badge>
-          {media.genres.slice(0, 3).map((g) => (
+          {media.genres.slice(0, 2).map((g) => (
             <Badge key={g} variant="muted">
               {g}
             </Badge>

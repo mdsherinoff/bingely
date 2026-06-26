@@ -177,12 +177,12 @@ export default function ResultsPage({
           <p className="text-gold/60 font-mono text-xs tracking-widest">
             WATCH PLAN
           </p>
-          <div className="flex items-center justify-between">
-            <div className="my-auto flex flex-col gap-2">
-              <h1 className="font-display text-parchment text-6xl leading-none">
+          <div className="flex items-start justify-between gap-4">
+            <div className="my-auto flex min-w-0 flex-col gap-2">
+              <h1 className="font-display text-parchment text-4xl leading-none sm:text-5xl md:text-6xl">
                 {media.title}
               </h1>
-              <p className="font-body text-parchment/40 italic">
+              <p className="font-body text-parchment/40 text-sm italic sm:text-base">
                 {media.releaseYear} · {media.genres.slice(0, 3).join(', ')}
               </p>
               {goal.mode === 'finish-before' && (
@@ -208,7 +208,7 @@ export default function ResultsPage({
               )}
             </div>
             {media.posterPath && (
-              <div className="border-gold/10 hidden aspect-[2/3] w-48 flex-shrink-0 overflow-hidden rounded-sm border md:block">
+              <div className="border-gold/10 aspect-[2/3] w-20 flex-shrink-0 overflow-hidden rounded-sm border sm:w-32 md:w-48">
                 <img
                   src={media.posterPath}
                   alt={media.title}

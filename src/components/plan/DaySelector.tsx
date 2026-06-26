@@ -41,7 +41,7 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
             <div className="mb-3 flex items-center justify-between">
               <button
                 onClick={() => toggleDay(day)}
-                className="group flex items-center gap-3"
+                className="group flex min-h-[44px] w-full items-center gap-3"
               >
                 <div
                   className={`flex h-4 w-4 items-center justify-center rounded-sm border transition-colors ${d.enabled ? 'bg-gold border-gold' : 'border-parchment/20'} `}
