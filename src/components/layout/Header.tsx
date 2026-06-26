@@ -57,7 +57,9 @@ export default function Header() {
         {/* Mobile menu button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="text-parchment/40 hover:text-parchment ml-auto p-2 font-mono text-xs transition-colors md:hidden"
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
+          className="text-parchment/40 hover:text-parchment ml-auto flex min-h-[44px] min-w-[44px] items-center justify-center p-2 font-mono text-xs transition-colors md:hidden"
         >
           {menuOpen ? '✕' : '☰'}
         </button>

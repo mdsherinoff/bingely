@@ -1,6 +1,6 @@
 export default function ProfilePage() {
   return (
-    <main className="bg-espresso min-h-screen px-6 py-12">
+    <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
       {/* User header — avatar, name, stats */}
       <section className="mx-auto mb-12 max-w-4xl" />
 

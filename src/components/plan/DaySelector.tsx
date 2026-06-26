@@ -41,6 +41,8 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
             <div className="mb-3 flex items-center justify-between">
               <button
                 onClick={() => toggleDay(day)}
+                aria-pressed={d.enabled}
+                aria-label={`${day} — ${d.enabled ? 'enabled' : 'disabled'}`}
                 className="group flex min-h-[44px] w-full items-center gap-3"
               >
                 <div

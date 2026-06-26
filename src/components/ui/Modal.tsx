@@ -30,6 +30,7 @@ export default function Modal({ open, onClose, children }: ModalProps) {
       >
         <button
           onClick={onClose}
+          aria-label="Close modal"
           className="text-parchment/40 hover:text-parchment absolute top-4 right-4 font-mono text-xs tracking-widest"
         >
           ESC

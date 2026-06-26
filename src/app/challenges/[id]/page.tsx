@@ -27,7 +27,7 @@ export default async function ChallengePage({
   const totalHours = Math.round((challenge.totalRuntime / 60) * 10) / 10
 
   return (
-    <main className="bg-espresso min-h-screen px-6 py-12">
+    <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
       <div className="mx-auto flex max-w-4xl flex-col gap-10">
         {/* Back */}
         <Link

@@ -24,6 +24,7 @@ export default function MysteryReel() {
     <>
       <button
         onClick={handleSpin}
+        aria-label="Mystery Reel — discover a random film challenge"
         title="Mystery Reel"
         className={`group border-gold/10 bg-ink hover:border-gold/40 fixed bottom-6 left-6 z-40 flex h-10 w-10 items-center justify-center rounded-full border transition-all duration-300 ${spinning ? 'border-gold/60 animate-spin' : ''} `}
       >

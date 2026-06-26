@@ -11,7 +11,7 @@ export default function AchievementsPage() {
 
   return (
     <PageTransition>
-      <main className="bg-espresso min-h-screen px-6 py-12">
+      <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
         <div className="mx-auto flex max-w-4xl flex-col gap-10">
           <div className="flex flex-col gap-3">
             <Link
@@ -33,7 +33,14 @@ export default function AchievementsPage() {
 
           {/* Progress bar */}
           <div className="flex flex-col gap-2">
-            <div className="bg-ink border-gold/10 h-1 overflow-hidden rounded-full border">
+            <div
+              role="progressbar"
+              aria-valuenow={unlocked.size}
+              aria-valuemin={0}
+              aria-valuemax={achievements.length}
+              aria-label={`${unlocked.size} of ${achievements.length} achievements unlocked`}
+              className="bg-ink border-gold/10 h-1 overflow-hidden rounded-full border"
+            >
               <div
                 className="bg-gold h-full rounded-full transition-all duration-500"
                 style={{

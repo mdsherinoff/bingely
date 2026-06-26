@@ -10,7 +10,7 @@ import PageTransition from '@/components/layout/PageTransition'
 export default function LandingPage() {
   return (
     <PageTransition>
-      <main className="bg-espresso">
+      <main id="main-content" className="bg-espresso">
         <QuoteMarquee />
         <Hero />
         <Features />

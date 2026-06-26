@@ -18,6 +18,10 @@
   --animate-marquee: marquee 40s linear infinite;
 }
 
+:root {
+  --color-gold: #C9922A;
+}
+
 @keyframes marquee {
   0%   { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
@@ -58,4 +62,16 @@
 
 .animate-shimmer {
   animation: shimmer 1.5s infinite;
+}
+
+/* Visible focus rings for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-gold, #C9922A);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* Remove outline for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
 }

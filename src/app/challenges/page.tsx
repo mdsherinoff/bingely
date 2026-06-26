@@ -14,7 +14,7 @@ const categories = [
 export default function ChallengesPage() {
   return (
     <PageTransition>
-      <main className="bg-espresso min-h-screen px-6 py-12">
+      <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
         <div className="mx-auto flex max-w-5xl flex-col gap-12">
           {/* Header */}
           <div className="flex flex-col gap-3">

@@ -41,11 +41,17 @@ const paces: {
 
 export default function PaceSelector({ value, onChange }: PaceSelectorProps) {
   return (
-    <div className="flex flex-col gap-3">
+    <div
+      role="radiogroup"
+      aria-label="Viewing pace"
+      className="flex flex-col gap-3"
+    >
       {paces.map((p) => (
         <button
           key={p.mode}
           onClick={() => onChange(p.mode)}
+          role="radio"
+          aria-checked={value === p.mode}
           className={`flex items-center justify-between rounded-sm border p-4 text-left transition-colors ${
             value === p.mode
               ? 'border-gold/50 bg-ink'

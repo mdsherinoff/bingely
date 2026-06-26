@@ -28,7 +28,8 @@ export default function SearchPage() {
 
   return (
     <PageTransition>
-      <main className="bg-espresso min-h-screen">
+      <main id="main-content" className="bg-espresso min-h-screen">
+        <h1 className="sr-only">Search films, series and anime</h1>
         <header className="bg-espresso/95 border-gold/10 sticky top-0 z-50 border-b px-6 py-4 backdrop-blur">
           <div className="mx-auto flex max-w-6xl items-center gap-6">
             <Link

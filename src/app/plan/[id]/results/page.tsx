@@ -142,7 +142,10 @@ export default function ResultsPage({
 
   if (loading) {
     return (
-      <main className="bg-espresso flex min-h-screen items-center justify-center">
+      <main
+        id="main-content"
+        className="bg-espresso flex min-h-screen items-center justify-center"
+      >
         <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
           GENERATING YOUR PLAN...
         </p>
@@ -152,7 +155,10 @@ export default function ResultsPage({
 
   if (!plan || !media) {
     return (
-      <main className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4">
+      <main
+        id="main-content"
+        className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4"
+      >
         <p className="font-body text-rose">Failed to generate plan</p>
         <Button onClick={() => router.back()} variant="secondary">
           Go back
@@ -162,7 +168,7 @@ export default function ResultsPage({
   }
 
   return (
-    <main className="bg-espresso min-h-screen px-6 py-12">
+    <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
       <div className="mx-auto flex max-w-5xl flex-col gap-12">
         {/* Back link */}
         <Link
@@ -211,7 +217,7 @@ export default function ResultsPage({
               <div className="border-gold/10 aspect-[2/3] w-20 flex-shrink-0 overflow-hidden rounded-sm border sm:w-32 md:w-48">
                 <img
                   src={media.posterPath}
-                  alt={media.title}
+                  alt={`${media.title} poster`}
                   className="h-full w-full object-cover"
                 />
               </div>

@@ -1,6 +1,9 @@
 export default function Room237() {
   return (
-    <main className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-6 px-6">
+    <main
+      id="main-content"
+      className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-6 px-6"
+    >
       <div className="flex max-w-md flex-col gap-4 text-center">
         <p className="text-gold/40 font-mono text-xs tracking-widest">
           ROOM 237

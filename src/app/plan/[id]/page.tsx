@@ -84,7 +84,10 @@ export default function PlanPage({
 
   if (loading) {
     return (
-      <main className="bg-espresso flex min-h-screen items-center justify-center">
+      <main
+        id="main-content"
+        className="bg-espresso flex min-h-screen items-center justify-center"
+      >
         <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
           LOADING...
         </p>
@@ -94,14 +97,17 @@ export default function PlanPage({
 
   if (error || !media) {
     return (
-      <main className="bg-espresso flex min-h-screen items-center justify-center">
+      <main
+        id="main-content"
+        className="bg-espresso flex min-h-screen items-center justify-center"
+      >
         <p className="font-body text-rose">Failed to load media details</p>
       </main>
     )
   }
 
   return (
-    <main className="bg-espresso min-h-screen px-6 py-12">
+    <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
       <div className="mx-auto flex max-w-4xl flex-col gap-12">
         {/* Media summary */}
         <MediaSummary media={media} />

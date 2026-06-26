@@ -1,6 +1,7 @@
 import { Playfair_Display, Crimson_Text, Space_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
+import SkipLink from '@/components/layout/SkipLink'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -30,6 +31,7 @@ export default function RootLayout({
       className={`${playfair.variable} ${crimson.variable} ${spaceMono.variable}`}
     >
       <body className="bg-espresso text-parchment font-body">
+        <SkipLink />
         <Header />
         {children}
       </body>
