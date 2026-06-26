@@ -60,6 +60,10 @@ export default function ListPlanPage({
           episodeRuntime={avgRuntime}
           mediaType={hasTV ? 'tv' : 'movie'}
           resultsPath={`/list/${id}/results`}
+          exactItems={list.items.map((i) => ({
+            title: i.title,
+            runtime: i.runtime,
+          }))}
         />
       </div>
     </main>

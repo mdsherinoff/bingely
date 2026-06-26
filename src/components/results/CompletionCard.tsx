@@ -14,18 +14,23 @@ const paceMessages: Record<string, string> = {
 
 export default function CompletionCard({ plan, title }: CompletionCardProps) {
   if (plan.mediaType === 'movie') {
+    const multiSession = plan.totalWeeks > 1
+
     return (
       <div className="border-gold/20 bg-ink flex flex-col gap-3 rounded-sm border p-6">
         <p className="text-gold/60 font-mono text-xs tracking-widest">
-          TONIGHT'S PLAN
+          {multiSession ? 'FINISH LINE' : "TONIGHT'S PLAN"}
         </p>
         <p className="font-display text-parchment text-3xl">{title}</p>
         <p className="font-body text-parchment/50 italic">
-          {plan.totalHours}h · one sitting
+          {plan.totalHours}h ·{' '}
+          {multiSession ? `across ${plan.totalWeeks} weeks` : 'one sitting'}
         </p>
         <div className="bg-gold/10 my-1 h-px" />
         <p className="text-parchment/30 font-mono text-xs">
-          Grab the popcorn. You're watching tonight.
+          {multiSession
+            ? `You have limited time — finishing ${plan.completionDate}.`
+            : "Grab the popcorn. You're watching tonight."}
         </p>
       </div>
     )

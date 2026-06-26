@@ -18,12 +18,13 @@ import { Button } from '@/components/ui'
 import { checkFeasibility } from '@/lib/scheduler'
 
 interface AvailabilityFormProps {
-  totalRuntime: number // total minutes
-  totalItems: number // episodes or films
-  itemLabel: string // "episodes" or "films"
-  episodeRuntime: number // average runtime per item
+  totalRuntime: number
+  totalItems: number
+  itemLabel: string
+  episodeRuntime: number
   mediaType: 'movie' | 'tv'
-  resultsPath: string // where to navigate on generate
+  resultsPath: string
+  exactItems?: { title: string; runtime: number }[]
 }
 
 const paceMultiplier: Record<PaceMode, number> = {
@@ -40,6 +41,7 @@ export default function AvailabilityForm({
   episodeRuntime,
   mediaType,
   resultsPath,
+  exactItems,
 }: AvailabilityFormProps) {
   const router = useRouter()
   const [schedule, setSchedule] = useState<WeekSchedule>(defaultSchedule())
@@ -74,7 +76,12 @@ export default function AvailabilityForm({
     }
     const encoded = encodeURIComponent(JSON.stringify(config))
     const goalEncoded = encodeURIComponent(JSON.stringify(goal))
-    router.push(`${resultsPath}?config=${encoded}&goal=${goalEncoded}`)
+    const itemsEncoded = exactItems
+      ? `&items=${encodeURIComponent(JSON.stringify(exactItems))}`
+      : ''
+    router.push(
+      `${resultsPath}?config=${encoded}&goal=${goalEncoded}${itemsEncoded}`
+    )
   }
 
   const totalHours = Math.round((totalRuntime / 60) * 10) / 10

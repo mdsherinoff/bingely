@@ -4,6 +4,7 @@ import {
   WeeklyBlock,
   Milestone,
   WeekSchedule,
+  PaceMode,
 } from '@/types/media'
 import { weeklyEpisodes, weeklyMinutes } from './scheduleUtils'
 
@@ -48,64 +49,56 @@ export function generateWatchPlan(
   mediaType: 'movie' | 'tv',
   runtime?: number
 ): WatchPlan {
-  // Movies — simple single session plan
-  if (mediaType === 'movie') {
-    return {
-      totalEpisodes: 1,
-      totalWeeks: 1,
-      totalHours: Math.round(((runtime || 120) / 60) * 10) / 10,
-      episodesPerWeek: 1,
-      completionDate: getCompletionDate(1),
-      weeklyBlocks: [
-        {
-          week: 1,
-          episodes: 1,
-          startEpisode: 1,
-          endEpisode: 1,
-          hoursWatched: Math.round(((runtime || 120) / 60) * 10) / 10,
-          cumulativePercent: 100,
-        },
-      ],
-      milestones: [{ label: 'Complete', episode: 1, week: 1, percent: 100 }],
-      pace: config.pace,
-      mediaType,
-      runtime,
-    }
-  }
-
-  // TV — week by week breakdown
-  const rawEpsPerWeek = weeklyEpisodes(config.schedule, config.episodeRuntime)
+  const episodeRuntime = config.episodeRuntime || runtime || 90
   const multiplier = paceMultiplier[config.pace] ?? 1.0
-  const episodesPerWeek = Math.max(1, Math.floor(rawEpsPerWeek * multiplier))
-  const totalWeeks = Math.ceil(totalEpisodes / episodesPerWeek)
-  const totalMinutes = totalEpisodes * config.episodeRuntime
+  const totalMinutes = totalEpisodes * episodeRuntime
   const totalHours = Math.round((totalMinutes / 60) * 10) / 10
-  const weeklyHours =
-    Math.round(((weeklyMinutes(config.schedule) * multiplier) / 60) * 10) / 10
+
+  const availableWeeklyMins = weeklyMinutes(config.schedule) * multiplier
+  const availableWeeklyHours = Math.round((availableWeeklyMins / 60) * 10) / 10
+
+  // How many weeks to consume all content
+  const totalWeeks =
+    availableWeeklyMins > 0 ? Math.ceil(totalMinutes / availableWeeklyMins) : 1
+
+  // For movies and short content, episodesPerWeek means
+  // "how many full items fit per week" — but we track by minutes
+  const episodesPerWeek = Math.max(
+    1,
+    Math.floor(availableWeeklyMins / episodeRuntime)
+  )
 
   const weeklyBlocks: WeeklyBlock[] = []
-  let episodesRemaining = totalEpisodes
+  let remainingMinutes = totalMinutes
+  let episodesCounted = 0
 
   for (let week = 1; week <= totalWeeks; week++) {
-    const episodesThisWeek = Math.min(episodesPerWeek, episodesRemaining)
-    const startEpisode = (week - 1) * episodesPerWeek + 1
-    const endEpisode = startEpisode + episodesThisWeek - 1
-    const cumulativeEpisodes = endEpisode
-    const cumulativePercent = Math.round(
-      (cumulativeEpisodes / totalEpisodes) * 100
+    const minutesThisWeek = Math.min(remainingMinutes, availableWeeklyMins)
+    // How many full episodes fit this week
+    const episodesThisWeek =
+      week < totalWeeks
+        ? Math.min(episodesPerWeek, totalEpisodes - episodesCounted)
+        : totalEpisodes - episodesCounted
+
+    const startEpisode = episodesCounted + 1
+    const endEpisode = episodesCounted + Math.max(1, episodesThisWeek)
+    const cumulativePercent = Math.min(
+      100,
+      Math.round((endEpisode / totalEpisodes) * 100)
     )
 
     weeklyBlocks.push({
       week,
-      episodes: episodesThisWeek,
+      episodes: Math.max(1, episodesThisWeek),
       startEpisode,
-      endEpisode,
-      hoursWatched: weeklyHours,
-      cumulativePercent: Math.min(100, cumulativePercent),
+      endEpisode: Math.min(endEpisode, totalEpisodes),
+      hoursWatched: Math.round((minutesThisWeek / 60) * 10) / 10,
+      cumulativePercent,
     })
 
-    episodesRemaining -= episodesThisWeek
-    if (episodesRemaining <= 0) break
+    episodesCounted += Math.max(1, episodesThisWeek)
+    remainingMinutes -= minutesThisWeek
+    if (remainingMinutes <= 0 || episodesCounted >= totalEpisodes) break
   }
 
   const milestones = generateMilestones(totalEpisodes, weeklyBlocks)
@@ -120,6 +113,7 @@ export function generateWatchPlan(
     milestones,
     pace: config.pace,
     mediaType,
+    runtime: episodeRuntime,
   }
 }
 
@@ -309,4 +303,102 @@ export function generateNewSeasonPlan(
     episodeRuntime,
     mediaType
   )
+}
+
+export function generateListPlan(
+  config: AvailabilityConfig,
+  items: { title: string; runtime: number }[],
+  pace: PaceMode
+): WatchPlan {
+  const multiplier = paceMultiplier[pace] ?? 1.0
+  const availableWeeklyMins = weeklyMinutes(config.schedule) * multiplier
+  const totalMinutes = items.reduce((acc, i) => acc + i.runtime, 0)
+  const totalHours = Math.round((totalMinutes / 60) * 10) / 10
+  const totalWeeks =
+    availableWeeklyMins > 0 ? Math.ceil(totalMinutes / availableWeeklyMins) : 1
+
+  // Assign items to weeks greedily
+  const weeklyBlocks: WeeklyBlock[] = []
+  let weekMinsRemaining = availableWeeklyMins
+  let currentWeek = 1
+  let itemsInCurrentWeek = 0
+  let weekStartItem = 1
+  let totalItemsDone = 0
+
+  for (let i = 0; i < items.length; i++) {
+    const itemMins = items[i].runtime
+
+    if (itemMins > weekMinsRemaining && itemsInCurrentWeek > 0) {
+      // Close current week
+      weeklyBlocks.push({
+        week: currentWeek,
+        episodes: itemsInCurrentWeek,
+        startEpisode: weekStartItem,
+        endEpisode: totalItemsDone,
+        hoursWatched:
+          Math.round(((availableWeeklyMins - weekMinsRemaining) / 60) * 10) /
+          10,
+        cumulativePercent: Math.min(
+          100,
+          Math.round((totalItemsDone / items.length) * 100)
+        ),
+      })
+      currentWeek++
+      weekMinsRemaining = availableWeeklyMins
+      itemsInCurrentWeek = 0
+      weekStartItem = totalItemsDone + 1
+    }
+
+    // Item spans multiple weeks if it's longer than a full week
+    weekMinsRemaining -= itemMins
+    itemsInCurrentWeek++
+    totalItemsDone++
+
+    if (weekMinsRemaining <= 0) {
+      weeklyBlocks.push({
+        week: currentWeek,
+        episodes: itemsInCurrentWeek,
+        startEpisode: weekStartItem,
+        endEpisode: totalItemsDone,
+        hoursWatched: Math.round((availableWeeklyMins / 60) * 10) / 10,
+        cumulativePercent: Math.min(
+          100,
+          Math.round((totalItemsDone / items.length) * 100)
+        ),
+      })
+      currentWeek++
+      weekMinsRemaining = availableWeeklyMins
+      itemsInCurrentWeek = 0
+      weekStartItem = totalItemsDone + 1
+    }
+  }
+
+  // Close final week if anything remains
+  if (itemsInCurrentWeek > 0) {
+    weeklyBlocks.push({
+      week: currentWeek,
+      episodes: itemsInCurrentWeek,
+      startEpisode: weekStartItem,
+      endEpisode: totalItemsDone,
+      hoursWatched:
+        Math.round(((availableWeeklyMins - weekMinsRemaining) / 60) * 10) / 10,
+      cumulativePercent: 100,
+    })
+  }
+
+  const episodesPerWeek = Math.round(
+    items.length / Math.max(1, weeklyBlocks.length)
+  )
+
+  return {
+    totalEpisodes: items.length,
+    totalWeeks: weeklyBlocks.length,
+    totalHours,
+    episodesPerWeek,
+    completionDate: getCompletionDate(weeklyBlocks.length),
+    weeklyBlocks,
+    milestones: generateMilestones(items.length, weeklyBlocks),
+    pace,
+    mediaType: 'movie',
+  }
 }

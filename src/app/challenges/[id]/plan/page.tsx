@@ -51,6 +51,10 @@ export default async function ChallengePlanPage({
           episodeRuntime={avgRuntime}
           mediaType="movie"
           resultsPath={`/challenges/${id}/results`}
+          exactItems={challenge.items.map((i) => ({
+            title: i.title,
+            runtime: i.runtime,
+          }))}
         />
       </div>
     </main>

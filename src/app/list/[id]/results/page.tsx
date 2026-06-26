@@ -14,7 +14,11 @@ import ExportButton from '@/components/results/ExportButton'
 import ShareButton from '@/components/results/ShareButton'
 import { Button } from '@/components/ui'
 import Link from 'next/link'
-import { generateFinishBeforePlan, generateVacationPlan } from '@/lib/scheduler'
+import {
+  generateFinishBeforePlan,
+  generateVacationPlan,
+  generateListPlan,
+} from '@/lib/scheduler'
 
 export default function ListResultsPage({
   params,
@@ -82,7 +86,25 @@ export default function ListResultsPage({
     avgRuntime
   )
 
-  const plan = goalPlan ?? standardPlan
+  // Parse exact items from URL
+  const rawItems = searchParams.get('items')
+  const exactItems: { title: string; runtime: number }[] | null =
+    useMemo(() => {
+      if (!rawItems) return null
+      try {
+        return JSON.parse(decodeURIComponent(rawItems))
+      } catch {
+        return null
+      }
+    }, [rawItems])
+
+  // Use generateListPlan when we have exact items
+  const listPlan = useMemo(() => {
+    if (!config || !exactItems) return null
+    return generateListPlan(config, exactItems, config.pace)
+  }, [config, exactItems])
+
+  const plan = listPlan ?? goalPlan ?? standardPlan
 
   if (loading) {
     return (
