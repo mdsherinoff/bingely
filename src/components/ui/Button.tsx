@@ -22,7 +22,7 @@ export default function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`min-h-[44px] rounded-sm px-5 py-2.5 text-sm tracking-wide ${styles[variant]} ${className}`}
+      className={`rounded-sm px-5 py-2.5 text-sm tracking-wide ${styles[variant]} ${className}`}
       {...props}
     >
       {children}

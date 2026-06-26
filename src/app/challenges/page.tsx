@@ -44,7 +44,7 @@ export default function ChallengesPage() {
                 <h2 className="font-display text-parchment/60 text-2xl">
                   {label}
                 </h2>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="grid gap-4 md:grid-cols-2">
                   {items.map((challenge, i) => (
                     <ChallengeCard
                       key={challenge.id}
