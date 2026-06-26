@@ -6,7 +6,8 @@ import {
   WeekSchedule,
   PaceMode,
 } from '@/types/media'
-import { weeklyEpisodes, weeklyMinutes } from './scheduleUtils'
+import { weeklyMinutes, windowMinutes } from './scheduleUtils'
+import { DAYS } from '@/lib/scheduleUtils'
 
 const paceMultiplier: Record<string, number> = {
   casual: 0.6,
@@ -400,5 +401,113 @@ export function generateListPlan(
     milestones: generateMilestones(items.length, weeklyBlocks),
     pace,
     mediaType: 'movie',
+  }
+}
+
+export interface MovieSession {
+  sessionNumber: number
+  date: Date
+  dayName: string
+  start: string
+  end: string
+  minuteStart: number
+  minuteEnd: number
+  durationMins: number
+  isComplete: boolean
+}
+
+export interface MoviePlan {
+  title: string
+  totalRuntime: number
+  totalSessions: number
+  sessions: MovieSession[]
+  completionDate: string
+}
+
+export function generateMoviePlan(
+  config: AvailabilityConfig,
+  totalRuntime: number
+): MoviePlan {
+  const sessions: MovieSession[] = []
+  let minutesRemaining = totalRuntime
+  let sessionNumber = 1
+  let minutesCovered = 0
+
+  // Build a list of upcoming day+window slots starting from today
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const slots: {
+    date: Date
+    dayName: string
+    start: string
+    end: string
+    availableMins: number
+  }[] = []
+
+  // Generate slots for up to 52 weeks ahead
+  for (let dayOffset = 0; dayOffset < 365; dayOffset++) {
+    const date = new Date(today)
+    date.setDate(today.getDate() + dayOffset)
+    const dayName = DAYS[date.getDay() === 0 ? 6 : date.getDay() - 1]
+    const daySchedule = config.schedule[dayName]
+
+    if (!daySchedule?.enabled) continue
+
+    for (const window of daySchedule.windows) {
+      const mins = windowMinutes(window)
+      if (mins <= 0) continue
+      slots.push({
+        date: new Date(date),
+        dayName,
+        start: window.start,
+        end: window.end,
+        availableMins: mins,
+      })
+    }
+
+    if (slots.length >= 100) break
+  }
+
+  // Assign movie minutes to slots
+  for (const slot of slots) {
+    if (minutesRemaining <= 0) break
+
+    const watchMins = Math.min(slot.availableMins, minutesRemaining)
+    const minuteStart = minutesCovered + 1
+    const minuteEnd = minutesCovered + watchMins
+
+    sessions.push({
+      sessionNumber,
+      date: slot.date,
+      dayName: slot.dayName,
+      start: slot.start,
+      end: slot.end,
+      minuteStart,
+      minuteEnd,
+      durationMins: watchMins,
+      isComplete: minuteEnd >= totalRuntime,
+    })
+
+    minutesCovered += watchMins
+    minutesRemaining -= watchMins
+    sessionNumber++
+  }
+
+  const lastSession = sessions[sessions.length - 1]
+  const completionDate = lastSession
+    ? lastSession.date.toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long',
+        day: 'numeric',
+      })
+    : 'Unknown'
+
+  return {
+    title: '',
+    totalRuntime,
+    totalSessions: sessions.length,
+    sessions,
+    completionDate,
   }
 }

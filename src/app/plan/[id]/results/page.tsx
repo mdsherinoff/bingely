@@ -16,13 +16,18 @@ import ShareButton from '@/components/results/ShareButton'
 import { useAchievements } from '@/hooks/useAchievements'
 import AchievementToast from '@/components/achievements/AchievementToast'
 import { generateFinishBeforePlan, generateVacationPlan } from '@/lib/scheduler'
-import { generateNewSeasonPlan } from '@/lib/scheduler'
+import {
+  generateNewSeasonPlan,
+  generateMoviePlan,
+  MoviePlan,
+} from '@/lib/scheduler'
 import {
   AvailabilityConfig,
   MediaType,
   WatchGoal,
   NewSeasonGoal,
 } from '@/types/media'
+import MovieResults from '@/components/results/MovieResults'
 
 export default function ResultsPage({
   params,
@@ -140,6 +145,11 @@ export default function ResultsPage({
     }
   }, [plan, media])
 
+  const moviePlan: MoviePlan | null = useMemo(() => {
+    if (type !== 'movie' || !config || !media?.runtime) return null
+    return generateMoviePlan(config, media.runtime)
+  }, [type, config, media])
+
   if (loading) {
     return (
       <main
@@ -183,14 +193,17 @@ export default function ResultsPage({
           <p className="text-gold/60 font-mono text-xs tracking-widest">
             WATCH PLAN
           </p>
+
           <div className="flex items-start justify-between gap-4">
             <div className="my-auto flex min-w-0 flex-col gap-2">
               <h1 className="font-display text-parchment text-4xl leading-none sm:text-5xl md:text-6xl">
                 {media.title}
               </h1>
+
               <p className="font-body text-parchment/40 text-sm italic sm:text-base">
                 {media.releaseYear} · {media.genres.slice(0, 3).join(', ')}
               </p>
+
               {goal.mode === 'finish-before' && (
                 <p className="text-rose/70 font-mono text-xs tracking-widest">
                   ◈ FINISH BEFORE ·{' '}
@@ -201,11 +214,13 @@ export default function ResultsPage({
                   })}
                 </p>
               )}
+
               {goal.mode === 'vacation' && (
                 <p className="text-rose/70 font-mono text-xs tracking-widest">
                   ◉ VACATION MODE · {goal.hoursPerDay}h/day
                 </p>
               )}
+
               {goal.mode === 'new-season' && (
                 <p className="text-rose/70 font-mono text-xs tracking-widest">
                   ◆ NEW SEASON PREP ·{' '}
@@ -213,6 +228,7 @@ export default function ResultsPage({
                 </p>
               )}
             </div>
+
             {media.posterPath && (
               <div className="border-gold/10 aspect-[2/3] w-20 flex-shrink-0 overflow-hidden rounded-sm border sm:w-32 md:w-48">
                 <img
@@ -225,65 +241,77 @@ export default function ResultsPage({
           </div>
         </div>
 
-        {/* Top row — completion + runtime */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <CompletionCard plan={plan} title={media.title} />
-          <div className="flex flex-col gap-4">
-            <RuntimeCard plan={plan} />
-          </div>
-        </div>
+        {/* Results */}
+        {type === 'movie' && moviePlan ? (
+          <MovieResults moviePlan={moviePlan} media={media} exportPlan={plan} />
+        ) : (
+          <>
+            {/* Top row — completion + runtime */}
+            <div className="grid gap-6 md:grid-cols-2">
+              <CompletionCard plan={plan} title={media.title} />
+              <div className="flex flex-col gap-4">
+                <RuntimeCard plan={plan} />
+              </div>
+            </div>
 
-        {/* Progress chart */}
-        {plan.mediaType === 'tv' && plan.weeklyBlocks.length > 1 && (
-          <div className="border-gold/10 rounded-sm border p-6">
-            <ProgressChart blocks={plan.weeklyBlocks} />
-          </div>
+            {/* Progress chart */}
+            {plan.mediaType === 'tv' && plan.weeklyBlocks.length > 1 && (
+              <div className="border-gold/10 rounded-sm border p-6">
+                <ProgressChart blocks={plan.weeklyBlocks} />
+              </div>
+            )}
+
+            {/* Bottom row — weekly breakdown + milestones + export */}
+            <div className="grid gap-10 md:grid-cols-3">
+              <div className="flex flex-col gap-4 md:col-span-2">
+                <h2 className="font-display text-parchment text-2xl">
+                  Week by week
+                </h2>
+
+                <div className="flex max-h-[600px] flex-col gap-3 overflow-y-auto pr-2">
+                  {plan.weeklyBlocks.map((block, i) => (
+                    <WeekRow
+                      key={block.week}
+                      block={block}
+                      totalEpisodes={plan.totalEpisodes}
+                      index={i}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                <h2 className="font-display text-parchment text-2xl">
+                  Milestones
+                </h2>
+
+                <div className="flex flex-col">
+                  {plan.milestones.map((m, i) => (
+                    <MilestoneCard
+                      key={m.percent}
+                      milestone={m}
+                      isLast={i === plan.milestones.length - 1}
+                    />
+                  ))}
+                </div>
+
+                <div className="border-gold/10 mt-4 flex flex-col gap-3 border-t pt-6">
+                  <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                    EXPORT
+                  </p>
+
+                  <ExportButton
+                    plan={plan}
+                    title={media.title}
+                    releaseYear={media.releaseYear}
+                  />
+
+                  <ShareButton />
+                </div>
+              </div>
+            </div>
+          </>
         )}
-
-        {/* Bottom row — weekly breakdown + milestones + export */}
-        <div className="grid gap-10 md:grid-cols-3">
-          <div className="flex flex-col gap-4 md:col-span-2">
-            <h2 className="font-display text-parchment text-2xl">
-              Week by week
-            </h2>
-            <div className="flex max-h-[600px] flex-col gap-3 overflow-y-auto pr-2">
-              {plan.weeklyBlocks.map((block, i) => (
-                <WeekRow
-                  key={block.week}
-                  block={block}
-                  totalEpisodes={plan.totalEpisodes}
-                  index={i}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <h2 className="font-display text-parchment text-2xl">Milestones</h2>
-            <div className="flex flex-col">
-              {plan.milestones.map((m, i) => (
-                <MilestoneCard
-                  key={m.percent}
-                  milestone={m}
-                  isLast={i === plan.milestones.length - 1}
-                />
-              ))}
-            </div>
-
-            {/* Export actions */}
-            <div className="border-gold/10 mt-4 flex flex-col gap-3 border-t pt-6">
-              <p className="text-parchment/30 font-mono text-xs tracking-widest">
-                EXPORT
-              </p>
-              <ExportButton
-                plan={plan}
-                title={media.title}
-                releaseYear={media.releaseYear}
-              />
-              <ShareButton />
-            </div>
-          </div>
-        </div>
       </div>
 
       <AchievementToast achievement={newUnlock} onDismiss={clearNewUnlock} />
