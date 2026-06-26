@@ -1,6 +1,6 @@
 'use client'
 
-import { WeekSchedule, TimeWindow } from '@/types/media'
+import { WeekSchedule } from '@/types/media'
 import { DAYS } from '@/lib/scheduleUtils'
 
 interface DaySelectorProps {

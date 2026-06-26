@@ -190,19 +190,18 @@ export default function PlanPage({
                     {media.runtime} min total
                   </p>
                   <p className="text-gold/60 mt-1 font-mono text-xs">
-                    {adjustedEpsPerWeek > 0
-                      ? (() => {
-                          const weeksNeeded = Math.ceil(
-                            ((media.runtime ?? 0) /
-                              (weeklyMinutes(schedule) * paceMultiplier[pace] ||
-                                1)) *
-                              60
-                          )
-                          return weeksNeeded <= 1
-                            ? 'Finishable in one week'
-                            : `Done in ~${weeksNeeded} weeks`
-                        })()
-                      : 'Select at least one day'}
+                    {(() => {
+                      const availableMinsPerWeek =
+                        weeklyMinutes(schedule) * paceMultiplier[pace]
+                      if (availableMinsPerWeek <= 0)
+                        return 'Select at least one day'
+                      const weeksNeeded = Math.ceil(
+                        (media.runtime ?? 0) / availableMinsPerWeek
+                      )
+                      return weeksNeeded <= 1
+                        ? 'Finishable in one week'
+                        : `Done in ~${weeksNeeded} weeks`
+                    })()}
                   </p>
                 </>
               )}
