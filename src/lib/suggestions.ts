@@ -16,6 +16,10 @@ export function generateSuggestions(
   mediaType: MediaType
 ): Suggestion[] {
   const suggestions: Suggestion[] = []
+
+  // Movies don't need schedule suggestions
+  if (mediaType === 'movie') return suggestions
+
   const totalWeeklyMins = weeklyMinutes(schedule)
   const totalWeeklyHours = Math.round((totalWeeklyMins / 60) * 10) / 10
   const episodesPerWeek = Math.floor(totalWeeklyMins / episodeRuntime)
@@ -34,6 +38,17 @@ export function generateSuggestions(
 
   // No days selected
   if (activeDays.length === 0) {
+    suggestions.push({
+      type: 'schedule',
+      level: 'warning',
+      title: 'No days selected',
+      body: 'Select at least one day to generate a watch plan.',
+    })
+    return suggestions
+  }
+
+  // No days selected — only relevant for TV
+  if (activeDays.length === 0 && mediaType === 'tv') {
     suggestions.push({
       type: 'schedule',
       level: 'warning',
