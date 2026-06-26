@@ -44,9 +44,12 @@ function normalizeResult(result: TMDBResult): MediaItem {
       id: result.id,
       title: result.name,
       posterPath: result.poster_path ? getPosterUrl(result.poster_path) : null,
+      backdropPath: null,
       releaseYear: result.first_air_date?.slice(0, 4) || 'Unknown',
       mediaType: 'tv',
       voteAverage: Math.round(result.vote_average * 10) / 10,
+      overview: '',
+      genres: [],
     }
   }
 
@@ -54,9 +57,12 @@ function normalizeResult(result: TMDBResult): MediaItem {
     id: result.id,
     title: result.title,
     posterPath: result.poster_path ? getPosterUrl(result.poster_path) : null,
+    backdropPath: null,
     releaseYear: result.release_date?.slice(0, 4) || 'Unknown',
     mediaType: 'movie',
     voteAverage: Math.round(result.vote_average * 10) / 10,
+    overview: '',
+    genres: [],
   }
 }
 

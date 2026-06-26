@@ -2,6 +2,7 @@ import { Playfair_Display, Crimson_Text, Space_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import SkipLink from '@/components/layout/SkipLink'
+import FeedbackWidget from '@/components/feedback/FeedbackWidget'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -34,6 +35,7 @@ export default function RootLayout({
         <SkipLink />
         <Header />
         {children}
+        <FeedbackWidget />
       </body>
     </html>
   )
