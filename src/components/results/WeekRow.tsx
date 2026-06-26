@@ -1,16 +1,31 @@
+'use client'
+
+import { motion } from 'framer-motion'
 import { WeeklyBlock } from '@/types/media'
 import ProgressBar from './ProgressBar'
 
 interface WeekRowProps {
   block: WeeklyBlock
   totalEpisodes: number
+  index?: number
 }
 
-export default function WeekRow({ block, totalEpisodes }: WeekRowProps) {
+export default function WeekRow({
+  block,
+  totalEpisodes,
+  index = 0,
+}: WeekRowProps) {
   const isLast = block.endEpisode >= totalEpisodes
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{
+        duration: 0.25,
+        delay: Math.min(index * 0.03, 0.5),
+        ease: 'easeOut',
+      }}
       className={`flex flex-col gap-3 rounded-sm border p-4 transition-colors ${isLast ? 'border-gold/30 bg-ink' : 'border-gold/10'} `}
     >
       <div className="flex items-start justify-between">
@@ -30,6 +45,6 @@ export default function WeekRow({ block, totalEpisodes }: WeekRowProps) {
         </div>
       </div>
       <ProgressBar percent={block.cumulativePercent} />
-    </div>
+    </motion.div>
   )
 }

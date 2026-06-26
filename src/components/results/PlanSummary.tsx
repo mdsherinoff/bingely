@@ -1,3 +1,6 @@
+'use client'
+
+import { motion } from 'framer-motion'
 import { WatchPlan } from '@/types/media'
 import { Card } from '@/components/ui'
 
@@ -19,7 +22,7 @@ export default function PlanSummary({ plan, title }: PlanSummaryProps) {
       ? [
           { label: 'COMPLETION', value: plan.completionDate },
           { label: 'TOTAL WEEKS', value: `${plan.totalWeeks} weeks` },
-          { label: 'EPISODES / WEEK', value: `${plan.episodesPerWeek} eps` },
+          { label: 'EPS / WEEK', value: `${plan.episodesPerWeek} eps` },
           { label: 'TOTAL HOURS', value: `${plan.totalHours}h` },
           { label: 'PACE', value: paceLabels[plan.pace] },
           { label: 'TOTAL EPISODES', value: plan.totalEpisodes },
@@ -42,13 +45,20 @@ export default function PlanSummary({ plan, title }: PlanSummaryProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {stats.map((s) => (
-          <Card key={s.label} className="flex flex-col gap-1">
-            <p className="text-parchment/30 font-mono text-xs tracking-widest">
-              {s.label}
-            </p>
-            <p className="font-body text-parchment text-lg">{s.value}</p>
-          </Card>
+        {stats.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: i * 0.08, ease: 'easeOut' }}
+          >
+            <Card className="flex flex-col gap-1">
+              <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                {s.label}
+              </p>
+              <p className="font-body text-parchment text-lg">{s.value}</p>
+            </Card>
+          </motion.div>
         ))}
       </div>
     </div>

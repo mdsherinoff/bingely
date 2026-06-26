@@ -5,17 +5,20 @@ import ExamplePlan from '@/components/landing/ExamplePlan'
 import Footer from '@/components/landing/Footer'
 import MysteryReel from '@/components/easter-eggs/MysteryReel'
 import KonamiEgg from '@/components/easter-eggs/KonamiEgg'
+import PageTransition from '@/components/layout/PageTransition'
 
 export default function LandingPage() {
   return (
-    <main className="bg-espresso">
-      <QuoteMarquee />
-      <Hero />
-      <Features />
-      <ExamplePlan />
-      <Footer />
-      <MysteryReel />
-      <KonamiEgg />
-    </main>
+    <PageTransition>
+      <main className="bg-espresso">
+        <QuoteMarquee />
+        <Hero />
+        <Features />
+        <ExamplePlan />
+        <Footer />
+        <MysteryReel />
+        <KonamiEgg />
+      </main>
+    </PageTransition>
   )
 }

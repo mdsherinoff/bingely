@@ -50,3 +50,12 @@
 .animate-in {
   animation: animate-in 0.3s ease forwards;
 }
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.5s infinite;
+}

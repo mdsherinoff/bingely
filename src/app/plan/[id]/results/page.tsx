@@ -241,11 +241,12 @@ export default function ResultsPage({
               Week by week
             </h2>
             <div className="flex max-h-[600px] flex-col gap-3 overflow-y-auto pr-2">
-              {plan.weeklyBlocks.map((block) => (
+              {plan.weeklyBlocks.map((block, i) => (
                 <WeekRow
                   key={block.week}
                   block={block}
                   totalEpisodes={plan.totalEpisodes}
+                  index={i}
                 />
               ))}
             </div>
