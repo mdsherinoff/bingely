@@ -3,7 +3,11 @@
 import { useState, use, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useMediaDetails } from '@/hooks/useMediaDetails'
-import { defaultSchedule, weeklyEpisodes } from '@/lib/scheduleUtils'
+import {
+  defaultSchedule,
+  weeklyEpisodes,
+  weeklyMinutes,
+} from '@/lib/scheduleUtils'
 import {
   AvailabilityConfig,
   PaceMode,
@@ -181,9 +185,26 @@ export default function PlanPage({
                   </p>
                 </>
               ) : (
-                <p className="font-body text-parchment text-lg">
-                  {media.runtime} min · watch in one session
-                </p>
+                <>
+                  <p className="font-body text-parchment text-lg">
+                    {media.runtime} min total
+                  </p>
+                  <p className="text-gold/60 mt-1 font-mono text-xs">
+                    {adjustedEpsPerWeek > 0
+                      ? (() => {
+                          const weeksNeeded = Math.ceil(
+                            ((media.runtime ?? 0) /
+                              (weeklyMinutes(schedule) * paceMultiplier[pace] ||
+                                1)) *
+                              60
+                          )
+                          return weeksNeeded <= 1
+                            ? 'Finishable in one week'
+                            : `Done in ~${weeksNeeded} weeks`
+                        })()
+                      : 'Select at least one day'}
+                  </p>
+                </>
               )}
             </div>
 
