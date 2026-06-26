@@ -15,11 +15,10 @@ export default function Footer() {
             CHALLENGES
           </Link>
           <Link
-            href="/room237"
-            className="text-espresso hover:text-gold/10 transition-colors duration-700 select-none"
-            title=""
+            href="/list/new"
+            className="text-parchment/20 hover:text-parchment/40 font-mono text-xs tracking-widest transition-colors"
           >
-            LUMOS
+            CUSTOM LIST
           </Link>
           <Link
             href="/achievements"
@@ -31,6 +30,13 @@ export default function Footer() {
         <p className="text-parchment/20 font-mono text-xs tracking-widest">
           BUILT FOR FILM LOVERS · {new Date().getFullYear()}
         </p>
+        <Link
+          href="/room237"
+          className="text-espresso hover:text-gold/10 transition-colors duration-700 select-none"
+          title=""
+        >
+          LUMOS
+        </Link>
       </div>
     </footer>
   )

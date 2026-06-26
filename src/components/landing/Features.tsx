@@ -32,12 +32,19 @@ export default function Features() {
           </div>
         ))}
       </div>
-      <div className="mx-auto mt-12 max-w-5xl text-center">
+      <div className="mx-auto mt-12 flex max-w-5xl items-center justify-center gap-8">
         <Link
           href="/challenges"
           className="text-gold/50 hover:text-gold font-mono text-xs tracking-widest transition-colors"
         >
           EXPLORE FILM CHALLENGES →
+        </Link>
+        <span className="text-parchment/20 font-mono text-xs">·</span>
+        <Link
+          href="/list/new"
+          className="text-gold/50 hover:text-gold font-mono text-xs tracking-widest transition-colors"
+        >
+          BUILD CUSTOM LIST →
         </Link>
       </div>
     </section>

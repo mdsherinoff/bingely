@@ -122,3 +122,19 @@ export type WatchGoal =
   | FinishBeforeGoal
   | VacationGoal
   | NewSeasonGoal
+
+export interface CustomList {
+  id: string
+  title: string
+  items: CustomListItem[]
+  createdAt: string
+}
+
+export interface CustomListItem {
+  tmdbId: number
+  title: string
+  mediaType: MediaType
+  posterPath: string | null
+  runtime: number
+  releaseYear: string
+}
