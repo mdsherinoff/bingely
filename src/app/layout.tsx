@@ -3,6 +3,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import SkipLink from '@/components/layout/SkipLink'
 import FeedbackWidget from '@/components/feedback/FeedbackWidget'
+import { Analytics } from '@vercel/analytics/next'
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -36,6 +37,7 @@ export default function RootLayout({
         <Header />
         {children}
         <FeedbackWidget />
+        <Analytics />
       </body>
     </html>
   )
