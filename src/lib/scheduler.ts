@@ -605,3 +605,48 @@ export function generateListMoviePlan(
       : 'Unknown',
   }
 }
+
+export interface MixedListPlan {
+  moviePlan: MoviePlan | null
+  tvPlan: WatchPlan | null
+  totalHours: number
+  overallCompletionDate: string
+  movieItems: { title: string; runtime: number }[]
+  tvItems: { title: string; runtime: number }[]
+}
+
+export function generateMixedListPlan(
+  config: AvailabilityConfig,
+  items: { title: string; runtime: number; mediaType: string }[]
+): MixedListPlan {
+  const movieItems = items.filter((i) => i.mediaType === 'movie')
+  const tvItems = items.filter((i) => i.mediaType === 'tv')
+
+  const moviePlan =
+    movieItems.length > 0 ? generateListMoviePlan(config, movieItems) : null
+
+  const tvPlan =
+    tvItems.length > 0 ? generateListPlan(config, tvItems, config.pace) : null
+
+  const totalHours =
+    Math.round((items.reduce((acc, i) => acc + i.runtime, 0) / 60) * 10) / 10
+
+  // Overall completion is whichever finishes last
+  const movieWeeks = moviePlan
+    ? Math.ceil(
+        movieItems.reduce((acc, i) => acc + i.runtime, 0) /
+          (weeklyMinutes(config.schedule) || 1)
+      )
+    : 0
+  const tvWeeks = tvPlan?.totalWeeks ?? 0
+  const totalWeeks = Math.max(movieWeeks, tvWeeks)
+
+  return {
+    moviePlan,
+    tvPlan,
+    totalHours,
+    overallCompletionDate: getCompletionDate(totalWeeks),
+    movieItems,
+    tvItems,
+  }
+}

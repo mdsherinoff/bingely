@@ -19,8 +19,11 @@ import {
   generateVacationPlan,
   generateListPlan,
   generateListMoviePlan,
+  generateMixedListPlan,
+  MixedListPlan,
   MoviePlan,
 } from '@/lib/scheduler'
+import MixedListResults from '@/components/results/MixedListResults'
 import ListMovieResults from '@/components/results/ListMovieResults'
 
 export default function ListResultsPage({
@@ -107,12 +110,26 @@ export default function ListResultsPage({
 
   const plan = listPlan ?? goalPlan ?? standardPlan
 
+  const allMovies = list?.items.every((i) => i.mediaType === 'movie') ?? false
+  const allTV = list?.items.every((i) => i.mediaType === 'tv') ?? false
+  const isMixed = !allMovies && !allTV
+
   const listMoviePlan: MoviePlan | null = useMemo(() => {
-    if (!config || !list || !exactItems) return null
-    const allMovies = list.items.every((i) => i.mediaType === 'movie')
-    if (!allMovies) return null
+    if (!config || !list || !exactItems || !allMovies) return null
     return generateListMoviePlan(config, exactItems)
-  }, [config, list, exactItems])
+  }, [config, list, exactItems, allMovies])
+
+  const mixedPlan: MixedListPlan | null = useMemo(() => {
+    if (!config || !list || !exactItems || !isMixed) return null
+    return generateMixedListPlan(
+      config,
+      list.items.map((item, i) => ({
+        title: exactItems[i]?.title ?? item.title,
+        runtime: exactItems[i]?.runtime ?? item.runtime,
+        mediaType: item.mediaType,
+      }))
+    )
+  }, [config, list, exactItems, isMixed])
 
   if (loading) {
     return (
@@ -158,15 +175,22 @@ export default function ListResultsPage({
           </p>
         </div>
 
-        {/* Branch — movie calendar view vs TV week view */}
+        {/* Branch — all movies / mixed / all TV */}
         {listMoviePlan ? (
           <ListMovieResults
             moviePlan={listMoviePlan}
             list={list}
             exportPlan={plan}
           />
+        ) : mixedPlan ? (
+          <MixedListResults
+            mixedPlan={mixedPlan}
+            list={list}
+            exportPlan={plan}
+          />
         ) : (
           <>
+            {/* existing all-TV week-by-week view */}
             <div className="grid gap-6 md:grid-cols-2">
               <CompletionCard plan={plan} title={list.title} />
               <RuntimeCard plan={plan} />
@@ -208,7 +232,6 @@ export default function ListResultsPage({
                     />
                   ))}
                 </div>
-
                 <div className="border-gold/10 mt-2 flex flex-col gap-2 border-t pt-4">
                   <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
                     YOUR TITLES
@@ -227,7 +250,6 @@ export default function ListResultsPage({
                     </div>
                   ))}
                 </div>
-
                 <div className="border-gold/10 mt-2 flex flex-col gap-3 border-t pt-6">
                   <p className="text-parchment/30 font-mono text-xs tracking-widest">
                     EXPORT
