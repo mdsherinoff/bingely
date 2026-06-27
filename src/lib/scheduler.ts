@@ -511,3 +511,97 @@ export function generateMoviePlan(
     completionDate,
   }
 }
+
+export function generateListMoviePlan(
+  config: AvailabilityConfig,
+  items: { title: string; runtime: number }[]
+): MoviePlan {
+  const sessions: MovieSession[] = []
+  let sessionNumber = 1
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  // Build available slots
+  const slots: {
+    date: Date
+    dayName: string
+    start: string
+    end: string
+    availableMins: number
+  }[] = []
+
+  for (let dayOffset = 0; dayOffset < 365; dayOffset++) {
+    const date = new Date(today)
+    date.setDate(today.getDate() + dayOffset)
+    const dayName = DAYS[date.getDay() === 0 ? 6 : date.getDay() - 1]
+    const daySchedule = config.schedule[dayName]
+    if (!daySchedule?.enabled) continue
+    for (const window of daySchedule.windows) {
+      const mins = windowMinutes(window)
+      if (mins <= 0) continue
+      slots.push({
+        date: new Date(date),
+        dayName,
+        start: window.start,
+        end: window.end,
+        availableMins: mins,
+      })
+    }
+    if (slots.length >= 200) break
+  }
+
+  // Assign each item across slots
+  let slotIndex = 0
+  let slotMinsRemaining = slots[0]?.availableMins ?? 0
+
+  for (const item of items) {
+    let itemMinsRemaining = item.runtime
+    let minuteStart = 1
+
+    while (itemMinsRemaining > 0 && slotIndex < slots.length) {
+      const slot = slots[slotIndex]
+      const watchMins = Math.min(slotMinsRemaining, itemMinsRemaining)
+      const minuteEnd = minuteStart + watchMins - 1
+
+      sessions.push({
+        sessionNumber,
+        date: slot.date,
+        dayName: slot.dayName,
+        start: slot.start,
+        end: slot.end,
+        minuteStart,
+        minuteEnd,
+        durationMins: watchMins,
+        isComplete: itemMinsRemaining - watchMins <= 0,
+      })
+
+      itemMinsRemaining -= watchMins
+      slotMinsRemaining -= watchMins
+      minuteStart = minuteEnd + 1
+      sessionNumber++
+
+      if (slotMinsRemaining <= 0) {
+        slotIndex++
+        slotMinsRemaining = slots[slotIndex]?.availableMins ?? 0
+      }
+    }
+  }
+
+  const lastSession = sessions[sessions.length - 1]
+  const totalRuntime = items.reduce((acc, i) => acc + i.runtime, 0)
+
+  return {
+    title: '',
+    totalRuntime,
+    totalSessions: sessions.length,
+    sessions,
+    completionDate: lastSession
+      ? lastSession.date.toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric',
+        })
+      : 'Unknown',
+  }
+}

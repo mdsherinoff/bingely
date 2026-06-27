@@ -25,6 +25,7 @@ export default function RuntimeCard({ plan }: RuntimeCardProps) {
 
   const daysOfWatching = Math.round((plan.totalHours / 24) * 10) / 10
   const duration = humanizeDuration(plan.totalWeeks)
+  const episodesPerDay = Math.round((plan.episodesPerWeek / 7) * 10) / 10
 
   return (
     <div className="border-gold/10 flex flex-col gap-4 rounded-sm border p-5">
@@ -51,6 +52,20 @@ export default function RuntimeCard({ plan }: RuntimeCardProps) {
             Journey duration
           </p>
           <p className="text-parchment font-mono text-sm">{duration}</p>
+        </div>
+        <div className="flex items-baseline justify-between">
+          <p className="font-body text-parchment/60 text-sm">
+            Episodes per week
+          </p>
+          <p className="text-parchment font-mono text-sm">
+            {plan.episodesPerWeek} eps
+          </p>
+        </div>
+        <div className="border-gold/10 flex items-baseline justify-between border-t pt-3">
+          <p className="font-body text-parchment/60 text-sm">Average per day</p>
+          <p className="text-gold font-mono text-sm">
+            {episodesPerDay} eps/day
+          </p>
         </div>
       </div>
     </div>

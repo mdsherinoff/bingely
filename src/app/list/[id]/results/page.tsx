@@ -18,7 +18,10 @@ import {
   generateFinishBeforePlan,
   generateVacationPlan,
   generateListPlan,
+  generateListMoviePlan,
+  MoviePlan,
 } from '@/lib/scheduler'
+import ListMovieResults from '@/components/results/ListMovieResults'
 
 export default function ListResultsPage({
   params,
@@ -86,7 +89,6 @@ export default function ListResultsPage({
     avgRuntime
   )
 
-  // Parse exact items from URL
   const rawItems = searchParams.get('items')
   const exactItems: { title: string; runtime: number }[] | null =
     useMemo(() => {
@@ -98,13 +100,19 @@ export default function ListResultsPage({
       }
     }, [rawItems])
 
-  // Use generateListPlan when we have exact items
   const listPlan = useMemo(() => {
     if (!config || !exactItems) return null
     return generateListPlan(config, exactItems, config.pace)
   }, [config, exactItems])
 
   const plan = listPlan ?? goalPlan ?? standardPlan
+
+  const listMoviePlan: MoviePlan | null = useMemo(() => {
+    if (!config || !list || !exactItems) return null
+    const allMovies = list.items.every((i) => i.mediaType === 'movie')
+    if (!allMovies) return null
+    return generateListMoviePlan(config, exactItems)
+  }, [config, list, exactItems])
 
   if (loading) {
     return (
@@ -137,6 +145,7 @@ export default function ListResultsPage({
           ← BACK TO PLANNER
         </Link>
 
+        {/* Header — always shown */}
         <div className="flex flex-col gap-4">
           <p className="text-gold/60 font-mono text-xs tracking-widest">
             CUSTOM LIST PLAN
@@ -149,79 +158,91 @@ export default function ListResultsPage({
           </p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <CompletionCard plan={plan} title={list.title} />
-          <RuntimeCard plan={plan} />
-        </div>
-
-        {plan.weeklyBlocks.length > 1 && (
-          <div className="border-gold/10 rounded-sm border p-6">
-            <ProgressChart blocks={plan.weeklyBlocks} />
-          </div>
-        )}
-
-        <div className="grid gap-10 md:grid-cols-3">
-          <div className="flex flex-col gap-4 md:col-span-2">
-            <h2 className="font-display text-parchment text-2xl">
-              Week by week
-            </h2>
-            <div className="flex max-h-[600px] flex-col gap-3 overflow-y-auto pr-2">
-              {plan.weeklyBlocks.map((block, i) => (
-                <WeekRow
-                  key={block.week}
-                  block={block}
-                  totalEpisodes={plan.totalEpisodes}
-                  index={i}
-                />
-              ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <h2 className="font-display text-parchment text-2xl">Milestones</h2>
-            <div className="flex flex-col">
-              {plan.milestones.map((m, i) => (
-                <MilestoneCard
-                  key={m.percent}
-                  milestone={m}
-                  isLast={i === plan.milestones.length - 1}
-                />
-              ))}
+        {/* Branch — movie calendar view vs TV week view */}
+        {listMoviePlan ? (
+          <ListMovieResults
+            moviePlan={listMoviePlan}
+            list={list}
+            exportPlan={plan}
+          />
+        ) : (
+          <>
+            <div className="grid gap-6 md:grid-cols-2">
+              <CompletionCard plan={plan} title={list.title} />
+              <RuntimeCard plan={plan} />
             </div>
 
-            {/* Titles in list */}
-            <div className="border-gold/10 mt-2 flex flex-col gap-2 border-t pt-4">
-              <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
-                YOUR TITLES
-              </p>
-              {list.items.map((item, i) => (
-                <div key={item.tmdbId} className="flex items-center gap-2">
-                  <span className="text-parchment/20 w-5 font-mono text-xs">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
-                  <p className="font-body text-parchment/60 flex-1 truncate text-xs">
-                    {item.title}
-                  </p>
-                  <span className="text-parchment/20 flex-shrink-0 font-mono text-xs">
-                    {item.runtime}m
-                  </span>
+            {plan.weeklyBlocks.length > 1 && (
+              <div className="border-gold/10 rounded-sm border p-6">
+                <ProgressChart blocks={plan.weeklyBlocks} />
+              </div>
+            )}
+
+            <div className="grid gap-10 md:grid-cols-3">
+              <div className="flex flex-col gap-4 md:col-span-2">
+                <h2 className="font-display text-parchment text-2xl">
+                  Week by week
+                </h2>
+                <div className="flex max-h-[600px] flex-col gap-3 overflow-y-auto pr-2">
+                  {plan.weeklyBlocks.map((block, i) => (
+                    <WeekRow
+                      key={block.week}
+                      block={block}
+                      totalEpisodes={plan.totalEpisodes}
+                      index={i}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
 
-            <div className="border-gold/10 mt-2 flex flex-col gap-3 border-t pt-6">
-              <p className="text-parchment/30 font-mono text-xs tracking-widest">
-                EXPORT
-              </p>
-              <ExportButton
-                plan={plan}
-                title={list.title}
-                releaseYear={new Date().getFullYear().toString()}
-              />
-              <ShareButton />
+              <div className="flex flex-col gap-4">
+                <h2 className="font-display text-parchment text-2xl">
+                  Milestones
+                </h2>
+                <div className="flex flex-col">
+                  {plan.milestones.map((m, i) => (
+                    <MilestoneCard
+                      key={m.percent}
+                      milestone={m}
+                      isLast={i === plan.milestones.length - 1}
+                    />
+                  ))}
+                </div>
+
+                <div className="border-gold/10 mt-2 flex flex-col gap-2 border-t pt-4">
+                  <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
+                    YOUR TITLES
+                  </p>
+                  {list.items.map((item, i) => (
+                    <div key={item.tmdbId} className="flex items-center gap-2">
+                      <span className="text-parchment/20 w-5 font-mono text-xs">
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
+                      <p className="font-body text-parchment/60 flex-1 truncate text-xs">
+                        {item.title}
+                      </p>
+                      <span className="text-parchment/20 flex-shrink-0 font-mono text-xs">
+                        {item.runtime}m
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="border-gold/10 mt-2 flex flex-col gap-3 border-t pt-6">
+                  <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                    EXPORT
+                  </p>
+                  <ExportButton
+                    plan={plan}
+                    title={list.title}
+                    releaseYear={new Date().getFullYear().toString()}
+                  />
+                  <ShareButton />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </main>
   )
