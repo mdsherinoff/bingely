@@ -28,6 +28,7 @@ import {
   NewSeasonGoal,
 } from '@/types/media'
 import MovieResults from '@/components/results/MovieResults'
+import TVCalendar from '@/components/results/TVCalendar'
 
 export default function ResultsPage({
   params,
@@ -258,6 +259,21 @@ export default function ResultsPage({
             {plan.mediaType === 'tv' && plan.weeklyBlocks.length > 1 && (
               <div className="border-gold/10 rounded-sm border p-6">
                 <ProgressChart blocks={plan.weeklyBlocks} />
+              </div>
+            )}
+
+            {/* TV Calendar */}
+            {plan.mediaType === 'tv' && config && (
+              <div className="flex flex-col gap-4">
+                <h2 className="font-display text-parchment text-2xl">
+                  Viewing calendar
+                </h2>
+                <div className="border-gold/10 rounded-sm border p-6">
+                  <TVCalendar
+                    config={config}
+                    weeklyBlocks={plan.weeklyBlocks}
+                  />
+                </div>
               </div>
             )}
 

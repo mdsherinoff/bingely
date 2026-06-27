@@ -8,50 +8,104 @@ function formatHours(hours: number): string {
   return `${h}h ${m}m`
 }
 
+const ESPRESSO = [26, 20, 16] as const
+const INK = [44, 24, 16] as const
+const PARCHMENT = [242, 232, 213] as const
+const GOLD = [201, 146, 42] as const
+const MUTED = [140, 120, 100] as const
+
+function setFill(doc: jsPDF, color: readonly [number, number, number]) {
+  doc.setFillColor(color[0], color[1], color[2])
+}
+
+function setDraw(doc: jsPDF, color: readonly [number, number, number]) {
+  doc.setDrawColor(color[0], color[1], color[2])
+}
+
+function setTextColor(doc: jsPDF, color: readonly [number, number, number]) {
+  doc.setTextColor(color[0], color[1], color[2])
+}
+
 export async function exportPlanAsPdf(
   plan: WatchPlan,
   title: string,
-  releaseYear: string
+  releaseYear: string,
+  posterUrl?: string | null
 ) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-  const pageWidth = doc.internal.pageSize.getWidth()
-  const pageHeight = doc.internal.pageSize.getHeight()
-  const margin = 20
-  const contentWidth = pageWidth - margin * 2
+  const W = doc.internal.pageSize.getWidth()
+  const H = doc.internal.pageSize.getHeight()
+  const M = 20
+  const CW = W - M * 2
 
   // Background
-  doc.setFillColor(26, 20, 16)
-  doc.rect(0, 0, pageWidth, pageHeight, 'F')
+  setFill(doc, ESPRESSO)
+  doc.rect(0, 0, W, H, 'F')
 
-  // Gold accent line
-  doc.setDrawColor(201, 146, 42)
-  doc.setLineWidth(0.5)
-  doc.line(margin, 28, pageWidth - margin, 28)
+  // Top gold line
+  setDraw(doc, GOLD)
+  doc.setLineWidth(0.8)
+  doc.line(M, 18, W - M, 18)
 
-  // Header
-  doc.setTextColor(201, 146, 42)
-  doc.setFontSize(8)
+  // Header label
+  setTextColor(doc, GOLD)
+  doc.setFontSize(7)
   doc.setFont('helvetica', 'normal')
-  doc.text('BINGELY · WATCH PLAN', margin, 22)
+  doc.text('BINGELY · WATCH PLAN', M, 14)
+  doc.text(
+    new Date().toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    }),
+    W - M,
+    14,
+    { align: 'right' }
+  )
 
-  // Title
-  doc.setTextColor(242, 232, 213)
-  doc.setFontSize(32)
+  let y = 30
+
+  // Poster + title block
+  const hasPoster = !!posterUrl
+  const posterW = 28
+  const posterH = 42
+
+  if (hasPoster) {
+    try {
+      // Draw poster placeholder box — real image loading requires canvas
+      setFill(doc, INK)
+      setDraw(doc, GOLD)
+      doc.setLineWidth(0.3)
+      doc.rect(M, y, posterW, posterH, 'FD')
+      setTextColor(doc, GOLD)
+      doc.setFontSize(7)
+      doc.text('◎', M + posterW / 2, y + posterH / 2, { align: 'center' })
+    } catch {}
+  }
+
+  const titleX = hasPoster ? M + posterW + 6 : M
+  const titleW = hasPoster ? CW - posterW - 6 : CW
+
+  setTextColor(doc, PARCHMENT)
+  doc.setFontSize(28)
   doc.setFont('helvetica', 'bold')
-  doc.text(title, margin, 48)
+  const titleLines = doc.splitTextToSize(title, titleW)
+  doc.text(titleLines, titleX, y + 10)
 
-  // Year
-  doc.setTextColor(242, 232, 213)
-  doc.setFontSize(10)
+  setTextColor(doc, MUTED)
+  doc.setFontSize(9)
   doc.setFont('helvetica', 'normal')
-  doc.text(releaseYear, margin, 56)
+  doc.text(releaseYear, titleX, y + 10 + titleLines.length * 10 + 3)
+
+  y = Math.max(y + posterH + 8, y + titleLines.length * 10 + 20)
 
   // Divider
-  doc.setDrawColor(201, 146, 42)
-  doc.setLineWidth(0.2)
-  doc.line(margin, 62, pageWidth - margin, 62)
+  setDraw(doc, GOLD)
+  doc.setLineWidth(0.3)
+  doc.line(M, y, W - M, y)
+  y += 8
 
-  // Stats row
+  // Stats grid
   const stats =
     plan.mediaType === 'tv'
       ? [
@@ -59,93 +113,209 @@ export async function exportPlanAsPdf(
           { label: 'TOTAL WEEKS', value: `${plan.totalWeeks} weeks` },
           { label: 'EPS / WEEK', value: `${plan.episodesPerWeek} eps` },
           { label: 'TOTAL HOURS', value: formatHours(plan.totalHours) },
+          {
+            label: 'PACE',
+            value: plan.pace.charAt(0).toUpperCase() + plan.pace.slice(1),
+          },
+          { label: 'TOTAL EPISODES', value: `${plan.totalEpisodes}` },
         ]
       : [
-          { label: 'RUNTIME', value: formatHours(plan.totalHours) },
-          { label: 'WATCH DATE', value: plan.completionDate },
+          { label: 'COMPLETION', value: plan.completionDate },
+          { label: 'RUNTIME', value: `${plan.runtime} min` },
+          { label: 'TOTAL HOURS', value: formatHours(plan.totalHours) },
         ]
 
-  const colWidth = contentWidth / stats.length
+  const cols = plan.mediaType === 'tv' ? 3 : 3
+  const colW = CW / cols
+
   stats.forEach((s, i) => {
-    const x = margin + i * colWidth
-    doc.setTextColor(201, 146, 42)
-    doc.setFontSize(7)
-    doc.text(s.label, x, 72)
-    doc.setTextColor(242, 232, 213)
-    doc.setFontSize(11)
-    doc.setFont('helvetica', 'bold')
-    doc.text(s.value, x, 80)
+    const col = i % cols
+    const row = Math.floor(i / cols)
+    const sx = M + col * colW
+    const sy = y + row * 18
+
+    // Stat box
+    setFill(doc, INK)
+    setDraw(doc, [60, 40, 20])
+    doc.setLineWidth(0.2)
+    doc.rect(sx, sy - 4, colW - 3, 15, 'FD')
+
+    setTextColor(doc, GOLD)
+    doc.setFontSize(6)
     doc.setFont('helvetica', 'normal')
+    doc.text(s.label, sx + 3, sy + 1)
+
+    setTextColor(doc, PARCHMENT)
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text(s.value, sx + 3, sy + 8)
   })
 
+  const statRows = Math.ceil(stats.length / cols)
+  y += statRows * 18 + 8
+
   // Divider
-  doc.setDrawColor(242, 232, 213)
-  doc.setLineWidth(0.1)
-  doc.line(margin, 88, pageWidth - margin, 88)
+  setDraw(doc, GOLD)
+  doc.setLineWidth(0.3)
+  doc.line(M, y, W - M, y)
+  y += 8
 
   if (plan.mediaType === 'tv') {
-    // Milestones
-    doc.setTextColor(201, 146, 42)
-    doc.setFontSize(8)
-    doc.text('MILESTONES', margin, 98)
+    // Milestones section
+    setTextColor(doc, GOLD)
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'normal')
+    doc.text('MILESTONES', M, y)
+    y += 6
 
-    plan.milestones.forEach((m, i) => {
-      const y = 106 + i * 10
-      doc.setTextColor(242, 232, 213)
-      doc.setFontSize(10)
-      doc.text(`${m.label}`, margin, y)
-      doc.setTextColor(242, 232, 213)
+    plan.milestones.forEach((m) => {
+      // Milestone row
+      setFill(doc, INK)
+      doc.rect(M, y - 3, CW, 10, 'F')
+
+      setTextColor(doc, PARCHMENT)
+      doc.setFontSize(9)
+      doc.setFont('helvetica', 'bold')
+      doc.text(m.label, M + 3, y + 4)
+
+      setTextColor(doc, MUTED)
       doc.setFontSize(8)
-      doc.text(
-        `Week ${m.week} · Ep ${m.episode} · ${m.percent}%`,
-        margin + 60,
-        y
-      )
-    })
-
-    // Weekly breakdown header
-    const weekStartY = 106 + plan.milestones.length * 10 + 10
-    doc.setTextColor(201, 146, 42)
-    doc.setFontSize(8)
-    doc.text('WEEK BY WEEK', margin, weekStartY)
-
-    // Weekly rows — up to 20 weeks per page
-    const maxWeeks = Math.min(plan.weeklyBlocks.length, 20)
-    plan.weeklyBlocks.slice(0, maxWeeks).forEach((block, i) => {
-      const y = weekStartY + 8 + i * 8
-      if (y > pageHeight - margin) return
-
-      doc.setTextColor(242, 232, 213)
-      doc.setFontSize(8)
-      doc.text(`Week ${block.week}`, margin, y)
-      doc.text(`Eps ${block.startEpisode}–${block.endEpisode}`, margin + 24, y)
-      doc.text(`${block.episodes} eps`, margin + 80, y)
-      doc.text(`${block.cumulativePercent}%`, margin + 110, y)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`Week ${m.week}`, M + 60, y + 4)
+      doc.text(`Episode ${m.episode}`, M + 90, y + 4)
 
       // Progress bar
-      const barX = margin + 125
-      const barW = contentWidth - 125
-      doc.setFillColor(44, 24, 16)
-      doc.rect(barX, y - 3, barW, 3, 'F')
-      doc.setFillColor(201, 146, 42)
-      doc.rect(barX, y - 3, (barW * block.cumulativePercent) / 100, 3, 'F')
+      const barX = M + 125
+      const barW = CW - 125 - 3
+      const fillW = (barW * m.percent) / 100
+      setFill(doc, [44, 24, 16])
+      doc.rect(barX, y, barW, 3, 'F')
+      setFill(doc, GOLD)
+      doc.rect(barX, y, fillW, 3, 'F')
+
+      setTextColor(doc, GOLD)
+      doc.setFontSize(7)
+      doc.text(`${m.percent}%`, W - M - 3, y + 3, { align: 'right' })
+
+      y += 13
     })
 
-    if (plan.weeklyBlocks.length > 20) {
-      const y = weekStartY + 8 + 20 * 8
-      doc.setTextColor(242, 232, 213)
+    y += 4
+    setDraw(doc, GOLD)
+    doc.setLineWidth(0.3)
+    doc.line(M, y, W - M, y)
+    y += 8
+
+    // Weekly breakdown
+    setTextColor(doc, GOLD)
+    doc.setFontSize(7)
+    doc.setFont('helvetica', 'normal')
+    doc.text('WEEK BY WEEK', M, y)
+    y += 6
+
+    // Column headers
+    setTextColor(doc, MUTED)
+    doc.setFontSize(7)
+    doc.text('WEEK', M + 3, y)
+    doc.text('EPISODES', M + 25, y)
+    doc.text('RANGE', M + 60, y)
+    doc.text('HOURS', M + 100, y)
+    doc.text('PROGRESS', M + 125, y)
+    y += 5
+
+    const maxWeeks = plan.weeklyBlocks.length
+    let pageBreakUsed = false
+
+    plan.weeklyBlocks.forEach((block, i) => {
+      if (y > H - 25) {
+        if (!pageBreakUsed) {
+          // Footer on first page
+          drawFooter(doc, W, H, M, title)
+          doc.addPage()
+          setFill(doc, ESPRESSO)
+          doc.rect(0, 0, W, H, 'F')
+          y = 20
+          pageBreakUsed = true
+        } else {
+          return
+        }
+      }
+
+      const isLast = block.endEpisode >= plan.totalEpisodes
+      if (isLast) {
+        setFill(doc, INK)
+        doc.rect(M, y - 2, CW, 9, 'F')
+      }
+
+      setTextColor(doc, isLast ? GOLD : PARCHMENT)
       doc.setFontSize(8)
-      doc.text(`... and ${plan.weeklyBlocks.length - 20} more weeks`, margin, y)
+      doc.setFont('helvetica', isLast ? 'bold' : 'normal')
+      doc.text(`${block.week}`, M + 3, y + 4)
+
+      setTextColor(doc, MUTED)
+      doc.setFont('helvetica', 'normal')
+      doc.text(`${block.episodes} eps`, M + 25, y + 4)
+      doc.text(`${block.startEpisode}–${block.endEpisode}`, M + 60, y + 4)
+      doc.text(`${block.hoursWatched}h`, M + 100, y + 4)
+
+      // Mini progress bar
+      const barX = M + 125
+      const barW = CW - 125 - 3
+      setFill(doc, [44, 24, 16])
+      doc.rect(barX, y + 1, barW, 2.5, 'F')
+      setFill(doc, GOLD)
+      doc.rect(barX, y + 1, (barW * block.cumulativePercent) / 100, 2.5, 'F')
+
+      setTextColor(doc, GOLD)
+      doc.setFontSize(6)
+      doc.text(`${block.cumulativePercent}%`, W - M - 3, y + 4, {
+        align: 'right',
+      })
+
+      y += 8
+    })
+
+    if (maxWeeks > 30 && !pageBreakUsed) {
+      setTextColor(doc, MUTED)
+      doc.setFontSize(7)
+      doc.text(`... and ${maxWeeks - 30} more weeks`, M, y + 4)
     }
+  } else {
+    // Movie — simple viewing note
+    setFill(doc, INK)
+    doc.rect(M, y, CW, 20, 'F')
+    setTextColor(doc, PARCHMENT)
+    doc.setFontSize(10)
+    doc.setFont('helvetica', 'bold')
+    doc.text('Your viewing plan has been generated by Bingely.', M + 4, y + 8)
+    setTextColor(doc, MUTED)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', 'normal')
+    doc.text(
+      'Open the share link to view your full session breakdown and calendar.',
+      M + 4,
+      y + 15
+    )
+    y += 28
   }
 
-  // Footer
+  drawFooter(doc, W, H, M, title)
+  doc.save(`${title.replace(/\s+/g, '-').toLowerCase()}-watch-plan.pdf`)
+}
+
+function drawFooter(
+  doc: jsPDF,
+  W: number,
+  H: number,
+  M: number,
+  title: string
+) {
   doc.setDrawColor(201, 146, 42)
-  doc.setLineWidth(0.2)
-  doc.line(margin, pageHeight - 16, pageWidth - margin, pageHeight - 16)
+  doc.setLineWidth(0.3)
+  doc.line(M, H - 14, W - M, H - 14)
   doc.setTextColor(201, 146, 42)
   doc.setFontSize(7)
-  doc.text('Generated by Bingely · bingely.app', margin, pageHeight - 10)
-
-  doc.save(`${title.replace(/\s+/g, '-').toLowerCase()}-watch-plan.pdf`)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Generated by Bingely · bingeplan.vercel.app', M, H - 9)
+  doc.text(title, W - M, H - 9, { align: 'right' })
 }
