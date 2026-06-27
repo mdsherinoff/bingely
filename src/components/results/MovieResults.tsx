@@ -92,6 +92,8 @@ export default function MovieResults({
               plan={exportPlan}
               title={media.title}
               releaseYear={media.releaseYear}
+              posterUrl={media.posterPath}
+              genres={media.genres}
             />
             <ShareButton />
           </div>

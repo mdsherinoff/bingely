@@ -320,6 +320,8 @@ export default function ResultsPage({
                     plan={plan}
                     title={media.title}
                     releaseYear={media.releaseYear}
+                    posterUrl={media.posterPath}
+                    genres={media.genres}
                   />
 
                   <ShareButton />
