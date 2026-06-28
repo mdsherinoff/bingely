@@ -13,12 +13,12 @@ export default function QuoteMarquee() {
   const repeated = [...quotes, ...quotes]
 
   return (
-    <div className="bg-ink border-gold/20 relative flex h-10 items-center overflow-hidden border-b">
+    <div className="bg-cinema-dark border-cinema-border relative flex h-10 items-center overflow-hidden border-b">
       <div className="animate-marquee flex gap-12 whitespace-nowrap">
         {repeated.map((quote, i) => (
           <span
             key={i}
-            className="text-gold/50 flex-shrink-0 font-mono text-xs tracking-widest"
+            className="text-cinema-muted flex-shrink-0 font-mono text-xs tracking-widest"
           >
             {quote}
           </span>

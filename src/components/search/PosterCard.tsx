@@ -27,7 +27,7 @@ export default function PosterCard({ item, index = 0 }: PosterCardProps) {
             <img
               src={item.posterPath}
               alt={item.title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="poster-color h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-4">

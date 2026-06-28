@@ -26,7 +26,7 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
           <img
             src={media.posterPath}
             alt={media.title}
-            className="h-full w-full object-cover"
+            className="poster-color h-full w-full object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">

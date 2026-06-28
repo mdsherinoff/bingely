@@ -1,43 +1,51 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-espresso: #1a1410;
-  --color-espresso-light: #2c1810;
-  --color-parchment: #f2e8d5;
-  --color-parchment-muted: #d4c4a8;
-  --color-gold: #c9922a;
-  --color-gold-muted: #a67420;
-  --color-rose: #c47b6e;
-  --color-rose-muted: #a36256;
-  --color-ink: #2c1810;
+  /* Monochrome palette */
+  --color-cinema-black: #080808;
+  --color-cinema-dark: #111111;
+  --color-cinema-surface: #1a1a1a;
+  --color-cinema-border: #2a2a2a;
+  --color-cinema-muted: #555555;
+  --color-cinema-silver: #a0a0a0;
+  --color-cinema-white: #f0f0f0;
+  --color-cinema-bright: #ffffff;
+
+  /* badge variants */
+  --color-espresso: #080808;
+  --color-espresso-light: #111111;
+  --color-ink: #1a1a1a;
+  --color-parchment: #f0f0f0;
+  --color-parchment-muted: #a0a0a0;
+  --color-gold: #d4d4d4;
+  --color-gold-muted: #a0a0a0;
+  --color-rose: #c0c0c0;
+  --color-rose-muted: #888888;
 
   --font-display: var(--font-playfair), serif;
   --font-body: var(--font-crimson), serif;
   --font-mono: var(--font-space-mono), monospace;
 
   --animate-marquee: marquee 40s linear infinite;
-}
-
-:root {
-  --color-gold: #C9922A;
+  --animate-shimmer: shimmer 1.5s infinite;
 }
 
 @keyframes marquee {
-  0%   { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 
-.grain::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 128px 128px;
-  z-index: 10;
-  mix-blend-mode: overlay;
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 @keyframes animate-in {
@@ -55,23 +63,64 @@
   animation: animate-in 0.3s ease forwards;
 }
 
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+/* Film grain */
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  z-index: 10;
+  mix-blend-mode: overlay;
 }
 
-.animate-shimmer {
-  animation: shimmer 1.5s infinite;
+/* Global grain on body */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+  z-index: 9999;
+  mix-blend-mode: overlay;
 }
 
-/* Visible focus rings for keyboard navigation */
+/* posters stay full color */
+.poster-color {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Focus rings */
 :focus-visible {
-  outline: 2px solid var(--color-gold, #C9922A);
+  outline: 2px solid #f0f0f0;
   outline-offset: 3px;
   border-radius: 2px;
 }
 
-/* Remove outline for mouse users */
 :focus:not(:focus-visible) {
   outline: none;
+}
+
+:root {
+  --color-gold: #d4d4d4;
+}
+/* Classic Cinema Mode */
+.cinema-classic {
+  filter: grayscale(100%) contrast(1.1) brightness(0.95);
+}
+
+.cinema-classic * {
+  font-family: var(--font-display), serif !important;
+  letter-spacing: 0.05em;
+}
+
+.cinema-classic .grain::after {
+  opacity: 0.12;
 }

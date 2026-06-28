@@ -32,7 +32,7 @@ export default function Hero() {
   return (
     <section className="grain relative flex min-h-screen flex-col items-center justify-center gap-10 px-4 text-center">
       {/* Vignette */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_#1A1410_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_#080808_100%)]" />
 
       <div className="relative z-10 flex flex-col items-center gap-6">
         {/* Eyebrow */}

@@ -77,6 +77,13 @@ export const achievements: Achievement[] = [
     icon: '▼',
     condition: 'Export any plan as PDF',
   },
+  {
+    id: 'cinephile-elite',
+    title: 'Cinephile Elite',
+    description: 'Discovered the Screening Room',
+    icon: '★',
+    condition: 'Find the secret',
+  },
 ]
 
 export function getAchievementById(id: string): Achievement | undefined {

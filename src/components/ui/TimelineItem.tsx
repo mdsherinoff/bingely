@@ -18,7 +18,13 @@ export default function TimelineItem({
       {/* Spine */}
       <div className="flex flex-col items-center">
         <div
-          className={`mt-1 h-3 w-3 flex-shrink-0 rounded-full border ${isComplete ? 'bg-gold border-gold' : isCurrent ? 'bg-rose border-rose' : 'border-parchment/20 bg-transparent'} `}
+          className={`mt-1 h-3 w-3 flex-shrink-0 rounded-full border ${
+            isComplete
+              ? 'bg-cinema-white border-cinema-white'
+              : isCurrent
+                ? 'bg-cinema-silver border-cinema-silver'
+                : 'border-cinema-border bg-transparent'
+          } `}
         />
         <div className="bg-parchment/10 mt-1 w-px flex-1" />
       </div>

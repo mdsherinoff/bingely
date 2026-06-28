@@ -23,11 +23,11 @@ interface TooltipProps {
 function CustomTooltip({ active, payload, label }: TooltipProps) {
   if (!active || !payload?.length) return null
   return (
-    <div className="bg-ink border-gold/20 rounded-sm border px-3 py-2">
-      <p className="text-parchment/40 font-mono text-xs tracking-widest">
+    <div className="bg-cinema-surface border-cinema-border rounded-sm border px-3 py-2">
+      <p className="text-cinema-silver font-mono text-xs tracking-widest">
         WEEK {label}
       </p>
-      <p className="font-body text-parchment text-sm">
+      <p className="font-body text-cinema-white text-sm">
         {payload[0].value}% complete
       </p>
     </div>
@@ -50,9 +50,9 @@ export default function ProgressChart({ blocks }: ProgressChartProps) {
             margin={{ top: 4, right: 4, bottom: 0, left: -24 }}
           >
             <defs>
-              <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#C9922A" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="#C9922A" stopOpacity={0} />
+              <linearGradient id="silverGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#D4D4D4" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="#D4D4D4" stopOpacity={0} />
               </linearGradient>
             </defs>
             <XAxis
@@ -88,11 +88,11 @@ export default function ProgressChart({ blocks }: ProgressChartProps) {
             <Area
               type="monotone"
               dataKey="percent"
-              stroke="#C9922A"
+              stroke="#D4D4D4"
               strokeWidth={1.5}
-              fill="url(#goldGradient)"
+              fill="url(#silverGradient)"
               dot={false}
-              activeDot={{ r: 4, fill: '#C9922A', strokeWidth: 0 }}
+              activeDot={{ r: 4, fill: '#D4D4D4', strokeWidth: 0 }}
             />
           </AreaChart>
         </ResponsiveContainer>

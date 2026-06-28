@@ -6,9 +6,9 @@ interface BadgeProps {
 }
 
 const styles: Record<BadgeVariant, string> = {
-  gold: 'bg-gold/10 text-gold border-gold/30',
-  rose: 'bg-rose/10 text-rose border-rose/30',
-  muted: 'bg-parchment/5 text-parchment/50 border-parchment/10',
+  gold: 'bg-white/10 text-cinema-white border-white/30',
+  rose: 'bg-white/5 text-cinema-silver border-white/20',
+  muted: 'bg-white/5 text-cinema-muted border-white/10',
 }
 
 export default function Badge({ children, variant = 'muted' }: BadgeProps) {

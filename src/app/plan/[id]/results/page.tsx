@@ -235,7 +235,7 @@ export default function ResultsPage({
                 <img
                   src={media.posterPath}
                   alt={`${media.title} poster`}
-                  className="h-full w-full object-cover"
+                  className="poster-color h-full w-full object-cover"
                 />
               </div>
             )}

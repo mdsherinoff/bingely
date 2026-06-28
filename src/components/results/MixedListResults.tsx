@@ -106,7 +106,7 @@ export default function MixedListResults({
                       <img
                         src={item.posterPath}
                         alt={item.title}
-                        className="aspect-[2/3] w-10 flex-shrink-0 rounded-sm object-cover"
+                        className="poster-color aspect-[2/3] w-10 flex-shrink-0 rounded-sm object-cover"
                       />
                     )}
                     <div className="flex flex-col gap-0.5">

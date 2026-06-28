@@ -160,7 +160,7 @@ export default function NewListPage() {
                         <img
                           src={item.posterPath}
                           alt={item.title}
-                          className="aspect-[2/3] w-8 flex-shrink-0 rounded-sm object-cover"
+                          className="poster-color aspect-[2/3] w-8 flex-shrink-0 rounded-sm object-cover"
                         />
                       )}
                       <div className="min-w-0 flex-1">

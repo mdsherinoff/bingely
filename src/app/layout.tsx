@@ -32,7 +32,9 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${crimson.variable} ${spaceMono.variable}`}
     >
-      <body className="bg-espresso text-parchment font-body">
+      <body
+        className={`${playfair.variable} ${crimson.variable} ${spaceMono.variable} font-body bg-cinema-black text-cinema-white`}
+      >
         <SkipLink />
         <Header />
         {children}
