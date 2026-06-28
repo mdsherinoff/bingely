@@ -30,7 +30,7 @@ export default function ChallengesPage() {
             <h1 className="font-display text-parchment text-6xl leading-none">
               Choose your journey
             </h1>
-            <p className="font-body text-parchment/40 text-lg italic">
+            <p className="text-parchment/40 font-mono text-lg">
               Curated collections for the dedicated cinephile
             </p>
           </div>

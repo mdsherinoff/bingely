@@ -19,7 +19,7 @@ export default function Select({
         </label>
       )}
       <select
-        className={`bg-ink border-gold/20 text-parchment font-body focus:border-gold/60 cursor-pointer appearance-none rounded-sm border px-4 py-3 text-base transition-colors focus:outline-none ${className} `}
+        className={`bg-ink border-gold/20 text-parchment focus:border-gold/60 cursor-pointer appearance-none rounded-sm border px-4 py-3 font-mono text-base transition-colors focus:outline-none ${className} `}
         {...props}
       >
         {options.map((opt) => (

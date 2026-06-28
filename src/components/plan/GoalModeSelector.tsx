@@ -109,7 +109,7 @@ export default function GoalModeSelector({
             } `}
           >
             <span className="font-mono text-xs">{m.icon}</span>
-            <span className="font-body">{m.label}</span>
+            <span className="font-mono">{m.label}</span>
           </button>
         ))}
       </div>

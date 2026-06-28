@@ -56,7 +56,7 @@ export default function PlanSummary({ plan, title }: PlanSummaryProps) {
               <p className="text-parchment/30 font-mono text-xs tracking-widest">
                 {s.label}
               </p>
-              <p className="font-body text-parchment text-lg">{s.value}</p>
+              <p className="text-parchment font-mono text-lg">{s.value}</p>
             </Card>
           </motion.div>
         ))}

@@ -144,7 +144,7 @@ export default function ListResultsPage({
   if (!plan || !list) {
     return (
       <main className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4">
-        <p className="font-body text-rose">Failed to generate plan</p>
+        <p className="text-rose font-mono">Failed to generate plan</p>
         <Button onClick={() => router.back()} variant="secondary">
           Go back
         </Button>
@@ -170,7 +170,7 @@ export default function ListResultsPage({
           <h1 className="font-display text-parchment text-5xl leading-none">
             {list.title}
           </h1>
-          <p className="font-body text-parchment/40 italic">
+          <p className="text-parchment/40 font-mono">
             {list.items.length} titles · {Math.round(totalRuntime / 60)}h total
           </p>
         </div>
@@ -241,7 +241,7 @@ export default function ListResultsPage({
                       <span className="text-parchment/20 w-5 font-mono text-xs">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <p className="font-body text-parchment/60 flex-1 truncate text-xs">
+                      <p className="text-parchment/60 flex-1 truncate font-mono text-xs">
                         {item.title}
                       </p>
                       <span className="text-parchment/20 flex-shrink-0 font-mono text-xs">

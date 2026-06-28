@@ -129,7 +129,7 @@ export default function ChallengeResultsPage({
   if (!plan || !challenge || !moviePlan || !challengeAsList) {
     return (
       <main className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4">
-        <p className="font-body text-rose">Failed to generate plan</p>
+        <p className="text-rose font-mono">Failed to generate plan</p>
         <Button onClick={() => router.back()} variant="secondary">
           Go back
         </Button>
@@ -156,7 +156,7 @@ export default function ChallengeResultsPage({
               <h1 className="font-display text-parchment text-5xl leading-none">
                 {challenge.title}
               </h1>
-              <p className="font-body text-parchment/40 italic">
+              <p className="text-parchment/40 font-mono">
                 {challenge.itemCount} films ·{' '}
                 {Math.round(challenge.totalRuntime / 60)}h total
               </p>

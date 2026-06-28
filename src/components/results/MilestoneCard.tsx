@@ -27,7 +27,7 @@ export default function MilestoneCard({
       {/* Content */}
       <div className="flex flex-col gap-1.5 pb-6">
         <div className="flex items-center gap-2">
-          <p className="font-body text-parchment text-base">
+          <p className="text-parchment font-mono text-base">
             {milestone.label}
           </p>
           <Badge variant={isLast ? 'gold' : 'muted'}>

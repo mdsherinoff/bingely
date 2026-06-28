@@ -22,7 +22,7 @@ export default function AchievementBadge({
       </span>
       <div className="flex flex-col gap-0.5">
         <p
-          className={`font-body text-sm ${unlocked ? 'text-parchment' : 'text-parchment/30'} `}
+          className={`font-mono text-sm ${unlocked ? 'text-parchment' : 'text-parchment/30'} `}
         >
           {achievement.title}
         </p>

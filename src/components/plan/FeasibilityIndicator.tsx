@@ -55,7 +55,7 @@ export default function FeasibilityIndicator({
         </div>
       </div>
 
-      <p className="font-body text-parchment/50 text-sm leading-relaxed">
+      <p className="text-parchment/50 font-mono text-sm leading-relaxed">
         {recommendation}
       </p>
     </div>

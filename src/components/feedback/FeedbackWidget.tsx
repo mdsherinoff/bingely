@@ -54,7 +54,7 @@ export default function FeedbackWidget() {
           {submitted ? (
             <div className="flex flex-col items-center gap-2 py-4">
               <span className="text-gold font-mono text-xl">✓</span>
-              <p className="font-body text-parchment text-sm">
+              <p className="text-parchment font-mono text-sm">
                 Thanks for the feedback!
               </p>
             </div>
@@ -103,13 +103,13 @@ export default function FeedbackWidget() {
                       : 'What did you love?'
                 }
                 rows={3}
-                className="bg-espresso border-gold/20 text-parchment font-body placeholder:text-parchment/20 focus:border-gold/40 resize-none rounded-sm border px-3 py-2 text-sm focus:outline-none"
+                className="bg-espresso border-gold/20 text-parchment placeholder:text-parchment/20 focus:border-gold/40 resize-none rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
               />
 
               <button
                 onClick={handleSubmit}
                 disabled={!message.trim()}
-                className="bg-gold text-espresso font-body hover:bg-gold-muted rounded-sm py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+                className="bg-gold text-espresso hover:bg-gold-muted rounded-sm py-2 font-mono text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-40"
               >
                 Send
               </button>

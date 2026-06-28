@@ -34,7 +34,7 @@ export default function Header() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="bg-ink border-gold/20 text-parchment font-body placeholder:text-parchment/30 focus:border-gold/50 w-full rounded-sm border px-4 py-2 text-sm transition-colors focus:outline-none"
+            className="bg-ink border-gold/20 text-parchment placeholder:text-parchment/30 focus:border-gold/50 w-full rounded-sm border px-4 py-2 font-mono text-sm transition-colors focus:outline-none"
           />
         </div>
 
@@ -74,7 +74,7 @@ export default function Header() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="bg-ink border-gold/20 text-parchment font-body placeholder:text-parchment/30 focus:border-gold/50 w-full rounded-sm border px-4 py-3 text-sm focus:outline-none"
+            className="bg-ink border-gold/20 text-parchment placeholder:text-parchment/30 focus:border-gold/50 w-full rounded-sm border px-4 py-3 font-mono text-sm focus:outline-none"
           />
           <nav className="flex flex-col gap-3">
             <Link

@@ -98,13 +98,13 @@ export default function AvailabilityForm({
             <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
               {itemLabel.toUpperCase()}
             </p>
-            <p className="font-body text-parchment text-2xl">{totalItems}</p>
+            <p className="text-parchment font-mono text-2xl">{totalItems}</p>
           </div>
           <div>
             <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
               TOTAL
             </p>
-            <p className="font-body text-parchment text-2xl">{totalHours}h</p>
+            <p className="text-parchment font-mono text-2xl">{totalHours}h</p>
           </div>
           <div>
             <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
@@ -158,7 +158,7 @@ export default function AvailabilityForm({
             <p className="text-parchment/30 mb-3 font-mono text-xs tracking-widest">
               ESTIMATED PLAN
             </p>
-            <p className="font-body text-parchment text-lg">
+            <p className="text-parchment font-mono text-lg">
               {adjustedItemsPerWeek} {itemLabel} / week
             </p>
             <p className="text-gold/60 mt-1 font-mono text-xs">

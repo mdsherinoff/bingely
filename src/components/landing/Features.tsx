@@ -26,7 +26,7 @@ export default function Features() {
           <div key={f.title} className="flex flex-col gap-4">
             <span className="text-gold font-mono text-2xl">{f.icon}</span>
             <h3 className="font-display text-parchment text-2xl">{f.title}</h3>
-            <p className="font-body text-parchment/50 text-base leading-relaxed">
+            <p className="text-parchment/50 font-mono text-base leading-relaxed">
               {f.body}
             </p>
           </div>

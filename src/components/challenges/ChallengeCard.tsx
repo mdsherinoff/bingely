@@ -49,7 +49,7 @@ export default function ChallengeCard({
           <h3 className="font-display text-parchment group-hover:text-gold text-2xl transition-colors">
             {challenge.title}
           </h3>
-          <p className="font-body text-parchment/40 text-sm leading-relaxed">
+          <p className="text-parchment/40 font-mono text-sm leading-relaxed">
             {challenge.description}
           </p>
         </div>
@@ -59,7 +59,7 @@ export default function ChallengeCard({
             <p className="text-parchment/20 font-mono text-xs tracking-widest">
               FILMS
             </p>
-            <p className="font-body text-parchment text-sm">
+            <p className="text-parchment font-mono text-sm">
               {challenge.itemCount}
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function ChallengeCard({
             <p className="text-parchment/20 font-mono text-xs tracking-widest">
               RUNTIME
             </p>
-            <p className="font-body text-parchment text-sm">
+            <p className="text-parchment font-mono text-sm">
               {formatRuntime(challenge.totalRuntime)}
             </p>
           </div>

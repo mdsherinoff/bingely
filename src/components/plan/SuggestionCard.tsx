@@ -34,11 +34,11 @@ export default function SuggestionCard({ suggestion }: SuggestionCardProps) {
       </span>
       <div className="flex flex-col gap-1">
         <p
-          className={`font-body text-sm font-semibold ${suggestion.level === 'warning' ? 'text-rose' : 'text-parchment'} `}
+          className={`font-mono text-sm font-semibold ${suggestion.level === 'warning' ? 'text-rose' : 'text-parchment'} `}
         >
           {suggestion.title}
         </p>
-        <p className="font-body text-parchment/50 text-sm leading-relaxed">
+        <p className="text-parchment/50 font-mono text-sm leading-relaxed">
           {suggestion.body}
         </p>
       </div>

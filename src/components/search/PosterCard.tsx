@@ -11,7 +11,6 @@ interface PosterCardProps {
 }
 
 export default function PosterCard({ item, index = 0 }: PosterCardProps) {
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -52,7 +51,7 @@ export default function PosterCard({ item, index = 0 }: PosterCardProps) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <p className="font-body text-parchment group-hover:text-gold text-base leading-tight transition-colors duration-200">
+          <p className="text-parchment group-hover:text-gold font-mono text-base leading-tight transition-colors duration-200">
             {item.title}
           </p>
           <div className="flex flex-wrap items-center gap-2">

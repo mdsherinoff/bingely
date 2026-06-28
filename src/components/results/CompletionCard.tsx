@@ -22,7 +22,7 @@ export default function CompletionCard({ plan, title }: CompletionCardProps) {
           {multiSession ? 'FINISH LINE' : "TONIGHT'S PLAN"}
         </p>
         <p className="font-display text-parchment text-3xl">{title}</p>
-        <p className="font-body text-parchment/50 italic">
+        <p className="text-parchment/50 font-mono">
           {plan.totalHours}h ·{' '}
           {multiSession ? `across ${plan.totalWeeks} weeks` : 'one sitting'}
         </p>
@@ -54,19 +54,19 @@ export default function CompletionCard({ plan, title }: CompletionCardProps) {
           <p className="text-parchment/30 font-mono text-xs tracking-widest">
             WEEKS
           </p>
-          <p className="font-body text-parchment text-2xl">{plan.totalWeeks}</p>
+          <p className="text-parchment font-mono text-2xl">{plan.totalWeeks}</p>
         </div>
         <div className="flex flex-col gap-0.5">
           <p className="text-parchment/30 font-mono text-xs tracking-widest">
             HOURS
           </p>
-          <p className="font-body text-parchment text-2xl">{plan.totalHours}</p>
+          <p className="text-parchment font-mono text-2xl">{plan.totalHours}</p>
         </div>
         <div className="flex flex-col gap-0.5">
           <p className="text-parchment/30 font-mono text-xs tracking-widest">
             EPS / WEEK
           </p>
-          <p className="font-body text-parchment text-2xl">
+          <p className="text-parchment font-mono text-2xl">
             {plan.episodesPerWeek}
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function CompletionCard({ plan, title }: CompletionCardProps) {
           <p className="text-parchment/30 font-mono text-xs tracking-widest">
             TOTAL EPS
           </p>
-          <p className="font-body text-parchment text-2xl">
+          <p className="text-parchment font-mono text-2xl">
             {plan.totalEpisodes}
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function CompletionCard({ plan, title }: CompletionCardProps) {
 
       <div className="bg-gold/10 h-px" />
 
-      <p className="font-body text-parchment/40 text-sm italic">
+      <p className="text-parchment/40 font-mono text-sm">
         {paceMessages[plan.pace]}
       </p>
     </div>

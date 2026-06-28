@@ -20,7 +20,7 @@ export default function ListPlanPage({
   if (!list) {
     return (
       <main className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4">
-        <p className="font-body text-parchment/40">List not found</p>
+        <p className="text-parchment/40 font-mono">List not found</p>
         <Button onClick={() => router.push('/list/new')} variant="secondary">
           Create a new list
         </Button>
@@ -48,7 +48,7 @@ export default function ListPlanPage({
           <h1 className="font-display text-parchment text-5xl leading-none">
             {list.title}
           </h1>
-          <p className="font-body text-parchment/40 italic">
+          <p className="text-parchment/40 font-mono">
             {list.items.length} titles · {Math.round(totalRuntime / 60)}h total
           </p>
         </div>

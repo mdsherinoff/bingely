@@ -127,7 +127,7 @@ export default function ScreeningRoom() {
             <h1 className="font-display text-parchment text-5xl">
               A Place for Cinephiles
             </h1>
-            <p className="font-body text-parchment/40 max-w-lg italic">
+            <p className="text-parchment/40 font-display max-w-lg italic">
               Only those who know the code may enter. Welcome.
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function ScreeningRoom() {
               <h2 className="font-display text-parchment group-hover:text-gold text-3xl transition-colors">
                 {SECRET_CHALLENGE.title}
               </h2>
-              <p className="font-body text-parchment/40 italic">
+              <p className="text-parchment/40 font-display italic">
                 {SECRET_CHALLENGE.description}
               </p>
               <p className="text-gold/40 mt-2 font-mono text-xs tracking-widest">
@@ -206,7 +206,7 @@ export default function ScreeningRoom() {
             <p className="text-gold/60 font-mono text-xs tracking-widest">
               CINEPHILE ELITE
             </p>
-            <p className="font-body text-parchment/60 text-sm">
+            <p className="text-parchment/60 font-mono text-sm">
               {isUnlocked('challenge-accepted')
                 ? 'Achievement unlocked. You are among the few.'
                 : 'Keep exploring to unlock this achievement.'}

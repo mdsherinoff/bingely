@@ -33,7 +33,7 @@ export default function TimelineItem({
         <p className="text-parchment/40 mb-1 font-mono text-xs tracking-widest">
           WEEK {week}
         </p>
-        <p className="font-body text-parchment text-base">{label}</p>
+        <p className="text-parchment font-mono text-base">{label}</p>
         <p className="text-gold/70 mt-1 font-mono text-xs">
           {episodes} episodes
         </p>

@@ -50,13 +50,13 @@ export default function Hero() {
 
         {/* Hidden quote reveal */}
         {quote && (
-          <p className="font-body text-gold/60 animate-in max-w-sm text-sm italic">
+          <p className="text-gold/60 animate-in font-display max-w-sm text-sm italic">
             {quote}
           </p>
         )}
 
         {/* Tagline */}
-        <p className="font-body text-parchment/50 max-w-md text-xl italic">
+        <p className="text-parchment/50 max-w-md font-mono text-xl">
           Stop wondering when you'll finish. Start watching with a plan.
         </p>
 

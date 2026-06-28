@@ -170,7 +170,7 @@ export default function ResultsPage({
         id="main-content"
         className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4"
       >
-        <p className="font-body text-rose">Failed to generate plan</p>
+        <p className="text-rose font-mono">Failed to generate plan</p>
         <Button onClick={() => router.back()} variant="secondary">
           Go back
         </Button>
@@ -201,7 +201,7 @@ export default function ResultsPage({
                 {media.title}
               </h1>
 
-              <p className="font-body text-parchment/40 text-sm italic sm:text-base">
+              <p className="text-parchment/40 font-mono text-sm sm:text-base">
                 {media.releaseYear} · {media.genres.slice(0, 3).join(', ')}
               </p>
 

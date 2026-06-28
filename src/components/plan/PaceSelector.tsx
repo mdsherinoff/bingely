@@ -60,7 +60,7 @@ export default function PaceSelector({ value, onChange }: PaceSelectorProps) {
         >
           <div className="flex flex-col gap-0.5">
             <span
-              className={`font-body text-base ${value === p.mode ? 'text-parchment' : 'text-parchment/50'}`}
+              className={`font-mono text-base ${value === p.mode ? 'text-parchment' : 'text-parchment/50'}`}
             >
               {p.label}
             </span>

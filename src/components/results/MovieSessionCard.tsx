@@ -27,7 +27,7 @@ export default function MovieSessionCard({
           <p className="text-parchment/30 font-mono text-xs tracking-widest">
             SESSION {session.sessionNumber}
           </p>
-          <p className="font-body text-parchment text-base">
+          <p className="text-parchment font-mono text-base">
             {session.date.toLocaleDateString('en-US', {
               weekday: 'long',
               month: 'short',

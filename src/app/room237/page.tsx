@@ -11,7 +11,7 @@ export default function Room237() {
         <h1 className="font-display text-parchment text-6xl">
           You weren't supposed to find this.
         </h1>
-        <p className="font-body text-parchment/30 text-lg italic">
+        <p className="text-parchment/30 font-display font-display text-lg italic">
           "All work and no play makes Jack a dull boy."
         </p>
         <div className="border-gold/10 mt-4 rounded-sm border p-6">

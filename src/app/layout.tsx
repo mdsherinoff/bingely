@@ -1,4 +1,4 @@
-import { Playfair_Display, Crimson_Text, Space_Mono } from 'next/font/google'
+import { Playfair_Display, Space_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import SkipLink from '@/components/layout/SkipLink'
@@ -8,12 +8,6 @@ import { Analytics } from '@vercel/analytics/next'
 const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
-})
-
-const crimson = Crimson_Text({
-  weight: ['400', '600'],
-  subsets: ['latin'],
-  variable: '--font-crimson',
 })
 
 const spaceMono = Space_Mono({
@@ -28,12 +22,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html
-      lang="en"
-      className={`${playfair.variable} ${crimson.variable} ${spaceMono.variable}`}
-    >
+    <html lang="en" className={`${playfair.variable} ${spaceMono.variable}`}>
       <body
-        className={`${playfair.variable} ${crimson.variable} ${spaceMono.variable} font-body bg-cinema-black text-cinema-white`}
+        className={`${playfair.variable} ${spaceMono.variable} bg-cinema-black text-cinema-white font-mono`}
       >
         <SkipLink />
         <Header />

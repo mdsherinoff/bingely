@@ -104,7 +104,7 @@ export default function NewListPage() {
           <h1 className="font-display text-parchment text-5xl leading-none">
             Build your list
           </h1>
-          <p className="font-body text-parchment/40 italic">
+          <p className="text-parchment/40 font-mono">
             Add any mix of films and series, then plan them all at once.
           </p>
         </div>
@@ -119,7 +119,7 @@ export default function NewListPage() {
             placeholder="e.g. My 2025 Watchlist, Date Night Films..."
             value={listTitle}
             onChange={(e) => setListTitle(e.target.value)}
-            className="bg-ink border-gold/20 text-parchment font-body placeholder:text-parchment/20 focus:border-gold/50 max-w-lg rounded-sm border px-4 py-3 text-lg focus:outline-none"
+            className="bg-ink border-gold/20 text-parchment placeholder:text-parchment/20 focus:border-gold/50 max-w-lg rounded-sm border px-4 py-3 font-mono text-lg focus:outline-none"
           />
         </div>
 
@@ -135,7 +135,7 @@ export default function NewListPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="bg-ink border-gold/20 text-parchment font-body placeholder:text-parchment/20 focus:border-gold/50 flex-1 rounded-sm border px-4 py-2.5 text-sm focus:outline-none"
+                className="bg-ink border-gold/20 text-parchment placeholder:text-parchment/20 focus:border-gold/50 flex-1 rounded-sm border px-4 py-2.5 font-mono text-sm focus:outline-none"
               />
               <Button
                 onClick={handleSearch}
@@ -164,7 +164,7 @@ export default function NewListPage() {
                         />
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="font-body text-parchment truncate text-sm">
+                        <p className="text-parchment truncate font-mono text-sm">
                           {item.title}
                         </p>
                         <div className="mt-0.5 flex items-center gap-2">
@@ -216,7 +216,7 @@ export default function NewListPage() {
             {items.length === 0 ? (
               <div className="border-gold/10 flex flex-col items-center gap-3 rounded-sm border p-8">
                 <span className="text-gold/20 font-mono text-2xl">◎</span>
-                <p className="font-body text-parchment/30 text-center text-sm">
+                <p className="text-parchment/30 text-center font-mono text-sm">
                   Search and add titles to build your list
                 </p>
               </div>
@@ -238,7 +238,7 @@ export default function NewListPage() {
                       />
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="font-body text-parchment truncate text-sm">
+                      <p className="text-parchment truncate font-mono text-sm">
                         {item.title}
                       </p>
                       <p className="text-parchment/30 font-mono text-xs">

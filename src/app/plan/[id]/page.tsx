@@ -105,7 +105,7 @@ export default function PlanPage({
         id="main-content"
         className="bg-espresso flex min-h-screen items-center justify-center"
       >
-        <p className="font-body text-rose">Failed to load media details</p>
+        <p className="text-rose font-mono">Failed to load media details</p>
       </main>
     )
   }
@@ -175,7 +175,7 @@ export default function PlanPage({
               </p>
               {media.mediaType === 'tv' ? (
                 <>
-                  <p className="font-body text-parchment text-lg">
+                  <p className="text-parchment font-mono text-lg">
                     {adjustedEpsPerWeek} episodes / week
                   </p>
                   <p className="text-gold/60 mt-1 font-mono text-xs">
@@ -186,7 +186,7 @@ export default function PlanPage({
                 </>
               ) : (
                 <>
-                  <p className="font-body text-parchment text-lg">
+                  <p className="text-parchment font-mono text-lg">
                     {media.runtime} min total
                   </p>
                   <p className="text-gold/60 mt-1 font-mono text-xs">

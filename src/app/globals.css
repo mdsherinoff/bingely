@@ -23,7 +23,7 @@
   --color-rose-muted: #888888;
 
   --font-display: var(--font-playfair), serif;
-  --font-body: var(--font-crimson), serif;
+  --font-mono: var(--font-space-mono), monospace;
   --font-mono: var(--font-space-mono), monospace;
 
   --animate-marquee: marquee 40s linear infinite;

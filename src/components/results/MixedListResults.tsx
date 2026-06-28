@@ -48,7 +48,7 @@ export default function MixedListResults({
             <p className="text-parchment/30 font-mono text-xs tracking-widest">
               {s.label}
             </p>
-            <p className="font-body text-parchment text-base leading-tight">
+            <p className="text-parchment font-mono text-base leading-tight">
               {s.value}
             </p>
           </div>
@@ -113,7 +113,7 @@ export default function MixedListResults({
                       <p className="text-parchment/30 font-mono text-xs tracking-widest">
                         FILM {String(i + 1).padStart(2, '0')}
                       </p>
-                      <p className="font-body text-parchment text-base">
+                      <p className="text-parchment font-mono text-base">
                         {item.title}
                       </p>
                       <p className="text-parchment/30 font-mono text-xs">
@@ -129,7 +129,7 @@ export default function MixedListResults({
                         className="border-gold/10 flex items-center justify-between rounded-sm border px-3 py-2"
                       >
                         <div className="flex flex-col gap-0.5">
-                          <p className="font-body text-parchment/70 text-sm">
+                          <p className="text-parchment/70 font-mono text-sm">
                             {s.date.toLocaleDateString('en-US', {
                               weekday: 'long',
                               month: 'short',
@@ -212,7 +212,7 @@ export default function MixedListResults({
                       <span className="text-parchment/20 w-5 font-mono text-xs">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <p className="font-body text-parchment/60 flex-1 truncate text-xs">
+                      <p className="text-parchment/60 flex-1 truncate font-mono text-xs">
                         {item.title}
                       </p>
                       <span className="text-parchment/20 font-mono text-xs">

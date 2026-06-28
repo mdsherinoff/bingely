@@ -27,7 +27,7 @@ export default function AchievementToast({
         <p className="text-gold/60 font-mono text-xs tracking-widest">
           ACHIEVEMENT UNLOCKED
         </p>
-        <p className="font-body text-parchment text-base">
+        <p className="text-parchment font-mono text-base">
           {achievement.title}
         </p>
         <p className="text-parchment/40 font-mono text-xs">

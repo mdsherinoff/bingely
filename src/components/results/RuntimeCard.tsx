@@ -34,7 +34,7 @@ export default function RuntimeCard({ plan }: RuntimeCardProps) {
       </p>
       <div className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between">
-          <p className="font-body text-parchment/60 text-sm">
+          <p className="text-parchment/60 font-mono text-sm">
             Total watch time
           </p>
           <p className="text-parchment font-mono text-sm">
@@ -42,19 +42,19 @@ export default function RuntimeCard({ plan }: RuntimeCardProps) {
           </p>
         </div>
         <div className="flex items-baseline justify-between">
-          <p className="font-body text-parchment/60 text-sm">That's</p>
+          <p className="text-parchment/60 font-mono text-sm">That's</p>
           <p className="text-parchment font-mono text-sm">
             {daysOfWatching} full days
           </p>
         </div>
         <div className="flex items-baseline justify-between">
-          <p className="font-body text-parchment/60 text-sm">
+          <p className="text-parchment/60 font-mono text-sm">
             Journey duration
           </p>
           <p className="text-parchment font-mono text-sm">{duration}</p>
         </div>
         <div className="flex items-baseline justify-between">
-          <p className="font-body text-parchment/60 text-sm">
+          <p className="text-parchment/60 font-mono text-sm">
             Episodes per week
           </p>
           <p className="text-parchment font-mono text-sm">
@@ -62,7 +62,7 @@ export default function RuntimeCard({ plan }: RuntimeCardProps) {
           </p>
         </div>
         <div className="border-gold/10 flex items-baseline justify-between border-t pt-3">
-          <p className="font-body text-parchment/60 text-sm">Average per day</p>
+          <p className="text-parchment/60 font-mono text-sm">Average per day</p>
           <p className="text-gold font-mono text-sm">
             {episodesPerDay} eps/day
           </p>

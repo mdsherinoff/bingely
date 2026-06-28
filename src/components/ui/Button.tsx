@@ -8,11 +8,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const styles: Record<Variant, string> = {
   primary:
-    'bg-cinema-white text-cinema-black font-body font-semibold hover:bg-cinema-silver transition-colors',
+    'bg-cinema-white text-cinema-black font-mono font-semibold hover:bg-cinema-silver transition-colors',
   secondary:
-    'border border-cinema-border text-cinema-white font-body hover:border-cinema-silver transition-colors',
+    'border border-cinema-border text-cinema-white font-mono hover:border-cinema-silver transition-colors',
   ghost:
-    'text-cinema-silver font-body hover:text-cinema-white transition-colors',
+    'text-cinema-silver font-mono hover:text-cinema-white transition-colors',
 }
 
 export default function Button({

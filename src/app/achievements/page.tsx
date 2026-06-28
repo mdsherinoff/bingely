@@ -26,7 +26,7 @@ export default function AchievementsPage() {
             <h1 className="font-display text-parchment text-6xl leading-none">
               Your badges
             </h1>
-            <p className="font-body text-parchment/40 italic">
+            <p className="text-parchment/40 font-mono">
               {unlocked.size} of {achievements.length} unlocked
             </p>
           </div>

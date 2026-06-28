@@ -12,7 +12,7 @@ export default function ExamplePlan() {
           <h2 className="font-display text-parchment text-5xl leading-tight">
             One Piece in 11 months
           </h2>
-          <p className="font-body text-parchment/50 text-lg leading-relaxed">
+          <p className="text-parchment/50 font-mono text-lg leading-relaxed">
             1,122 episodes sounds impossible. With 3 hours free on weekdays and
             6 on weekends, Bingely maps out exactly how you get there — arc by
             arc, week by week.

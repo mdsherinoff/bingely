@@ -27,7 +27,7 @@ function CustomTooltip({ active, payload, label }: TooltipProps) {
       <p className="text-cinema-silver font-mono text-xs tracking-widest">
         WEEK {label}
       </p>
-      <p className="font-body text-cinema-white text-sm">
+      <p className="text-cinema-white font-mono text-sm">
         {payload[0].value}% complete
       </p>
     </div>

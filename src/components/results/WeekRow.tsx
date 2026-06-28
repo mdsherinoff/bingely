@@ -33,7 +33,7 @@ export default function WeekRow({
           <p className="text-parchment/30 font-mono text-xs tracking-widest">
             WEEK {block.week}
           </p>
-          <p className="font-body text-parchment text-base">
+          <p className="text-parchment font-mono text-base">
             Episodes {block.startEpisode}–{block.endEpisode}
           </p>
         </div>

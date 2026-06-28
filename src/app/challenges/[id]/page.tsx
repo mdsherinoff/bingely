@@ -48,7 +48,7 @@ export default async function ChallengePage({
           <h1 className="font-display text-parchment text-6xl leading-none">
             {challenge.title}
           </h1>
-          <p className="font-body text-parchment/40 text-lg italic">
+          <p className="text-parchment/40 font-mono text-lg">
             {challenge.description}
           </p>
 
@@ -58,7 +58,7 @@ export default async function ChallengePage({
               <p className="text-parchment/30 font-mono text-xs tracking-widest">
                 FILMS
               </p>
-              <p className="font-body text-parchment text-2xl">
+              <p className="text-parchment font-mono text-2xl">
                 {challenge.itemCount}
               </p>
             </div>
@@ -66,7 +66,7 @@ export default async function ChallengePage({
               <p className="text-parchment/30 font-mono text-xs tracking-widest">
                 TOTAL RUNTIME
               </p>
-              <p className="font-body text-parchment text-2xl">{totalHours}h</p>
+              <p className="text-parchment font-mono text-2xl">{totalHours}h</p>
             </div>
           </div>
         </div>
@@ -76,13 +76,13 @@ export default async function ChallengePage({
           <p className="text-gold/60 font-mono text-xs tracking-widest">
             READY TO START?
           </p>
-          <p className="font-body text-parchment/60 text-sm">
+          <p className="text-parchment/60 font-mono text-sm">
             Plan this entire challenge around your schedule. Get a week-by-week
             breakdown and know exactly when you'll finish.
           </p>
           <Link
             href={`/challenges/${id}/plan`}
-            className="bg-gold text-espresso font-body hover:bg-gold-muted inline-flex w-fit items-center gap-2 rounded-sm px-5 py-2.5 text-sm font-semibold transition-colors"
+            className="bg-gold text-espresso hover:bg-gold-muted inline-flex w-fit items-center gap-2 rounded-sm px-5 py-2.5 font-mono text-sm font-semibold transition-colors"
           >
             Plan this challenge →
           </Link>
@@ -103,7 +103,7 @@ export default async function ChallengePage({
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div className="flex-1">
-                  <p className="font-body text-parchment text-base">
+                  <p className="text-parchment font-mono text-base">
                     {item.title}
                   </p>
                   <p className="text-parchment/30 font-mono text-xs">

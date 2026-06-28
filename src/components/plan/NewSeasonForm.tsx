@@ -26,7 +26,7 @@ export default function NewSeasonForm({
           placeholder="e.g. One Piece Season 2, Wano Arc..."
           value={value.seasonName}
           onChange={(e) => onChange({ ...value, seasonName: e.target.value })}
-          className="bg-espresso border-gold/20 text-parchment font-body placeholder:text-parchment/20 focus:border-gold/50 rounded-sm border px-3 py-2 text-sm focus:outline-none"
+          className="bg-espresso border-gold/20 text-parchment placeholder:text-parchment/20 focus:border-gold/50 rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
         />
       </div>
 

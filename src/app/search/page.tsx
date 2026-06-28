@@ -36,7 +36,7 @@ function SearchContent() {
         )}
 
         {error && (
-          <p className="font-body text-rose py-20 text-center">{error}</p>
+          <p className="text-rose py-20 text-center font-mono">{error}</p>
         )}
 
         {loading ? (
@@ -51,7 +51,7 @@ function SearchContent() {
             <p className="font-display text-parchment/30 text-3xl">
               No results found
             </p>
-            <p className="font-body text-parchment/20 italic">
+            <p className="text-parchment/20 font-mono">
               Try searching for something else
             </p>
           </div>
