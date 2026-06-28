@@ -1,7 +1,7 @@
 'use client'
 
 import { MoviePlan } from '@/lib/scheduler'
-import { MediaItem, AvailabilityConfig } from '@/types/media'
+import { MediaItem } from '@/types/media'
 import MovieSessionCard from './MovieSessionCard'
 import MovieCalendar from './MovieCalendar'
 import ExportButton from './ExportButton'
@@ -94,6 +94,7 @@ export default function MovieResults({
               releaseYear={media.releaseYear}
               posterUrl={media.posterPath}
               genres={media.genres}
+              moviePlan={moviePlan}
             />
             <ShareButton />
           </div>

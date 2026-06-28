@@ -11,10 +11,6 @@ interface PosterCardProps {
 }
 
 export default function PosterCard({ item, index = 0 }: PosterCardProps) {
-  const meta =
-    item.mediaType === 'tv'
-      ? `${item.episodeCount} eps · ${item.seasonCount} seasons`
-      : `${item.runtime} min`
 
   return (
     <motion.div
@@ -67,7 +63,6 @@ export default function PosterCard({ item, index = 0 }: PosterCardProps) {
               {item.releaseYear}
             </span>
           </div>
-          <p className="text-parchment/30 font-mono text-xs">{meta}</p>
         </div>
       </Link>
     </motion.div>

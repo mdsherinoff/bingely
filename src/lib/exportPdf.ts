@@ -1,8 +1,8 @@
 import jsPDF from 'jspdf'
 import QRCode from 'qrcode'
 import { WatchPlan } from '@/types/media'
+import { MoviePlan } from '@/lib/scheduler'
 
-// Color constants
 const C = {
   espresso: [26, 20, 16] as const,
   ink: [44, 24, 16] as const,
@@ -29,6 +29,13 @@ function formatHours(hours: number): string {
   return `${h}h ${m}m`
 }
 
+function formatTime(time: string): string {
+  const [h, m] = time.split(':').map(Number)
+  const period = h >= 12 ? 'PM' : 'AM'
+  const hour = h % 12 || 12
+  return `${hour}${m > 0 ? `:${String(m).padStart(2, '0')}` : ''} ${period}`
+}
+
 async function loadImageAsBase64(url: string): Promise<string | null> {
   try {
     const res = await fetch(url)
@@ -48,31 +55,11 @@ async function generateQRDataUrl(text: string): Promise<string> {
   return QRCode.toDataURL(text, {
     width: 120,
     margin: 1,
-    color: {
-      dark: '#C9922A',
-      light: '#1A1410',
-    },
+    color: { dark: '#C9922A', light: '#1A1410' },
   })
 }
 
-export async function exportPlanAsPdf(
-  plan: WatchPlan,
-  title: string,
-  releaseYear: string,
-  posterUrl?: string | null,
-  genres?: string[],
-  shareUrl?: string
-) {
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
-  const W = doc.internal.pageSize.getWidth()
-  const H = doc.internal.pageSize.getHeight()
-  const M = 14
-
-  // ── Background ──────────────────────────────────────────────
-  rgb(doc, 'fill', C.espresso)
-  doc.rect(0, 0, W, H, 'F')
-
-  // ── Top bar ─────────────────────────────────────────────────
+function drawHeader(doc: jsPDF, W: number, M: number) {
   rgb(doc, 'fill', C.ink)
   doc.rect(0, 0, W, 12, 'F')
   rgb(doc, 'text', C.gold)
@@ -89,13 +76,61 @@ export async function exportPlanAsPdf(
     8,
     { align: 'right' }
   )
-
-  // ── Gold rule ────────────────────────────────────────────────
   rgb(doc, 'draw', C.gold)
   doc.setLineWidth(0.6)
   doc.line(M, 12, W - M, 12)
+}
 
-  // ── Poster ───────────────────────────────────────────────────
+function drawFooter(
+  doc: jsPDF,
+  W: number,
+  H: number,
+  M: number,
+  title: string,
+  qrDataUrl: string
+) {
+  const footerY = H - 38
+  rgb(doc, 'draw', C.gold)
+  doc.setLineWidth(0.4)
+  doc.line(M, footerY, W - M, footerY)
+
+  const qrSize = 26
+  const qrX = W - M - qrSize
+  const qrY = footerY + 5
+
+  rgb(doc, 'fill', C.ink)
+  doc.rect(qrX - 2, qrY - 2, qrSize + 4, qrSize + 4, 'F')
+  doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize)
+
+  rgb(doc, 'text', C.muted)
+  doc.setFontSize(5.5)
+  doc.text('SCAN FOR', qrX + qrSize / 2, qrY + qrSize + 4, { align: 'center' })
+  doc.text('FULL PLAN', qrX + qrSize / 2, qrY + qrSize + 8, { align: 'center' })
+
+  rgb(doc, 'text', C.gold)
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Bingely', M, footerY + 9)
+
+  rgb(doc, 'text', C.muted)
+  doc.setFontSize(7)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Your personal cinema planner', M, footerY + 15)
+  doc.setFontSize(6)
+  doc.text('bingeplan.vercel.app', M, footerY + 21)
+  doc.text(title, M, footerY + 27)
+}
+
+function drawPosterAndTitle(
+  doc: jsPDF,
+  M: number,
+  W: number,
+  imgData: string | null,
+  title: string,
+  releaseYear: string,
+  genres: string[] | undefined,
+  mediaLabel: string
+): number {
   const posterX = M
   const posterY = 18
   const posterW = 42
@@ -106,17 +141,8 @@ export async function exportPlanAsPdf(
   doc.setLineWidth(0.3)
   doc.rect(posterX, posterY, posterW, posterH, 'FD')
 
-  if (posterUrl) {
-    const imgData = await loadImageAsBase64(posterUrl)
-    if (imgData) {
-      doc.addImage(imgData, 'JPEG', posterX, posterY, posterW, posterH)
-    } else {
-      rgb(doc, 'text', C.gold)
-      doc.setFontSize(16)
-      doc.text('◎', posterX + posterW / 2, posterY + posterH / 2, {
-        align: 'center',
-      })
-    }
+  if (imgData) {
+    doc.addImage(imgData, 'JPEG', posterX, posterY, posterW, posterH)
   } else {
     rgb(doc, 'text', C.gold)
     doc.setFontSize(16)
@@ -125,7 +151,6 @@ export async function exportPlanAsPdf(
     })
   }
 
-  // ── Title block (right of poster) ────────────────────────────
   const titleX = posterX + posterW + 8
   const titleW = W - titleX - M
   let ty = posterY + 6
@@ -133,7 +158,7 @@ export async function exportPlanAsPdf(
   rgb(doc, 'text', C.gold)
   doc.setFontSize(6.5)
   doc.setFont('helvetica', 'normal')
-  doc.text(plan.mediaType === 'tv' ? 'SERIES' : 'FILM', titleX, ty)
+  doc.text(mediaLabel, titleX, ty)
   ty += 6
 
   rgb(doc, 'text', C.parchment)
@@ -150,233 +175,446 @@ export async function exportPlanAsPdf(
   ty += 5
 
   if (genres && genres.length > 0) {
-    rgb(doc, 'text', C.muted)
-    doc.setFontSize(7.5)
     doc.text(genres.slice(0, 3).join(' · '), titleX, ty)
-    ty += 6
+    ty += 5
   }
 
-  ty += 2
+  return Math.max(posterY + posterH + 8, ty + 4)
+}
 
-  // ── Stat pills ───────────────────────────────────────────────
-  const stats =
-    plan.mediaType === 'tv'
-      ? [
-          { label: 'DONE BY', value: plan.completionDate },
-          { label: 'WEEKS', value: `${plan.totalWeeks}` },
-          { label: 'EPS/WEEK', value: `${plan.episodesPerWeek}` },
-          { label: 'HOURS', value: formatHours(plan.totalHours) },
-          { label: 'PACE', value: plan.pace.toUpperCase() },
-        ]
-      : [
-          { label: 'DONE BY', value: plan.completionDate },
-          { label: 'RUNTIME', value: `${plan.runtime} min` },
-          { label: 'HOURS', value: formatHours(plan.totalHours) },
-        ]
+// ── MOVIE PDF ──────────────────────────────────────────────────────────────────
+async function exportMoviePdf(
+  doc: jsPDF,
+  W: number,
+  H: number,
+  M: number,
+  title: string,
+  releaseYear: string,
+  genres: string[] | undefined,
+  posterUrl: string | null | undefined,
+  moviePlan: MoviePlan,
+  qrDataUrl: string
+) {
+  drawHeader(doc, W, M)
 
-  const pillW = titleW / 2 - 2
-  const pillH = 12
+  const imgData = posterUrl ? await loadImageAsBase64(posterUrl) : null
+  let y = drawPosterAndTitle(
+    doc,
+    M,
+    W,
+    imgData,
+    title,
+    releaseYear,
+    genres,
+    'FILM'
+  )
 
-  stats.forEach((s, i) => {
-    const col = i % 2
-    const row = Math.floor(i / 2)
-    const px = titleX + col * (pillW + 4)
-    const py = ty + row * (pillH + 3)
+  // Divider
+  rgb(doc, 'draw', C.gold)
+  doc.setLineWidth(0.4)
+  doc.line(M, y, W - M, y)
+  y += 7
 
+  // Summary stats row
+  const summaryStats = [
+    {
+      label: 'FINISH DATE',
+      value: moviePlan.completionDate,
+    },
+    {
+      label: 'TOTAL RUNTIME',
+      value: `${moviePlan.totalRuntime} min`,
+    },
+    {
+      label: 'TOTAL HOURS',
+      value: formatHours(moviePlan.totalRuntime / 60),
+    },
+    {
+      label: 'SESSIONS',
+      value: `${moviePlan.totalSessions}`,
+    },
+  ]
+
+  const statW = (W - M * 2 - 9) / 4
+  summaryStats.forEach((s, i) => {
+    const sx = M + i * (statW + 3)
     rgb(doc, 'fill', C.ink)
     rgb(doc, 'draw', C.border)
     doc.setLineWidth(0.2)
-    doc.rect(px, py, pillW, pillH, 'FD')
+    doc.rect(sx, y, statW, 14, 'FD')
 
     rgb(doc, 'text', C.gold)
     doc.setFontSize(5.5)
     doc.setFont('helvetica', 'normal')
-    doc.text(s.label, px + 3, py + 4)
+    doc.text(s.label, sx + 3, y + 4.5)
+
+    rgb(doc, 'text', C.parchment)
+    doc.setFontSize(8.5)
+    doc.setFont('helvetica', 'bold')
+    doc.text(s.value, sx + 3, y + 11)
+  })
+
+  y += 20
+
+  // Divider
+  rgb(doc, 'draw', C.border)
+  doc.setLineWidth(0.2)
+  doc.line(M, y, W - M, y)
+  y += 6
+
+  // Session breakdown header
+  rgb(doc, 'text', C.gold)
+  doc.setFontSize(6.5)
+  doc.setFont('helvetica', 'normal')
+  doc.text('VIEWING SESSIONS', M, y)
+  y += 5
+
+  // Column headers
+  rgb(doc, 'fill', C.ink)
+  doc.rect(M, y - 1, W - M * 2, 6, 'F')
+
+  const sessionCols = [
+    { label: 'SESSION', x: M + 2, w: 16 },
+    { label: 'DATE', x: M + 20, w: 40 },
+    { label: 'TIME', x: M + 62, w: 38 },
+    { label: 'DURATION', x: M + 102, w: 24 },
+    { label: 'MINUTES', x: M + 128, w: W - M - 128 - M },
+  ]
+
+  sessionCols.forEach((col) => {
+    rgb(doc, 'text', C.gold)
+    doc.setFontSize(5.5)
+    doc.setFont('helvetica', 'normal')
+    doc.text(col.label, col.x, y + 3.5)
+  })
+  y += 7
+
+  // Session rows
+  const footerStart = H - 42
+  const rowH = 9
+
+  moviePlan.sessions.forEach((session, i) => {
+    if (y + rowH > footerStart) return
+
+    const isLast = session.isComplete
+    const isAlt = i % 2 === 1
+
+    if (isLast) {
+      rgb(doc, 'fill', C.ink)
+      doc.rect(M, y - 1, W - M * 2, rowH, 'F')
+      rgb(doc, 'draw', C.gold)
+      doc.setLineWidth(0.2)
+      doc.rect(M, y - 1, W - M * 2, rowH, 'S')
+    } else if (isAlt) {
+      rgb(doc, 'fill', [35, 26, 20])
+      doc.rect(M, y - 1, W - M * 2, rowH, 'F')
+    }
+
+    // Session number
+    rgb(doc, 'text', isLast ? C.gold : C.parchment)
+    doc.setFontSize(8)
+    doc.setFont('helvetica', isLast ? 'bold' : 'normal')
+    doc.text(`${session.sessionNumber}`, sessionCols[0].x, y + 5)
+
+    // Date
+    rgb(doc, 'text', isLast ? C.parchment : C.muted)
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.text(
+      session.date.toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+      }),
+      sessionCols[1].x,
+      y + 5
+    )
+
+    // Time
+    doc.text(
+      `${formatTime(session.start)} – ${formatTime(session.end)}`,
+      sessionCols[2].x,
+      y + 5
+    )
+
+    // Duration
+    rgb(doc, 'text', C.gold)
+    doc.text(`${session.durationMins} min`, sessionCols[3].x, y + 5)
+
+    // Minute range
+    rgb(doc, 'text', C.muted)
+    doc.setFontSize(7)
+    doc.text(
+      `${session.minuteStart}–${session.minuteEnd}`,
+      sessionCols[4].x,
+      y + 5
+    )
+
+    // Completion marker
+    if (isLast) {
+      rgb(doc, 'text', C.gold)
+      doc.setFontSize(6.5)
+      doc.text('✓ COMPLETE', W - M - 2, y + 5, { align: 'right' })
+    }
+
+    // Progress bar under each row
+    const barY = y + 6.5
+    const barW = W - M * 2
+    const fillPct = session.minuteEnd / moviePlan.totalRuntime
+    rgb(doc, 'fill', C.border)
+    doc.rect(M, barY, barW, 1, 'F')
+    rgb(doc, 'fill', isLast ? C.gold : [100, 65, 20])
+    doc.rect(M, barY, barW * fillPct, 1, 'F')
+
+    y += rowH
+  })
+
+  // If sessions were cut off
+  const shownSessions = Math.min(
+    moviePlan.sessions.length,
+    Math.floor((footerStart - (y - moviePlan.sessions.length * rowH)) / rowH)
+  )
+  if (shownSessions < moviePlan.sessions.length) {
+    rgb(doc, 'text', C.muted)
+    doc.setFontSize(6.5)
+    doc.text(
+      `Scan QR code to view all ${moviePlan.sessions.length} sessions`,
+      M,
+      y + 3
+    )
+  }
+
+  drawFooter(doc, W, H, M, title, qrDataUrl)
+}
+
+// ── TV PDF ─────────────────────────────────────────────────────────────────────
+async function exportTVPdf(
+  doc: jsPDF,
+  W: number,
+  H: number,
+  M: number,
+  title: string,
+  releaseYear: string,
+  genres: string[] | undefined,
+  posterUrl: string | null | undefined,
+  plan: WatchPlan,
+  qrDataUrl: string
+) {
+  drawHeader(doc, W, M)
+
+  const imgData = posterUrl ? await loadImageAsBase64(posterUrl) : null
+  let y = drawPosterAndTitle(
+    doc,
+    M,
+    W,
+    imgData,
+    title,
+    releaseYear,
+    genres,
+    'SERIES'
+  )
+
+  // Divider
+  rgb(doc, 'draw', C.gold)
+  doc.setLineWidth(0.4)
+  doc.line(M, y, W - M, y)
+  y += 7
+
+  // Stats grid
+  const stats = [
+    { label: 'DONE BY', value: plan.completionDate },
+    { label: 'TOTAL WEEKS', value: `${plan.totalWeeks} weeks` },
+    { label: 'EPS / WEEK', value: `${plan.episodesPerWeek} eps` },
+    { label: 'TOTAL HOURS', value: formatHours(plan.totalHours) },
+    {
+      label: 'PACE',
+      value: plan.pace.charAt(0).toUpperCase() + plan.pace.slice(1),
+    },
+    { label: 'TOTAL EPISODES', value: `${plan.totalEpisodes}` },
+  ]
+
+  const cols = 3
+  const colW = (W - M * 2 - (cols - 1) * 3) / cols
+
+  stats.forEach((s, i) => {
+    const col = i % cols
+    const row = Math.floor(i / cols)
+    const sx = M + col * (colW + 3)
+    const sy = y + row * 15
+
+    rgb(doc, 'fill', C.ink)
+    rgb(doc, 'draw', C.border)
+    doc.setLineWidth(0.2)
+    doc.rect(sx, sy, colW, 12, 'FD')
+
+    rgb(doc, 'text', C.gold)
+    doc.setFontSize(5.5)
+    doc.setFont('helvetica', 'normal')
+    doc.text(s.label, sx + 3, sy + 4.5)
 
     rgb(doc, 'text', C.parchment)
     doc.setFontSize(8)
     doc.setFont('helvetica', 'bold')
-    const val = doc.splitTextToSize(s.value, pillW - 6)
-    doc.text(val[0], px + 3, py + 9.5)
+    doc.text(doc.splitTextToSize(s.value, colW - 6)[0], sx + 3, sy + 10)
   })
 
-  // ── Section divider ──────────────────────────────────────────
-  const sectionY = posterY + posterH + 10
+  const statRows = Math.ceil(stats.length / cols)
+  y += statRows * 15 + 5
 
-  rgb(doc, 'draw', C.gold)
-  doc.setLineWidth(0.4)
-  doc.line(M, sectionY, W - M, sectionY)
+  // Divider
+  rgb(doc, 'draw', C.border)
+  doc.setLineWidth(0.2)
+  doc.line(M, y, W - M, y)
+  y += 6
 
-  // ── Milestones ───────────────────────────────────────────────
-  let y = sectionY + 7
-
+  // Milestones
   rgb(doc, 'text', C.gold)
   doc.setFontSize(6.5)
   doc.setFont('helvetica', 'normal')
   doc.text('MILESTONES', M, y)
   y += 5
 
-  const milestoneW = (W - M * 2 - 9) / 4
-
+  const mW = (W - M * 2 - 9) / 4
   plan.milestones.forEach((m, i) => {
-    const mx = M + i * (milestoneW + 3)
-
-    // Box
+    const mx = M + i * (mW + 3)
     rgb(doc, 'fill', C.ink)
     rgb(doc, 'draw', C.border)
     doc.setLineWidth(0.2)
-    doc.rect(mx, y, milestoneW, 20, 'FD')
+    doc.rect(mx, y, mW, 20, 'FD')
 
-    // Percent
     rgb(doc, 'text', C.gold)
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
-    doc.text(`${m.percent}%`, mx + milestoneW / 2, y + 9, { align: 'center' })
+    doc.text(`${m.percent}%`, mx + mW / 2, y + 9, { align: 'center' })
 
-    // Label
     rgb(doc, 'text', C.parchment)
     doc.setFontSize(7)
     doc.setFont('helvetica', 'normal')
-    const labelLines = doc.splitTextToSize(m.label, milestoneW - 4)
-    doc.text(labelLines[0], mx + milestoneW / 2, y + 14, { align: 'center' })
+    const labelLines = doc.splitTextToSize(m.label, mW - 4)
+    doc.text(labelLines[0], mx + mW / 2, y + 14, { align: 'center' })
 
-    // Week
     rgb(doc, 'text', C.muted)
     doc.setFontSize(6)
-    doc.text(`Week ${m.week}`, mx + milestoneW / 2, y + 18.5, {
-      align: 'center',
-    })
+    doc.text(`Week ${m.week}`, mx + mW / 2, y + 18.5, { align: 'center' })
   })
 
   y += 26
 
-  // ── Progress bar ─────────────────────────────────────────────
+  // Divider
+  rgb(doc, 'draw', C.border)
+  doc.setLineWidth(0.2)
+  doc.line(M, y, W - M, y)
+  y += 6
+
+  // Weekly breakdown
   rgb(doc, 'text', C.gold)
   doc.setFontSize(6.5)
-  doc.setFont('helvetica', 'normal')
-  doc.text('OVERALL PROGRESS', M, y)
-  y += 4
+  doc.text('WEEK BY WEEK', M, y)
+  y += 5
 
-  const barH = 4
-  const barW = W - M * 2
+  const footerStart = H - 42
+  const rowH = 7
 
+  // Column headers
   rgb(doc, 'fill', C.ink)
-  doc.rect(M, y, barW, barH, 'F')
-
-  // Milestone markers on bar
-  plan.milestones.forEach((m) => {
-    const fillW = (barW * m.percent) / 100
-    if (m.percent === 100) {
-      rgb(doc, 'fill', C.gold)
-      doc.rect(M, y, fillW, barH, 'F')
-    }
-    // Tick mark
-    rgb(doc, 'draw', C.espresso)
-    doc.setLineWidth(0.5)
-    doc.line(M + fillW, y, M + fillW, y + barH)
-  })
-
-  // Show empty bar outline
-  rgb(doc, 'draw', C.border)
-  doc.setLineWidth(0.3)
-  doc.rect(M, y, barW, barH, 'D')
-
-  y += barH + 6
-
-  // ── Weekly breakdown (compact) ───────────────────────────────
-  if (plan.mediaType === 'tv' && plan.weeklyBlocks.length > 0) {
-    rgb(doc, 'draw', C.border)
-    doc.setLineWidth(0.2)
-    doc.line(M, y, W - M, y)
-    y += 5
-
+  doc.rect(M, y - 1, W - M * 2, 5.5, 'F')
+  const weekCols = [
+    { label: 'WK', x: M + 2 },
+    { label: 'EPISODES', x: M + 18 },
+    { label: 'COUNT', x: M + 65 },
+    { label: 'HOURS', x: M + 90 },
+    { label: 'PROGRESS', x: M + 115 },
+  ]
+  weekCols.forEach((col) => {
     rgb(doc, 'text', C.gold)
-    doc.setFontSize(6.5)
-    doc.text('WEEK BY WEEK', M, y)
-    y += 4
+    doc.setFontSize(5.5)
+    doc.setFont('helvetica', 'normal')
+    doc.text(col.label, col.x, y + 3.5)
+  })
+  y += 7
 
-    // How many weeks fit before QR section (leave 40mm for QR)
-    const rowH = 6.5
-    const availableH = H - 50 - y
-    const maxRows = Math.floor(availableH / rowH)
-    const weeksToShow = Math.min(plan.weeklyBlocks.length, maxRows)
+  let shownWeeks = 0
+  for (const block of plan.weeklyBlocks) {
+    if (y + rowH > footerStart) break
 
-    // Column widths
-    const cols = [
-      { label: 'WK', x: M, w: 10 },
-      { label: 'EPISODES', x: M + 12, w: 35 },
-      { label: 'COUNT', x: M + 49, w: 20 },
-      { label: 'HOURS', x: M + 71, w: 20 },
-      { label: 'PROGRESS', x: M + 93, w: W - M - 93 - M },
-    ]
+    const isLast = block.endEpisode >= plan.totalEpisodes
+    const isAlt = shownWeeks % 2 === 1
 
-    // Header row
-    rgb(doc, 'fill', C.ink)
-    doc.rect(M, y, W - M * 2, 5, 'F')
-    cols.forEach((col) => {
-      rgb(doc, 'text', C.gold)
-      doc.setFontSize(5.5)
-      doc.setFont('helvetica', 'normal')
-      doc.text(col.label, col.x + 1, y + 3.5)
-    })
-    y += 6
-
-    plan.weeklyBlocks.slice(0, weeksToShow).forEach((block) => {
-      const isLast = block.endEpisode >= plan.totalEpisodes
-
-      if (isLast) {
-        rgb(doc, 'fill', C.ink)
-        doc.rect(M, y - 1, W - M * 2, rowH, 'F')
-      }
-
-      rgb(doc, 'text', isLast ? C.gold : C.parchment)
-      doc.setFontSize(6.5)
-      doc.setFont('helvetica', isLast ? 'bold' : 'normal')
-      doc.text(`${block.week}`, cols[0].x + 1, y + 3.5)
-
-      rgb(doc, 'text', C.muted)
-      doc.setFont('helvetica', 'normal')
-      doc.text(
-        `Eps ${block.startEpisode}–${block.endEpisode}`,
-        cols[1].x + 1,
-        y + 3.5
-      )
-      doc.text(`${block.episodes}`, cols[2].x + 1, y + 3.5)
-      doc.text(`${block.hoursWatched}h`, cols[3].x + 1, y + 3.5)
-
-      // Mini bar
-      const bx = cols[4].x + 1
-      const bw = cols[4].w - 10
-      const fillW = (bw * block.cumulativePercent) / 100
-      rgb(doc, 'fill', C.border)
-      doc.rect(bx, y + 1, bw, 2, 'F')
-      rgb(doc, 'fill', isLast ? C.gold : [120, 80, 30])
-      doc.rect(bx, y + 1, fillW, 2, 'F')
-
-      rgb(doc, 'text', C.muted)
-      doc.setFontSize(5.5)
-      doc.text(`${block.cumulativePercent}%`, bx + bw + 2, y + 3.5)
-
-      y += rowH
-    })
-
-    if (plan.weeklyBlocks.length > weeksToShow) {
-      rgb(doc, 'text', C.muted)
-      doc.setFontSize(6)
-      doc.text(
-        `+ ${plan.weeklyBlocks.length - weeksToShow} more weeks — view full plan via QR code`,
-        M,
-        y + 3
-      )
-      y += 6
+    if (isLast) {
+      rgb(doc, 'fill', C.ink)
+      doc.rect(M, y - 1, W - M * 2, rowH, 'F')
+      rgb(doc, 'draw', C.gold)
+      doc.setLineWidth(0.2)
+      doc.rect(M, y - 1, W - M * 2, rowH, 'S')
+    } else if (isAlt) {
+      rgb(doc, 'fill', [35, 26, 20])
+      doc.rect(M, y - 1, W - M * 2, rowH, 'F')
     }
+
+    rgb(doc, 'text', isLast ? C.gold : C.parchment)
+    doc.setFontSize(7.5)
+    doc.setFont('helvetica', isLast ? 'bold' : 'normal')
+    doc.text(`${block.week}`, weekCols[0].x, y + 4)
+
+    rgb(doc, 'text', C.muted)
+    doc.setFont('helvetica', 'normal')
+    doc.text(
+      `Eps ${block.startEpisode}–${block.endEpisode}`,
+      weekCols[1].x,
+      y + 4
+    )
+    doc.text(`${block.episodes}`, weekCols[2].x, y + 4)
+    doc.text(`${block.hoursWatched}h`, weekCols[3].x, y + 4)
+
+    const bx = weekCols[4].x
+    const bw = W - M - bx - M
+    const fillW = (bw * block.cumulativePercent) / 100
+    rgb(doc, 'fill', C.border)
+    doc.rect(bx, y + 1, bw, 2.5, 'F')
+    rgb(doc, 'fill', isLast ? C.gold : [100, 65, 20])
+    doc.rect(bx, y + 1, fillW, 2.5, 'F')
+
+    rgb(doc, 'text', C.muted)
+    doc.setFontSize(6)
+    doc.text(`${block.cumulativePercent}%`, W - M - 2, y + 4, {
+      align: 'right',
+    })
+
+    y += rowH
+    shownWeeks++
   }
 
-  // ── QR code + footer ─────────────────────────────────────────
-  const footerY = H - 38
-  rgb(doc, 'draw', C.gold)
-  doc.setLineWidth(0.4)
-  doc.line(M, footerY, W - M, footerY)
+  if (shownWeeks < plan.weeklyBlocks.length) {
+    rgb(doc, 'text', C.muted)
+    doc.setFontSize(6)
+    doc.text(
+      `+ ${plan.weeklyBlocks.length - shownWeeks} more weeks — scan QR for full plan`,
+      M,
+      y + 3
+    )
+  }
+
+  drawFooter(doc, W, H, M, title, qrDataUrl)
+}
+
+// ── MAIN EXPORT ────────────────────────────────────────────────────────────────
+export async function exportPlanAsPdf(
+  plan: WatchPlan,
+  title: string,
+  releaseYear: string,
+  posterUrl?: string | null,
+  genres?: string[],
+  shareUrl?: string,
+  moviePlan?: MoviePlan | null
+) {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
+  const W = doc.internal.pageSize.getWidth()
+  const H = doc.internal.pageSize.getHeight()
+  const M = 14
+
+  // Background
+  rgb(doc, 'fill', C.espresso)
+  doc.rect(0, 0, W, H, 'F')
 
   const url =
     shareUrl ??
@@ -384,48 +622,34 @@ export async function exportPlanAsPdf(
       ? window.location.href
       : 'https://bingeplan.vercel.app')
 
-  try {
-    const qrDataUrl = await generateQRDataUrl(url)
-    const qrSize = 26
-    const qrX = W - M - qrSize
-    const qrY = footerY + 5
+  const qrDataUrl = await generateQRDataUrl(url)
 
-    // QR background
-    rgb(doc, 'fill', C.ink)
-    doc.rect(qrX - 2, qrY - 2, qrSize + 4, qrSize + 4, 'F')
-    doc.addImage(qrDataUrl, 'PNG', qrX, qrY, qrSize, qrSize)
-
-    // QR label
-    rgb(doc, 'text', C.muted)
-    doc.setFontSize(5.5)
-    doc.setFont('helvetica', 'normal')
-    doc.text('SCAN FOR', qrX + qrSize / 2, qrY + qrSize + 4, {
-      align: 'center',
-    })
-    doc.text('FULL PLAN', qrX + qrSize / 2, qrY + qrSize + 8, {
-      align: 'center',
-    })
-
-    // Footer text
-    rgb(doc, 'text', C.gold)
-    doc.setFontSize(9)
-    doc.setFont('helvetica', 'bold')
-    doc.text('Bingely', M, footerY + 9)
-
-    rgb(doc, 'text', C.muted)
-    doc.setFontSize(7)
-    doc.setFont('helvetica', 'normal')
-    doc.text('Your personal cinema planner', M, footerY + 15)
-
-    rgb(doc, 'text', C.muted)
-    doc.setFontSize(6)
-    doc.text('bingeplan.vercel.app', M, footerY + 21)
-    doc.text(title, M, footerY + 27)
-  } catch {
-    // QR failed silently — footer still renders
-    rgb(doc, 'text', C.gold)
-    doc.setFontSize(7)
-    doc.text('BINGELY · bingeplan.vercel.app', M, footerY + 10)
+  if (moviePlan && moviePlan.sessions.length > 0) {
+    await exportMoviePdf(
+      doc,
+      W,
+      H,
+      M,
+      title,
+      releaseYear,
+      genres,
+      posterUrl,
+      moviePlan,
+      qrDataUrl
+    )
+  } else {
+    await exportTVPdf(
+      doc,
+      W,
+      H,
+      M,
+      title,
+      releaseYear,
+      genres,
+      posterUrl,
+      plan,
+      qrDataUrl
+    )
   }
 
   doc.save(`${title.replace(/\s+/g, '-').toLowerCase()}-watch-plan.pdf`)
