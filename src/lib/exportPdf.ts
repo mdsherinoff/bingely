@@ -293,6 +293,7 @@ async function exportMoviePdf(
   const footerStart = H - 42
   const rowH = 9
 
+  let shownSessions = 0
   moviePlan.sessions.forEach((session, i) => {
     if (y + rowH > footerStart) return
 
@@ -367,13 +368,10 @@ async function exportMoviePdf(
     doc.rect(M, barY, barW * fillPct, 1, 'F')
 
     y += rowH
+    shownSessions++
   })
 
   // If sessions were cut off
-  const shownSessions = Math.min(
-    moviePlan.sessions.length,
-    Math.floor((footerStart - (y - moviePlan.sessions.length * rowH)) / rowH)
-  )
   if (shownSessions < moviePlan.sessions.length) {
     rgb(doc, 'text', C.muted)
     doc.setFontSize(6.5)

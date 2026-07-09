@@ -47,17 +47,6 @@ export function generateSuggestions(
     return suggestions
   }
 
-  // No days selected — only relevant for TV
-  if (activeDays.length === 0 && mediaType === 'tv') {
-    suggestions.push({
-      type: 'schedule',
-      level: 'warning',
-      title: 'No days selected',
-      body: 'Select at least one day to generate a watch plan.',
-    })
-    return suggestions
-  }
-
   // Very little time
   if (totalWeeklyHours < 2 && mediaType === 'tv') {
     suggestions.push({

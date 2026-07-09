@@ -13,9 +13,19 @@ export default function ListPlanPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
-  const { getList } = useCustomLists()
+  const { getList, ready } = useCustomLists()
   const router = useRouter()
   const list = getList(id)
+
+  if (!ready) {
+    return (
+      <main className="bg-espresso flex min-h-screen items-center justify-center">
+        <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
+          LOADING...
+        </p>
+      </main>
+    )
+  }
 
   if (!list) {
     return (

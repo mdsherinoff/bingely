@@ -11,12 +11,16 @@ function generateId(): string {
 
 export function useCustomLists() {
   const [lists, setLists] = useState<CustomList[]>([])
+  // False until localStorage has been read, so pages can avoid
+  // flashing "not found" during the first client render
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (stored) setLists(JSON.parse(stored))
     } catch {}
+    setReady(true)
   }, [])
 
   const save = useCallback((updated: CustomList[]) => {
@@ -54,5 +58,5 @@ export function useCustomLists() {
     [lists, save]
   )
 
-  return { lists, createList, getList, deleteList }
+  return { lists, ready, createList, getList, deleteList }
 }

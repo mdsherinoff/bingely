@@ -1,30 +1,17 @@
 'use client'
 
-import { useSearchParams, useRouter } from 'next/navigation'
-import { useEffect, useState, Suspense } from 'react'
-import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 import { useSearch } from '@/hooks/useSearch'
 import PosterCard from '@/components/search/PosterCard'
 import PosterSkeleton from '@/components/search/PosterSkeleton'
-import Input from '@/components/ui/Input'
 import Footer from '@/components/landing/Footer'
 
 function SearchContent() {
   const searchParams = useSearchParams()
-  const router = useRouter()
   const initialQuery = searchParams.get('q') || ''
 
-  const { query, setQuery, results, loading, error, search } =
-    useSearch(initialQuery)
-
-  useEffect(() => {
-    search(initialQuery)
-  }, [initialQuery])
-
-  const handleSearch = () => {
-    if (!query.trim()) return
-    router.push(`/search?q=${encodeURIComponent(query.trim())}`)
-  }
+  const { results, loading, error } = useSearch(initialQuery)
 
   return (
     <>

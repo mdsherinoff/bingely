@@ -34,7 +34,7 @@ export default function ListResultsPage({
   const { id } = use(params)
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { getList } = useCustomLists()
+  const { getList, ready } = useCustomLists()
   const list = getList(id)
 
   const rawConfig = searchParams.get('config')
@@ -131,7 +131,7 @@ export default function ListResultsPage({
     )
   }, [config, list, exactItems, isMixed])
 
-  if (loading) {
+  if (loading || !ready) {
     return (
       <main className="bg-espresso flex min-h-screen items-center justify-center">
         <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">

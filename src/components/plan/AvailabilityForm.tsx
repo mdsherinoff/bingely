@@ -50,7 +50,8 @@ export default function AvailabilityForm({
   const [customRuntime, setCustomRuntime] = useState(episodeRuntime)
 
   const weeklyMins = weeklyMinutes(schedule)
-  const rawItemsPerWeek = Math.floor(weeklyMins / customRuntime)
+  const rawItemsPerWeek =
+    customRuntime > 0 ? Math.floor(weeklyMins / customRuntime) : 0
   const adjustedItemsPerWeek = Math.max(
     1,
     Math.floor(rawItemsPerWeek * paceMultiplier[pace])
@@ -116,7 +117,14 @@ export default function AvailabilityForm({
                 min={1}
                 max={300}
                 value={customRuntime}
-                onChange={(e) => setCustomRuntime(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value
+                  setCustomRuntime(
+                    value === ''
+                      ? episodeRuntime
+                      : Math.min(300, Math.max(1, Math.round(Number(value))))
+                  )
+                }}
                 className="bg-espresso border-gold/20 text-parchment focus:border-gold/50 w-16 rounded-sm border px-2 py-1 font-mono text-sm focus:outline-none"
               />
               <span className="text-parchment/30 font-mono text-xs">min</span>

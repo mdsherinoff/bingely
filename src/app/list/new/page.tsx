@@ -42,12 +42,19 @@ export default function NewListPage() {
                   `/api/media/${item.id}?type=${item.mediaType}`
                 )
                 const d = await detail.json()
+                // For series, runtime is the whole show's total minutes —
+                // the list scheduler treats each item's runtime as its
+                // full watch time
+                const runtime =
+                  item.mediaType === 'tv'
+                    ? (d.episodeRuntime ?? 24) * Math.max(1, d.episodeCount ?? 1)
+                    : (d.runtime ?? 90)
                 return {
                   tmdbId: item.id,
                   title: item.title,
                   mediaType: item.mediaType,
                   posterPath: item.posterPath,
-                  runtime: d.runtime ?? d.episodeRuntime ?? 90,
+                  runtime,
                   releaseYear: item.releaseYear,
                 }
               } catch {

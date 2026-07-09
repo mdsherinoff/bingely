@@ -1,14 +1,16 @@
 import { FilmChallenge } from '@/types/media'
 
-export const challenges: FilmChallenge[] = [
+// totalRuntime and itemCount are derived from items below, so the
+// data here can never drift out of sync with the actual list
+type RawChallenge = Omit<FilmChallenge, 'totalRuntime' | 'itemCount'>
+
+const rawChallenges: RawChallenge[] = [
   {
     id: 'nolan-marathon',
     title: 'Nolan Marathon',
     description: 'Every Christopher Nolan film in chronological order',
     category: 'director',
     icon: '◎',
-    totalRuntime: 1390,
-    itemCount: 12,
     items: [
       {
         title: 'Following',
@@ -28,7 +30,7 @@ export const challenges: FilmChallenge[] = [
         title: 'Insomnia',
         year: '2002',
         runtime: 118,
-        tmdbId: 6217,
+        tmdbId: 320,
         mediaType: 'movie',
       },
       {
@@ -102,21 +104,19 @@ export const challenges: FilmChallenge[] = [
     description: 'The complete Studio Ghibli filmography',
     category: 'studio',
     icon: '◈',
-    totalRuntime: 1980,
-    itemCount: 23,
     items: [
       {
         title: 'Nausicaä of the Valley of the Wind',
         year: '1984',
         runtime: 117,
-        tmdbId: 12429,
+        tmdbId: 81,
         mediaType: 'movie',
       },
       {
         title: 'Castle in the Sky',
         year: '1986',
         runtime: 124,
-        tmdbId: 12431,
+        tmdbId: 10515,
         mediaType: 'movie',
       },
       {
@@ -144,7 +144,7 @@ export const challenges: FilmChallenge[] = [
         title: 'Only Yesterday',
         year: '1991',
         runtime: 118,
-        tmdbId: 21060,
+        tmdbId: 15080,
         mediaType: 'movie',
       },
       {
@@ -158,7 +158,7 @@ export const challenges: FilmChallenge[] = [
         title: 'Pom Poko',
         year: '1994',
         runtime: 119,
-        tmdbId: 12500,
+        tmdbId: 15283,
         mediaType: 'movie',
       },
       {
@@ -179,7 +179,7 @@ export const challenges: FilmChallenge[] = [
         title: 'My Neighbors the Yamadas',
         year: '1999',
         runtime: 104,
-        tmdbId: 12505,
+        tmdbId: 16198,
         mediaType: 'movie',
       },
       {
@@ -193,7 +193,7 @@ export const challenges: FilmChallenge[] = [
         title: 'The Cat Returns',
         year: '2002',
         runtime: 75,
-        tmdbId: 12497,
+        tmdbId: 15370,
         mediaType: 'movie',
       },
       {
@@ -207,7 +207,7 @@ export const challenges: FilmChallenge[] = [
         title: 'Tales from Earthsea',
         year: '2006',
         runtime: 115,
-        tmdbId: 12516,
+        tmdbId: 37933,
         mediaType: 'movie',
       },
       {
@@ -221,14 +221,14 @@ export const challenges: FilmChallenge[] = [
         title: 'The Secret World of Arrietty',
         year: '2010',
         runtime: 94,
-        tmdbId: 49013,
+        tmdbId: 51739,
         mediaType: 'movie',
       },
       {
         title: 'From Up on Poppy Hill',
         year: '2011',
         runtime: 91,
-        tmdbId: 75623,
+        tmdbId: 83389,
         mediaType: 'movie',
       },
       {
@@ -249,21 +249,21 @@ export const challenges: FilmChallenge[] = [
         title: 'When Marnie Was There',
         year: '2014',
         runtime: 103,
-        tmdbId: 242224,
+        tmdbId: 242828,
         mediaType: 'movie',
       },
       {
         title: 'The Red Turtle',
         year: '2016',
-        runtime: 80,
-        tmdbId: 368022,
+        runtime: 81,
+        tmdbId: 337703,
         mediaType: 'movie',
       },
       {
         title: 'The Boy and the Heron',
         year: '2023',
         runtime: 124,
-        tmdbId: 508965,
+        tmdbId: 508883,
         mediaType: 'movie',
       },
     ],
@@ -274,8 +274,6 @@ export const challenges: FilmChallenge[] = [
     description: 'The Marvel Cinematic Universe in release order',
     category: 'franchise',
     icon: '◉',
-    totalRuntime: 3272,
-    itemCount: 33,
     items: [
       {
         title: 'Iron Man',
@@ -516,9 +514,42 @@ export const challenges: FilmChallenge[] = [
     description: 'Recent Academy Award winners for Best Picture',
     category: 'genre',
     icon: '◇',
-    totalRuntime: 1420,
-    itemCount: 10,
     items: [
+      {
+        title: 'Birdman',
+        year: '2014',
+        runtime: 120,
+        tmdbId: 194662,
+        mediaType: 'movie',
+      },
+      {
+        title: 'Spotlight',
+        year: '2015',
+        runtime: 129,
+        tmdbId: 314365,
+        mediaType: 'movie',
+      },
+      {
+        title: 'Moonlight',
+        year: '2016',
+        runtime: 111,
+        tmdbId: 376867,
+        mediaType: 'movie',
+      },
+      {
+        title: 'The Shape of Water',
+        year: '2017',
+        runtime: 123,
+        tmdbId: 399055,
+        mediaType: 'movie',
+      },
+      {
+        title: 'Green Book',
+        year: '2018',
+        runtime: 130,
+        tmdbId: 490132,
+        mediaType: 'movie',
+      },
       {
         title: 'Parasite',
         year: '2019',
@@ -562,8 +593,6 @@ export const challenges: FilmChallenge[] = [
     description: 'All 25 official Bond films in order',
     category: 'franchise',
     icon: '◆',
-    totalRuntime: 2882,
-    itemCount: 25,
     items: [
       {
         title: 'Dr. No',
@@ -583,14 +612,14 @@ export const challenges: FilmChallenge[] = [
         title: 'Goldfinger',
         year: '1964',
         runtime: 110,
-        tmdbId: 660,
+        tmdbId: 658,
         mediaType: 'movie',
       },
       {
         title: 'Thunderball',
         year: '1965',
         runtime: 130,
-        tmdbId: 661,
+        tmdbId: 660,
         mediaType: 'movie',
       },
       {
@@ -611,70 +640,70 @@ export const challenges: FilmChallenge[] = [
         title: 'Diamonds Are Forever',
         year: '1971',
         runtime: 120,
-        tmdbId: 671,
+        tmdbId: 681,
         mediaType: 'movie',
       },
       {
         title: 'Live and Let Die',
         year: '1973',
         runtime: 121,
-        tmdbId: 673,
+        tmdbId: 253,
         mediaType: 'movie',
       },
       {
         title: 'The Man with the Golden Gun',
         year: '1974',
         runtime: 125,
-        tmdbId: 675,
+        tmdbId: 682,
         mediaType: 'movie',
       },
       {
         title: 'The Spy Who Loved Me',
         year: '1977',
         runtime: 125,
-        tmdbId: 679,
+        tmdbId: 691,
         mediaType: 'movie',
       },
       {
         title: 'Moonraker',
         year: '1979',
         runtime: 126,
-        tmdbId: 681,
+        tmdbId: 698,
         mediaType: 'movie',
       },
       {
         title: 'For Your Eyes Only',
         year: '1981',
-        runtime: 127,
-        tmdbId: 682,
+        runtime: 128,
+        tmdbId: 699,
         mediaType: 'movie',
       },
       {
         title: 'Octopussy',
         year: '1983',
         runtime: 131,
-        tmdbId: 683,
+        tmdbId: 700,
         mediaType: 'movie',
       },
       {
         title: 'A View to a Kill',
         year: '1985',
         runtime: 131,
-        tmdbId: 685,
+        tmdbId: 707,
         mediaType: 'movie',
       },
       {
         title: 'The Living Daylights',
         year: '1987',
         runtime: 130,
-        tmdbId: 687,
+        tmdbId: 708,
         mediaType: 'movie',
       },
       {
         title: 'Licence to Kill',
         year: '1989',
         runtime: 133,
-        tmdbId: 688,
+        tmdbId: 709,
         mediaType: 'movie',
       },
       {
@@ -688,21 +717,21 @@ export const challenges: FilmChallenge[] = [
         title: 'Tomorrow Never Dies',
         year: '1997',
         runtime: 119,
-        tmdbId: 707,
+        tmdbId: 714,
         mediaType: 'movie',
       },
       {
         title: 'The World Is Not Enough',
         year: '1999',
         runtime: 128,
-        tmdbId: 706,
+        tmdbId: 36643,
         mediaType: 'movie',
       },
       {
         title: 'Die Another Day',
         year: '2002',
         runtime: 133,
-        tmdbId: 708,
+        tmdbId: 36669,
         mediaType: 'movie',
       },
       {
@@ -743,6 +772,12 @@ export const challenges: FilmChallenge[] = [
     ],
   },
 ]
+
+export const challenges: FilmChallenge[] = rawChallenges.map((c) => ({
+  ...c,
+  itemCount: c.items.length,
+  totalRuntime: c.items.reduce((acc, item) => acc + item.runtime, 0),
+}))
 
 export function getChallengeById(id: string): FilmChallenge | undefined {
   return challenges.find((c) => c.id === id)

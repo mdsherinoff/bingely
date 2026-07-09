@@ -38,7 +38,7 @@ export default function MixedListResults({
           { label: 'TOTAL HOURS', value: `${totalHours}h` },
           {
             label: 'BREAKDOWN',
-            value: `${mixedPlan.movieItems.length} films · ${mixedPlan.tvItems.length} series`,
+            value: `${mixedPlan.movieItems.length} film${mixedPlan.movieItems.length === 1 ? '' : 's'} · ${mixedPlan.tvItems.length} series`,
           },
         ].map((s) => (
           <div
@@ -61,8 +61,10 @@ export default function MixedListResults({
           <div className="flex items-center gap-3">
             <h2 className="font-display text-parchment text-2xl">Films</h2>
             <span className="text-parchment/30 font-mono text-xs tracking-widest">
-              {mixedPlan.movieItems.length} titles · {moviePlan.totalSessions}{' '}
-              sessions
+              {mixedPlan.movieItems.length} title
+              {mixedPlan.movieItems.length === 1 ? '' : 's'} ·{' '}
+              {moviePlan.totalSessions} session
+              {moviePlan.totalSessions === 1 ? '' : 's'}
             </span>
           </div>
 
@@ -169,7 +171,9 @@ export default function MixedListResults({
           <div className="flex items-center gap-3">
             <h2 className="font-display text-parchment text-2xl">Series</h2>
             <span className="text-parchment/30 font-mono text-xs tracking-widest">
-              {mixedPlan.tvItems.length} titles · {tvPlan.totalWeeks} weeks
+              {mixedPlan.tvItems.length} title
+              {mixedPlan.tvItems.length === 1 ? '' : 's'} · {tvPlan.totalWeeks}{' '}
+              week{tvPlan.totalWeeks === 1 ? '' : 's'}
             </span>
           </div>
 
@@ -216,7 +220,7 @@ export default function MixedListResults({
                         {item.title}
                       </p>
                       <span className="text-parchment/20 font-mono text-xs">
-                        {item.runtime}m/ep
+                        {Math.round((item.runtime / 60) * 10) / 10}h total
                       </span>
                     </div>
                   ))}

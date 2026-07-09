@@ -42,5 +42,6 @@ export function weeklyEpisodes(
   schedule: WeekSchedule,
   episodeRuntime: number
 ): number {
+  if (episodeRuntime <= 0) return 0
   return Math.floor(weeklyMinutes(schedule) / episodeRuntime)
 }

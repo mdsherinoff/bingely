@@ -16,7 +16,7 @@ const KONAMI = [
 ]
 
 export function useKonamiCode(onSuccess: () => void) {
-  const [sequence, setSequence] = useState<string[]>([])
+  const [, setSequence] = useState<string[]>([])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

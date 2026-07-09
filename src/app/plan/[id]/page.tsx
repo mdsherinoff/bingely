@@ -128,7 +128,16 @@ export default function PlanPage({
                 min={1}
                 max={180}
                 value={runtime}
-                onChange={(e) => setEpisodeRuntime(Number(e.target.value))}
+                onChange={(e) => {
+                  const value = e.target.value
+                  if (value === '') {
+                    setEpisodeRuntime(null)
+                    return
+                  }
+                  setEpisodeRuntime(
+                    Math.min(180, Math.max(1, Math.round(Number(value))))
+                  )
+                }}
                 className="bg-ink border-gold/20 text-parchment focus:border-gold/50 w-24 rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
               />
               <span className="text-parchment/30 font-mono text-xs">

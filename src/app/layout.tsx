@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { Playfair_Display, Space_Mono } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
@@ -9,6 +10,15 @@ const playfair = Playfair_Display({
   subsets: ['latin'],
   variable: '--font-playfair',
 })
+
+export const metadata: Metadata = {
+  title: {
+    default: 'Bingely — Your Personal Cinema Planner',
+    template: '%s · Bingely',
+  },
+  description:
+    'Plan your binge. Bingely turns any film, series, or watchlist into a realistic viewing schedule built around your free time.',
+}
 
 const spaceMono = Space_Mono({
   weight: ['400', '700'],

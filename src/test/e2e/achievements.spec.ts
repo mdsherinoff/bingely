@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { achievements } from '../../lib/achievements'
 
 test.describe('Achievements page', () => {
   test('loads with all achievement badges', async ({ page }) => {
@@ -14,6 +15,8 @@ test.describe('Achievements page', () => {
 
   test('shows correct total achievement count', async ({ page }) => {
     await page.goto('/achievements')
-    await expect(page.getByText(/of 10 unlocked/)).toBeVisible()
+    await expect(
+      page.getByText(new RegExp(`of ${achievements.length} unlocked`))
+    ).toBeVisible()
   })
 })

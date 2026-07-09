@@ -12,10 +12,10 @@ function formatHours(hours: number): string {
 }
 
 function humanizeDuration(weeks: number): string {
-  if (weeks < 4) return `${weeks} weeks`
+  if (weeks < 4) return `${weeks} week${weeks === 1 ? '' : 's'}`
   const months = Math.floor(weeks / 4.33)
   const remWeeks = Math.round(weeks - months * 4.33)
-  if (months === 0) return `${remWeeks} weeks`
+  if (months === 0) return `${remWeeks} week${remWeeks === 1 ? '' : 's'}`
   if (remWeeks === 0) return `${months} month${months > 1 ? 's' : ''}`
   return `${months} month${months > 1 ? 's' : ''}, ${remWeeks} week${remWeeks > 1 ? 's' : ''}`
 }
@@ -44,7 +44,7 @@ export default function RuntimeCard({ plan }: RuntimeCardProps) {
         <div className="flex items-baseline justify-between">
           <p className="text-parchment/60 font-mono text-sm">That's</p>
           <p className="text-parchment font-mono text-sm">
-            {daysOfWatching} full days
+            {daysOfWatching} full day{daysOfWatching === 1 ? '' : 's'}
           </p>
         </div>
         <div className="flex items-baseline justify-between">

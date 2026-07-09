@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
   try {
     const results = await searchMedia(query)
     return NextResponse.json(results)
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Search failed' }, { status: 500 })
   }
 }

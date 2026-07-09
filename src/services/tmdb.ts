@@ -135,8 +135,12 @@ export async function getTVDetails(id: number): Promise<MediaItem> {
   if (Array.isArray(rawRuntime) && rawRuntime.length > 0) {
     // TMDB returns an array, take the most common value
     episodeRuntime = rawRuntime[0]
+  } else if (data.last_episode_to_air?.runtime) {
+    // episode_run_time is often empty; the most recent episode's
+    // runtime is the next best signal
+    episodeRuntime = data.last_episode_to_air.runtime
   } else {
-    // Fallback: assume 24 minutes (anime) or 45 minutes (drama)
+    // Last resort: assume a short-episode format
     episodeRuntime = 24
   }
 

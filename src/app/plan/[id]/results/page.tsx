@@ -91,8 +91,7 @@ export default function ResultsPage({
         goal.hoursPerDay,
         totalEpisodes,
         config.episodeRuntime,
-        type,
-        runtime
+        type
       )
     }
 
