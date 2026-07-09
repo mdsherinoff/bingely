@@ -25,13 +25,13 @@ export default function Modal({ open, onClose, children }: ModalProps) {
       onClick={onClose}
     >
       <div
-        className="bg-ink border-gold/20 relative mx-4 w-full max-w-lg rounded-sm border p-8"
+        className="bg-ink border-line-strong relative mx-4 w-full max-w-lg rounded-sm border p-8"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
           aria-label="Close modal"
-          className="text-parchment/40 hover:text-parchment absolute top-4 right-4 font-mono text-xs tracking-widest"
+          className="text-parchment-dim hover:text-parchment absolute top-4 right-4 font-mono text-xs tracking-widest"
         >
           ESC
         </button>

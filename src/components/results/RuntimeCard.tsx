@@ -28,13 +28,13 @@ export default function RuntimeCard({ plan }: RuntimeCardProps) {
   const episodesPerDay = Math.round((plan.episodesPerWeek / 7) * 10) / 10
 
   return (
-    <div className="border-gold/10 flex flex-col gap-4 rounded-sm border p-5">
-      <p className="text-parchment/30 font-mono text-xs tracking-widest">
+    <div className="border-line flex flex-col gap-4 rounded-sm border p-5">
+      <p className="text-parchment-faint font-mono text-xs tracking-widest">
         IN PERSPECTIVE
       </p>
       <div className="flex flex-col gap-3">
         <div className="flex items-baseline justify-between">
-          <p className="text-parchment/60 font-mono text-sm">
+          <p className="text-parchment-dim font-mono text-sm">
             Total watch time
           </p>
           <p className="text-parchment font-mono text-sm">
@@ -42,27 +42,27 @@ export default function RuntimeCard({ plan }: RuntimeCardProps) {
           </p>
         </div>
         <div className="flex items-baseline justify-between">
-          <p className="text-parchment/60 font-mono text-sm">That's</p>
+          <p className="text-parchment-dim font-mono text-sm">That's</p>
           <p className="text-parchment font-mono text-sm">
             {daysOfWatching} full day{daysOfWatching === 1 ? '' : 's'}
           </p>
         </div>
         <div className="flex items-baseline justify-between">
-          <p className="text-parchment/60 font-mono text-sm">
+          <p className="text-parchment-dim font-mono text-sm">
             Journey duration
           </p>
           <p className="text-parchment font-mono text-sm">{duration}</p>
         </div>
         <div className="flex items-baseline justify-between">
-          <p className="text-parchment/60 font-mono text-sm">
+          <p className="text-parchment-dim font-mono text-sm">
             Episodes per week
           </p>
           <p className="text-parchment font-mono text-sm">
             {plan.episodesPerWeek} eps
           </p>
         </div>
-        <div className="border-gold/10 flex items-baseline justify-between border-t pt-3">
-          <p className="text-parchment/60 font-mono text-sm">Average per day</p>
+        <div className="border-line flex items-baseline justify-between border-t pt-3">
+          <p className="text-parchment-dim font-mono text-sm">Average per day</p>
           <p className="text-gold font-mono text-sm">
             {episodesPerDay} eps/day
           </p>

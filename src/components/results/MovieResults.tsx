@@ -34,9 +34,9 @@ export default function MovieResults({
         ].map((s) => (
           <div
             key={s.label}
-            className="border-gold/10 bg-ink flex flex-col gap-1 rounded-sm border p-4"
+            className="border-line bg-ink flex flex-col gap-1 rounded-sm border p-4"
           >
-            <p className="text-parchment/30 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               {s.label}
             </p>
             <p className="text-parchment font-mono text-lg">{s.value}</p>
@@ -49,7 +49,7 @@ export default function MovieResults({
         <h2 className="font-display text-parchment text-2xl">
           Viewing calendar
         </h2>
-        <div className="border-gold/10 rounded-sm border p-6">
+        <div className="border-line rounded-sm border p-6">
           <MovieCalendar sessions={moviePlan.sessions} />
         </div>
       </div>
@@ -74,7 +74,7 @@ export default function MovieResults({
         <div className="flex flex-col gap-4">
           {/* Poster */}
           {media.posterPath && (
-            <div className="border-gold/10 aspect-[2/3] overflow-hidden rounded-sm border">
+            <div className="border-line aspect-[2/3] overflow-hidden rounded-sm border">
               <img
                 src={media.posterPath}
                 alt={media.title}
@@ -84,8 +84,8 @@ export default function MovieResults({
           )}
 
           {/* Export */}
-          <div className="border-gold/10 flex flex-col gap-3 border-t pt-4">
-            <p className="text-parchment/30 font-mono text-xs tracking-widest">
+          <div className="border-line flex flex-col gap-3 border-t pt-4">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               EXPORT
             </p>
             <ExportButton

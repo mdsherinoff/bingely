@@ -16,17 +16,17 @@ export default function AchievementsPage() {
           <div className="flex flex-col gap-3">
             <Link
               href="/"
-              className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+              className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
             >
               ← BACK
             </Link>
-            <p className="text-gold/60 font-mono text-xs tracking-widest">
+            <p className="text-gold font-mono text-xs tracking-widest">
               ACHIEVEMENTS
             </p>
             <h1 className="font-display text-parchment text-6xl leading-none">
               Your badges
             </h1>
-            <p className="text-parchment/40 font-mono">
+            <p className="text-parchment-dim font-sans">
               {unlocked.size} of {achievements.length} unlocked
             </p>
           </div>
@@ -39,7 +39,7 @@ export default function AchievementsPage() {
               aria-valuemin={0}
               aria-valuemax={achievements.length}
               aria-label={`${unlocked.size} of ${achievements.length} achievements unlocked`}
-              className="bg-ink border-gold/10 h-1 overflow-hidden rounded-full border"
+              className="bg-ink border-line h-1 overflow-hidden rounded-full border"
             >
               <div
                 className="bg-gold h-full rounded-full transition-all duration-500"
@@ -48,7 +48,7 @@ export default function AchievementsPage() {
                 }}
               />
             </div>
-            <p className="text-parchment/20 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               {Math.round((unlocked.size / achievements.length) * 100)}%
               COMPLETE
             </p>

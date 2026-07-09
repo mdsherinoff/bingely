@@ -24,14 +24,14 @@ export default function FeasibilityIndicator({
 
   return (
     <div
-      className={`flex flex-col gap-3 rounded-sm border p-4 ${feasible ? 'border-gold/20 bg-ink' : ratio > 1.5 ? 'border-rose/30 bg-rose/5' : 'border-gold/30 bg-ink'} `}
+      className={`flex flex-col gap-3 rounded-sm border p-4 ${feasible ? 'border-line-strong bg-ink' : ratio > 1.5 ? 'border-rose/30 bg-rose/5' : 'border-gold/30 bg-ink'} `}
     >
       <div className="flex items-center justify-between">
-        <p className="text-parchment/40 font-mono text-xs tracking-widest">
+        <p className="text-parchment-dim font-mono text-xs tracking-widest">
           DEADLINE FEASIBILITY
         </p>
         <span
-          className={`font-mono text-xs tracking-widest ${feasible ? 'text-gold' : ratio > 1.5 ? 'text-rose' : 'text-gold/60'} `}
+          className={`font-mono text-xs tracking-widest ${feasible ? 'text-gold' : ratio > 1.5 ? 'text-rose' : 'text-gold'} `}
         >
           {feasible ? '✓ ACHIEVABLE' : ratio > 1.5 ? '✗ VERY TOUGH' : '△ TIGHT'}
         </span>
@@ -46,16 +46,16 @@ export default function FeasibilityIndicator({
           />
         </div>
         <div className="flex justify-between">
-          <p className="text-parchment/30 font-mono text-xs">
+          <p className="text-parchment-faint font-mono text-xs">
             Need {requiredHoursPerDay}h/day
           </p>
-          <p className="text-parchment/30 font-mono text-xs">
+          <p className="text-parchment-faint font-mono text-xs">
             Have {availableHoursPerDay}h/day
           </p>
         </div>
       </div>
 
-      <p className="text-parchment/50 font-mono text-sm leading-relaxed">
+      <p className="text-parchment-dim font-sans text-sm leading-relaxed">
         {recommendation}
       </p>
     </div>

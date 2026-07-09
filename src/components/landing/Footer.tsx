@@ -2,32 +2,32 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="border-gold/10 border-t px-6 py-10">
+    <footer className="border-line border-t px-6 py-10">
       <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-4 md:flex-row">
-        <p className="font-display text-parchment/40 text-2xl tracking-tight">
+        <p className="font-display text-parchment-dim text-2xl tracking-tight">
           Bingely
         </p>
         <div className="flex items-center gap-6">
           <Link
             href="/challenges"
-            className="text-parchment/20 hover:text-parchment/40 font-mono text-xs tracking-widest transition-colors"
+            className="text-parchment-faint hover:text-parchment-dim font-mono text-xs tracking-widest transition-colors"
           >
             CHALLENGES
           </Link>
           <Link
             href="/list/new"
-            className="text-parchment/20 hover:text-parchment/40 font-mono text-xs tracking-widest transition-colors"
+            className="text-parchment-faint hover:text-parchment-dim font-mono text-xs tracking-widest transition-colors"
           >
             CUSTOM LIST
           </Link>
           <Link
             href="/achievements"
-            className="text-parchment/20 hover:text-parchment/40 font-mono text-xs tracking-widest transition-colors"
+            className="text-parchment-faint hover:text-parchment-dim font-mono text-xs tracking-widest transition-colors"
           >
             ACHIEVEMENTS
           </Link>
         </div>
-        <p className="text-parchment/20 font-mono text-xs tracking-widest">
+        <p className="text-parchment-faint font-mono text-xs tracking-widest">
           BUILT FOR FILM LOVERS · {new Date().getFullYear()}
         </p>
         <Link

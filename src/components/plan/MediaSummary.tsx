@@ -21,7 +21,7 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
   return (
     <div className="flex items-start gap-4">
       {/* Poster — smaller on mobile */}
-      <div className="bg-ink border-gold/10 aspect-[2/3] w-16 flex-shrink-0 overflow-hidden rounded-sm border sm:w-24">
+      <div className="bg-ink border-line aspect-[2/3] w-16 flex-shrink-0 overflow-hidden rounded-sm border sm:w-24">
         {media.posterPath ? (
           <img
             src={media.posterPath}
@@ -41,7 +41,7 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
           <h1 className="font-display text-parchment text-3xl leading-tight sm:text-4xl">
             {media.title}
           </h1>
-          <p className="text-parchment/30 mt-1 font-mono text-xs">
+          <p className="text-parchment-faint mt-1 font-mono text-xs">
             {media.releaseYear}
           </p>
         </div>
@@ -55,8 +55,8 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
             </Badge>
           ))}
         </div>
-        <p className="text-parchment/40 font-mono text-xs">{runtime}</p>
-        <p className="text-gold/70 font-mono text-xs">
+        <p className="text-parchment-dim font-mono text-xs">{runtime}</p>
+        <p className="text-gold font-mono text-xs">
           {totalHours} hours total
         </p>
       </div>

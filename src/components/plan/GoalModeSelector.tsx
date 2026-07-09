@@ -105,7 +105,7 @@ export default function GoalModeSelector({
             className={`flex items-center gap-2 rounded-sm border px-4 py-2 text-sm transition-colors ${
               value.mode === m.mode
                 ? 'border-gold/50 bg-ink text-parchment'
-                : 'border-gold/10 text-parchment/40 hover:border-gold/20 hover:text-parchment/60'
+                : 'border-line text-parchment-dim hover:border-line-strong hover:text-parchment-dim'
             } `}
           >
             <span className="font-mono text-xs">{m.icon}</span>
@@ -115,14 +115,14 @@ export default function GoalModeSelector({
       </div>
 
       {/* Mode description */}
-      <p className="text-parchment/30 font-mono text-xs">
+      <p className="text-parchment-faint font-mono text-xs">
         {modes.find((m) => m.mode === value.mode)?.desc}
       </p>
 
       {/* Finish Before inputs */}
       {value.mode === 'finish-before' && (
-        <div className="border-gold/10 bg-ink flex flex-col gap-2 rounded-sm border p-4">
-          <label className="text-parchment/40 font-mono text-xs tracking-widest uppercase">
+        <div className="border-line bg-ink flex flex-col gap-2 rounded-sm border p-4">
+          <label className="text-parchment-dim font-mono text-xs tracking-widest uppercase">
             Must finish by
           </label>
           <input
@@ -130,17 +130,17 @@ export default function GoalModeSelector({
             min={today}
             value={localDate}
             onChange={(e) => updateFinishBefore(e.target.value)}
-            className="bg-espresso border-gold/20 text-parchment focus:border-gold/50 w-fit rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
+            className="bg-espresso border-line-strong text-parchment focus:border-gold/50 w-fit rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
           />
         </div>
       )}
 
       {/* Vacation inputs */}
       {value.mode === 'vacation' && (
-        <div className="border-gold/10 bg-ink flex flex-col gap-3 rounded-sm border p-4">
+        <div className="border-line bg-ink flex flex-col gap-3 rounded-sm border p-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="text-parchment/40 font-mono text-xs tracking-widest uppercase">
+              <label className="text-parchment-dim font-mono text-xs tracking-widest uppercase">
                 Start date
               </label>
               <input
@@ -151,11 +151,11 @@ export default function GoalModeSelector({
                   setVacStart(e.target.value)
                   updateVacation(e.target.value, vacEnd, hoursPerDay)
                 }}
-                className="bg-espresso border-gold/20 text-parchment focus:border-gold/50 rounded-sm border px-3 py-2 font-mono text-xs focus:outline-none"
+                className="bg-espresso border-line-strong text-parchment focus:border-gold/50 rounded-sm border px-3 py-2 font-mono text-xs focus:outline-none"
               />
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-parchment/40 font-mono text-xs tracking-widest uppercase">
+              <label className="text-parchment-dim font-mono text-xs tracking-widest uppercase">
                 End date
               </label>
               <input
@@ -166,12 +166,12 @@ export default function GoalModeSelector({
                   setVacEnd(e.target.value)
                   updateVacation(vacStart, e.target.value, hoursPerDay)
                 }}
-                className="bg-espresso border-gold/20 text-parchment focus:border-gold/50 rounded-sm border px-3 py-2 font-mono text-xs focus:outline-none"
+                className="bg-espresso border-line-strong text-parchment focus:border-gold/50 rounded-sm border px-3 py-2 font-mono text-xs focus:outline-none"
               />
             </div>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label className="text-parchment/40 font-mono text-xs tracking-widest uppercase">
+            <label className="text-parchment-dim font-mono text-xs tracking-widest uppercase">
               Hours per day
             </label>
             <div className="flex items-center gap-4">

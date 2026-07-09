@@ -60,7 +60,7 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
         return (
           <div
             key={day}
-            className={`rounded-sm border p-4 transition-colors ${d.enabled ? 'border-gold/30 bg-ink' : 'border-gold/10 bg-espresso'} `}
+            className={`rounded-sm border p-4 transition-colors ${d.enabled ? 'border-gold/30 bg-ink' : 'border-line bg-espresso'} `}
           >
             {/* Day toggle */}
             <button
@@ -70,14 +70,14 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
               className="group flex min-h-[44px] w-full items-center gap-3"
             >
               <div
-                className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-sm border transition-colors ${d.enabled ? 'bg-gold border-gold' : 'border-parchment/20'} `}
+                className={`flex h-4 w-4 flex-shrink-0 items-center justify-center rounded-sm border transition-colors ${d.enabled ? 'bg-gold border-gold' : 'border-line-strong'} `}
               >
                 {d.enabled && (
                   <span className="text-espresso font-mono text-xs">✓</span>
                 )}
               </div>
               <span
-                className={`font-mono text-xs tracking-widest transition-colors ${d.enabled ? 'text-parchment' : 'text-parchment/30'} `}
+                className={`font-mono text-xs tracking-widest transition-colors ${d.enabled ? 'text-parchment' : 'text-parchment-faint'} `}
               >
                 {day.toUpperCase()}
               </span>
@@ -94,9 +94,9 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
                       onChange={(e) =>
                         updateWindow(day, i, 'start', e.target.value)
                       }
-                      className="bg-espresso border-gold/20 text-parchment focus:border-gold/50 rounded-sm border px-3 py-1.5 font-mono text-xs focus:outline-none"
+                      className="bg-espresso border-line-strong text-parchment focus:border-gold/50 rounded-sm border px-3 py-1.5 font-mono text-xs focus:outline-none"
                     />
-                    <span className="text-parchment/30 font-mono text-xs">
+                    <span className="text-parchment-faint font-mono text-xs">
                       to
                     </span>
                     <input
@@ -105,13 +105,13 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
                       onChange={(e) =>
                         updateWindow(day, i, 'end', e.target.value)
                       }
-                      className="bg-espresso border-gold/20 text-parchment focus:border-gold/50 rounded-sm border px-3 py-1.5 font-mono text-xs focus:outline-none"
+                      className="bg-espresso border-line-strong text-parchment focus:border-gold/50 rounded-sm border px-3 py-1.5 font-mono text-xs focus:outline-none"
                     />
                     {d.windows.length > 1 && (
                       <button
                         onClick={() => removeWindow(day, i)}
                         aria-label="Remove time window"
-                        className="text-parchment/20 hover:text-rose/60 px-1 font-mono text-xs transition-colors"
+                        className="text-parchment-faint hover:text-rose px-1 font-mono text-xs transition-colors"
                       >
                         ✕
                       </button>
@@ -122,7 +122,7 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
                 {/* Add window */}
                 <button
                   onClick={() => addWindow(day)}
-                  className="text-parchment/30 hover:text-gold/60 mt-1 flex w-fit items-center gap-1.5 font-mono text-xs transition-colors"
+                  className="text-parchment-faint hover:text-gold mt-1 flex w-fit items-center gap-1.5 font-mono text-xs transition-colors"
                 >
                   <span>+</span>
                   <span className="tracking-widest">ADD TIME SLOT</span>

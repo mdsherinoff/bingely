@@ -8,13 +8,13 @@ export default function Input({ label, className = '', ...props }: InputProps) {
   return (
     <div className="w-full">
       {label && (
-        <label className="text-parchment/50 mb-1.5 block font-mono text-xs tracking-widest uppercase">
+        <label className="text-parchment-dim mb-1.5 block font-mono text-xs tracking-widest uppercase">
           {label}
         </label>
       )}
 
       <input
-        className={`bg-cinema-dark border-cinema-border text-cinema-white placeholder:text-cinema-muted focus:border-cinema-silver rounded-sm border px-4 py-3 font-mono text-base transition-colors focus:outline-none ${className} `}
+        className={`bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/60 rounded-sm border px-4 py-3 font-sans text-base transition-colors focus:outline-none ${className} `}
         {...props}
       />
     </div>

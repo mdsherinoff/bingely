@@ -90,25 +90,25 @@ export default function AvailabilityForm({
   return (
     <div className="flex flex-col gap-10">
       {/* Summary */}
-      <div className="border-gold/10 bg-ink flex flex-col gap-3 rounded-sm border p-5">
-        <p className="text-parchment/30 font-mono text-xs tracking-widest">
+      <div className="border-line bg-ink flex flex-col gap-3 rounded-sm border p-5">
+        <p className="text-parchment-faint font-mono text-xs tracking-widest">
           WHAT YOU'RE PLANNING
         </p>
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
               {itemLabel.toUpperCase()}
             </p>
             <p className="text-parchment font-mono text-2xl">{totalItems}</p>
           </div>
           <div>
-            <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
               TOTAL
             </p>
             <p className="text-parchment font-mono text-2xl">{totalHours}h</p>
           </div>
           <div>
-            <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
               AVG RUNTIME
             </p>
             <div className="flex items-center gap-2">
@@ -125,9 +125,9 @@ export default function AvailabilityForm({
                       : Math.min(300, Math.max(1, Math.round(Number(value))))
                   )
                 }}
-                className="bg-espresso border-gold/20 text-parchment focus:border-gold/50 w-16 rounded-sm border px-2 py-1 font-mono text-sm focus:outline-none"
+                className="bg-espresso border-line-strong text-parchment focus:border-gold/50 w-16 rounded-sm border px-2 py-1 font-mono text-sm focus:outline-none"
               />
-              <span className="text-parchment/30 font-mono text-xs">min</span>
+              <span className="text-parchment-faint font-mono text-xs">min</span>
             </div>
           </div>
         </div>
@@ -162,14 +162,14 @@ export default function AvailabilityForm({
           <PaceSelector value={pace} onChange={setPace} />
 
           {/* Live estimate */}
-          <div className="border-gold/10 bg-ink mt-2 rounded-sm border p-4">
-            <p className="text-parchment/30 mb-3 font-mono text-xs tracking-widest">
+          <div className="border-line bg-ink mt-2 rounded-sm border p-4">
+            <p className="text-parchment-faint mb-3 font-mono text-xs tracking-widest">
               ESTIMATED PLAN
             </p>
             <p className="text-parchment font-mono text-lg">
               {adjustedItemsPerWeek} {itemLabel} / week
             </p>
-            <p className="text-gold/60 mt-1 font-mono text-xs">
+            <p className="text-gold mt-1 font-mono text-xs">
               {weeksToFinish
                 ? `Done in ~${weeksToFinish} weeks`
                 : 'Select at least one day'}

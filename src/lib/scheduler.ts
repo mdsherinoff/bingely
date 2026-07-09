@@ -21,6 +21,7 @@ function getCompletionDate(weeks: number): string {
   date.setDate(date.getDate() + weeks * 7)
   return date.toLocaleDateString('en-US', {
     month: 'long',
+    day: 'numeric',
     year: 'numeric',
   })
 }
@@ -179,6 +180,7 @@ export function generateFinishBeforePlan(
     episodesPerWeek,
     completionDate: target.toLocaleDateString('en-US', {
       month: 'long',
+      day: 'numeric',
       year: 'numeric',
     }),
     weeklyBlocks,
@@ -233,7 +235,11 @@ export function generateVacationPlan(
   }
 
   const completionLabel = canFinish
-    ? end.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    ? end.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+      })
     : `${effectiveEpisodes} of ${totalEpisodes}\nby vacation end`
 
   return {

@@ -20,11 +20,11 @@ export default function MovieSessionCard({
 
   return (
     <div
-      className={`flex flex-col gap-3 rounded-sm border p-4 transition-colors ${session.isComplete ? 'border-gold/30 bg-ink' : 'border-gold/10'} `}
+      className={`flex flex-col gap-3 rounded-sm border p-4 transition-colors ${session.isComplete ? 'border-gold/30 bg-ink' : 'border-line'} `}
     >
       <div className="flex items-start justify-between">
         <div className="flex flex-col gap-0.5">
-          <p className="text-parchment/30 font-mono text-xs tracking-widest">
+          <p className="text-parchment-faint font-mono text-xs tracking-widest">
             SESSION {session.sessionNumber}
           </p>
           <p className="text-parchment font-mono text-base">
@@ -34,7 +34,7 @@ export default function MovieSessionCard({
               day: 'numeric',
             })}
           </p>
-          <p className="text-parchment/40 font-mono text-xs">
+          <p className="text-parchment-dim font-mono text-xs">
             {formatTime(session.start)} — {formatTime(session.end)}
           </p>
         </div>
@@ -42,7 +42,7 @@ export default function MovieSessionCard({
           <p className="text-gold font-mono text-xs">
             {session.durationMins} min
           </p>
-          <p className="text-parchment/30 font-mono text-xs">
+          <p className="text-parchment-faint font-mono text-xs">
             mins {session.minuteStart}–{session.minuteEnd}
           </p>
         </div>
@@ -56,13 +56,13 @@ export default function MovieSessionCard({
             style={{ width: `${percent}%` }}
           />
         </div>
-        <p className="text-parchment/20 text-right font-mono text-xs">
+        <p className="text-parchment-faint text-right font-mono text-xs">
           {percent}% complete after this session
         </p>
       </div>
 
       {session.isComplete && (
-        <p className="text-gold/60 font-mono text-xs tracking-widest">
+        <p className="text-gold font-mono text-xs tracking-widest">
           ✓ FILM COMPLETE
         </p>
       )}

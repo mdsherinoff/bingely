@@ -66,17 +66,17 @@ export default function MovieCalendar({ sessions }: MovieCalendarProps) {
         <button
           onClick={() => setWeekOffset((o) => Math.max(0, o - 1))}
           disabled={weekOffset === 0}
-          className="text-parchment/30 hover:text-parchment/60 px-2 py-1 font-mono text-xs transition-colors disabled:opacity-20"
+          className="text-parchment-faint hover:text-parchment-dim px-2 py-1 font-mono text-xs transition-colors disabled:opacity-20"
         >
           ← PREV
         </button>
-        <p className="text-parchment/40 font-mono text-xs tracking-widest">
+        <p className="text-parchment-dim font-mono text-xs tracking-widest">
           {weekLabel} — {weekEndLabel}
         </p>
         <button
           onClick={() => setWeekOffset((o) => Math.min(maxOffset, o + 1))}
           disabled={weekOffset >= maxOffset}
-          className="text-parchment/30 hover:text-parchment/60 px-2 py-1 font-mono text-xs transition-colors disabled:opacity-20"
+          className="text-parchment-faint hover:text-parchment-dim px-2 py-1 font-mono text-xs transition-colors disabled:opacity-20"
         >
           NEXT →
         </button>
@@ -88,7 +88,7 @@ export default function MovieCalendar({ sessions }: MovieCalendarProps) {
         {DAY_LABELS.map((label) => (
           <div
             key={label}
-            className="text-parchment/20 py-1 text-center font-mono text-xs tracking-widest"
+            className="text-parchment-faint py-1 text-center font-mono text-xs tracking-widest"
           >
             {label}
           </div>
@@ -106,12 +106,12 @@ export default function MovieCalendar({ sessions }: MovieCalendarProps) {
                 daySessions.length > 0
                   ? 'border-gold/30 bg-ink'
                   : isToday
-                    ? 'border-parchment/10 bg-espresso'
-                    : 'border-gold/5 bg-espresso'
+                    ? 'border-line bg-espresso'
+                    : 'border-line bg-espresso'
               } `}
             >
               <p
-                className={`text-right font-mono text-xs ${isToday ? 'text-gold' : 'text-parchment/20'} `}
+                className={`text-right font-mono text-xs ${isToday ? 'text-gold' : 'text-parchment-faint'} `}
               >
                 {day.getDate()}
               </p>
@@ -123,7 +123,7 @@ export default function MovieCalendar({ sessions }: MovieCalendarProps) {
                   <p className="text-gold font-mono text-xs leading-tight">
                     S{s.sessionNumber}
                   </p>
-                  <p className="text-gold/60 font-mono text-xs leading-tight">
+                  <p className="text-gold font-mono text-xs leading-tight">
                     {s.durationMins}m
                   </p>
                 </div>
@@ -136,7 +136,7 @@ export default function MovieCalendar({ sessions }: MovieCalendarProps) {
       {/* Legend */}
       <div className="flex items-center gap-3">
         <div className="bg-gold/20 border-gold/30 h-3 w-3 rounded-sm border" />
-        <p className="text-parchment/30 font-mono text-xs">
+        <p className="text-parchment-faint font-mono text-xs">
           Viewing session (S# = session number)
         </p>
       </div>

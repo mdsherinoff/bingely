@@ -21,7 +21,7 @@ export default function PosterCard({ item, index = 0 }: PosterCardProps) {
         href={`/plan/${item.id}?type=${item.mediaType}`}
         className="group flex flex-col gap-3"
       >
-        <div className="bg-ink border-gold/10 group-hover:border-gold/40 relative aspect-[2/3] overflow-hidden rounded-sm border transition-colors">
+        <div className="bg-ink border-line group-hover:border-gold/40 relative aspect-[2/3] overflow-hidden rounded-sm border transition-colors">
           {item.posterPath ? (
             <img
               src={item.posterPath}
@@ -31,7 +31,7 @@ export default function PosterCard({ item, index = 0 }: PosterCardProps) {
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-4">
               <span className="text-gold/20 font-mono text-3xl">◎</span>
-              <p className="font-display text-parchment/30 text-center text-lg leading-tight">
+              <p className="font-display text-parchment-faint text-center text-lg leading-tight">
                 {item.title}
               </p>
             </div>
@@ -43,7 +43,7 @@ export default function PosterCard({ item, index = 0 }: PosterCardProps) {
             </p>
           </div>
 
-          <div className="bg-espresso/90 border-gold/20 absolute top-2 right-2 rounded-sm border px-2 py-0.5">
+          <div className="bg-espresso/90 border-line-strong absolute top-2 right-2 rounded-sm border px-2 py-0.5">
             <span className="text-gold font-mono text-xs">
               {item.voteAverage.toFixed(1)}
             </span>
@@ -58,7 +58,7 @@ export default function PosterCard({ item, index = 0 }: PosterCardProps) {
             <Badge variant={item.mediaType === 'tv' ? 'rose' : 'gold'}>
               {item.mediaType === 'tv' ? 'Series' : 'Film'}
             </Badge>
-            <span className="text-parchment/30 font-mono text-xs">
+            <span className="text-parchment-faint font-mono text-xs">
               {item.releaseYear}
             </span>
           </div>

@@ -36,7 +36,7 @@ export default function SmartSuggestions({
 
   return (
     <div className="flex flex-col gap-3">
-      <p className="text-parchment/30 font-mono text-xs tracking-widest">
+      <p className="text-parchment-faint font-mono text-xs tracking-widest">
         SMART SUGGESTIONS
       </p>
       <div className="flex flex-col gap-2">

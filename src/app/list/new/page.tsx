@@ -101,24 +101,24 @@ export default function NewListPage() {
         <div className="flex flex-col gap-3">
           <Link
             href="/"
-            className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+            className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
           >
             ← BACK
           </Link>
-          <p className="text-gold/60 font-mono text-xs tracking-widest">
+          <p className="text-gold font-mono text-xs tracking-widest">
             CUSTOM LIST
           </p>
           <h1 className="font-display text-parchment text-5xl leading-none">
             Build your list
           </h1>
-          <p className="text-parchment/40 font-mono">
+          <p className="text-parchment-dim font-sans">
             Add any mix of films and series, then plan them all at once.
           </p>
         </div>
 
         {/* List title */}
         <div className="flex flex-col gap-2">
-          <label className="text-parchment/40 font-mono text-xs tracking-widest uppercase">
+          <label className="text-parchment-dim font-mono text-xs tracking-widest uppercase">
             List name
           </label>
           <input
@@ -126,7 +126,7 @@ export default function NewListPage() {
             placeholder="e.g. My 2025 Watchlist, Date Night Films..."
             value={listTitle}
             onChange={(e) => setListTitle(e.target.value)}
-            className="bg-ink border-gold/20 text-parchment placeholder:text-parchment/20 focus:border-gold/50 max-w-lg rounded-sm border px-4 py-3 font-mono text-lg focus:outline-none"
+            className="bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/50 max-w-lg rounded-sm border px-4 py-3 font-mono text-lg focus:outline-none"
           />
         </div>
 
@@ -142,7 +142,7 @@ export default function NewListPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="bg-ink border-gold/20 text-parchment placeholder:text-parchment/20 focus:border-gold/50 flex-1 rounded-sm border px-4 py-2.5 font-mono text-sm focus:outline-none"
+                className="bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/50 flex-1 rounded-sm border px-4 py-2.5 font-mono text-sm focus:outline-none"
               />
               <Button
                 onClick={handleSearch}
@@ -161,7 +161,7 @@ export default function NewListPage() {
                   return (
                     <div
                       key={item.tmdbId}
-                      className="border-gold/10 hover:border-gold/20 flex items-center gap-3 rounded-sm border p-3 transition-colors"
+                      className="border-line hover:border-line-strong flex items-center gap-3 rounded-sm border p-3 transition-colors"
                     >
                       {item.posterPath && (
                         <img
@@ -180,10 +180,10 @@ export default function NewListPage() {
                           >
                             {item.mediaType === 'tv' ? 'Series' : 'Film'}
                           </Badge>
-                          <span className="text-parchment/30 font-mono text-xs">
+                          <span className="text-parchment-faint font-mono text-xs">
                             {item.releaseYear}
                           </span>
-                          <span className="text-parchment/30 font-mono text-xs">
+                          <span className="text-parchment-faint font-mono text-xs">
                             {item.runtime}min
                           </span>
                         </div>
@@ -194,8 +194,8 @@ export default function NewListPage() {
                         }
                         className={`flex-shrink-0 rounded-sm border px-3 py-1.5 font-mono text-xs transition-colors ${
                           already
-                            ? 'border-rose/30 text-rose/70 hover:bg-rose/10'
-                            : 'border-gold/30 text-gold/70 hover:bg-gold/10'
+                            ? 'border-rose/30 text-rose hover:bg-rose/10'
+                            : 'border-gold/30 text-gold hover:bg-gold/10'
                         } `}
                       >
                         {already ? 'Remove' : '+ Add'}
@@ -214,16 +214,16 @@ export default function NewListPage() {
                 Your list
               </h2>
               {items.length > 0 && (
-                <p className="text-parchment/30 font-mono text-xs">
+                <p className="text-parchment-faint font-mono text-xs">
                   {items.length} titles · {totalHours}h
                 </p>
               )}
             </div>
 
             {items.length === 0 ? (
-              <div className="border-gold/10 flex flex-col items-center gap-3 rounded-sm border p-8">
+              <div className="border-line flex flex-col items-center gap-3 rounded-sm border p-8">
                 <span className="text-gold/20 font-mono text-2xl">◎</span>
-                <p className="text-parchment/30 text-center font-mono text-sm">
+                <p className="text-parchment-faint text-center font-mono text-sm">
                   Search and add titles to build your list
                 </p>
               </div>
@@ -232,9 +232,9 @@ export default function NewListPage() {
                 {items.map((item, i) => (
                   <div
                     key={item.tmdbId}
-                    className="border-gold/10 flex items-center gap-3 rounded-sm border p-3"
+                    className="border-line flex items-center gap-3 rounded-sm border p-3"
                   >
-                    <span className="text-parchment/20 w-5 flex-shrink-0 font-mono text-xs">
+                    <span className="text-parchment-faint w-5 flex-shrink-0 font-mono text-xs">
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     {item.posterPath && (
@@ -248,13 +248,13 @@ export default function NewListPage() {
                       <p className="text-parchment truncate font-mono text-sm">
                         {item.title}
                       </p>
-                      <p className="text-parchment/30 font-mono text-xs">
+                      <p className="text-parchment-faint font-mono text-xs">
                         {item.runtime}min
                       </p>
                     </div>
                     <button
                       onClick={() => removeItem(item.tmdbId)}
-                      className="text-parchment/20 hover:text-rose/60 flex-shrink-0 font-mono text-xs transition-colors"
+                      className="text-parchment-faint hover:text-rose flex-shrink-0 font-mono text-xs transition-colors"
                     >
                       ✕
                     </button>
@@ -262,11 +262,11 @@ export default function NewListPage() {
                 ))}
 
                 {/* Total */}
-                <div className="border-gold/10 flex justify-between border-t pt-3">
-                  <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                <div className="border-line flex justify-between border-t pt-3">
+                  <p className="text-parchment-faint font-mono text-xs tracking-widest">
                     TOTAL
                   </p>
-                  <p className="text-gold/60 font-mono text-xs">
+                  <p className="text-gold font-mono text-xs">
                     {totalHours}h
                   </p>
                 </div>

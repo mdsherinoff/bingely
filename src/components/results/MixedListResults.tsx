@@ -43,9 +43,9 @@ export default function MixedListResults({
         ].map((s) => (
           <div
             key={s.label}
-            className="border-gold/10 bg-ink flex flex-col gap-1 rounded-sm border p-4"
+            className="border-line bg-ink flex flex-col gap-1 rounded-sm border p-4"
           >
-            <p className="text-parchment/30 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               {s.label}
             </p>
             <p className="text-parchment font-mono text-base leading-tight">
@@ -60,7 +60,7 @@ export default function MixedListResults({
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <h2 className="font-display text-parchment text-2xl">Films</h2>
-            <span className="text-parchment/30 font-mono text-xs tracking-widest">
+            <span className="text-parchment-faint font-mono text-xs tracking-widest">
               {mixedPlan.movieItems.length} title
               {mixedPlan.movieItems.length === 1 ? '' : 's'} ·{' '}
               {moviePlan.totalSessions} session
@@ -69,7 +69,7 @@ export default function MixedListResults({
           </div>
 
           {/* Calendar */}
-          <div className="border-gold/10 rounded-sm border p-6">
+          <div className="border-line rounded-sm border p-6">
             <MovieCalendar sessions={moviePlan.sessions} />
           </div>
 
@@ -101,7 +101,7 @@ export default function MixedListResults({
               return itemSessions.map(({ item, sessions }, i) => (
                 <div
                   key={item.tmdbId}
-                  className="border-gold/10 flex flex-col gap-3 rounded-sm border p-5"
+                  className="border-line flex flex-col gap-3 rounded-sm border p-5"
                 >
                   <div className="flex items-start gap-3">
                     {item.posterPath && (
@@ -112,13 +112,13 @@ export default function MixedListResults({
                       />
                     )}
                     <div className="flex flex-col gap-0.5">
-                      <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                      <p className="text-parchment-faint font-mono text-xs tracking-widest">
                         FILM {String(i + 1).padStart(2, '0')}
                       </p>
                       <p className="text-parchment font-mono text-base">
                         {item.title}
                       </p>
-                      <p className="text-parchment/30 font-mono text-xs">
+                      <p className="text-parchment-faint font-mono text-xs">
                         {item.runtime} min · {sessions.length} session
                         {sessions.length > 1 ? 's' : ''}
                       </p>
@@ -128,17 +128,17 @@ export default function MixedListResults({
                     {sessions.map((s) => (
                       <div
                         key={s.sessionNumber}
-                        className="border-gold/10 flex items-center justify-between rounded-sm border px-3 py-2"
+                        className="border-line flex items-center justify-between rounded-sm border px-3 py-2"
                       >
                         <div className="flex flex-col gap-0.5">
-                          <p className="text-parchment/70 font-mono text-sm">
+                          <p className="text-parchment-dim font-mono text-sm">
                             {s.date.toLocaleDateString('en-US', {
                               weekday: 'long',
                               month: 'short',
                               day: 'numeric',
                             })}
                           </p>
-                          <p className="text-parchment/30 font-mono text-xs">
+                          <p className="text-parchment-faint font-mono text-xs">
                             {formatTime(s.start)} — {formatTime(s.end)}
                           </p>
                         </div>
@@ -147,7 +147,7 @@ export default function MixedListResults({
                             {s.durationMins} min
                           </p>
                           {sessions.length > 1 && (
-                            <p className="text-parchment/20 font-mono text-xs">
+                            <p className="text-parchment-faint font-mono text-xs">
                               mins {s.minuteStart}–{s.minuteEnd}
                             </p>
                           )}
@@ -163,14 +163,14 @@ export default function MixedListResults({
       )}
 
       {/* Divider between films and series */}
-      {moviePlan && tvPlan && <div className="border-gold/10 border-t" />}
+      {moviePlan && tvPlan && <div className="border-line border-t" />}
 
       {/* Series section */}
       {tvPlan && (
         <div className="flex flex-col gap-6">
           <div className="flex items-center gap-3">
             <h2 className="font-display text-parchment text-2xl">Series</h2>
-            <span className="text-parchment/30 font-mono text-xs tracking-widest">
+            <span className="text-parchment-faint font-mono text-xs tracking-widest">
               {mixedPlan.tvItems.length} title
               {mixedPlan.tvItems.length === 1 ? '' : 's'} · {tvPlan.totalWeeks}{' '}
               week{tvPlan.totalWeeks === 1 ? '' : 's'}
@@ -205,21 +205,21 @@ export default function MixedListResults({
               </div>
 
               {/* Series list */}
-              <div className="border-gold/10 flex flex-col gap-2 border-t pt-4">
-                <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
+              <div className="border-line flex flex-col gap-2 border-t pt-4">
+                <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
                   SERIES IN LIST
                 </p>
                 {list.items
                   .filter((i) => i.mediaType === 'tv')
                   .map((item, i) => (
                     <div key={item.tmdbId} className="flex items-center gap-2">
-                      <span className="text-parchment/20 w-5 font-mono text-xs">
+                      <span className="text-parchment-faint w-5 font-mono text-xs">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <p className="text-parchment/60 flex-1 truncate font-mono text-xs">
+                      <p className="text-parchment-dim flex-1 truncate font-mono text-xs">
                         {item.title}
                       </p>
-                      <span className="text-parchment/20 font-mono text-xs">
+                      <span className="text-parchment-faint font-mono text-xs">
                         {Math.round((item.runtime / 60) * 10) / 10}h total
                       </span>
                     </div>
@@ -231,8 +231,8 @@ export default function MixedListResults({
       )}
 
       {/* Export */}
-      <div className="border-gold/10 flex flex-col gap-3 border-t pt-6">
-        <p className="text-parchment/30 font-mono text-xs tracking-widest">
+      <div className="border-line flex flex-col gap-3 border-t pt-6">
+        <p className="text-parchment-faint font-mono text-xs tracking-widest">
           EXPORT
         </p>
         <div className="flex gap-3">

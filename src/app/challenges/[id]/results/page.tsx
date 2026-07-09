@@ -119,7 +119,7 @@ export default function ChallengeResultsPage({
   if (loading) {
     return (
       <main className="bg-espresso flex min-h-screen items-center justify-center">
-        <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
+        <p className="text-parchment-faint animate-pulse font-mono text-xs tracking-widest">
           GENERATING YOUR PLAN...
         </p>
       </main>
@@ -142,13 +142,13 @@ export default function ChallengeResultsPage({
       <div className="mx-auto flex max-w-5xl flex-col gap-12">
         <Link
           href={`/challenges/${id}/plan`}
-          className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+          className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
         >
           ← BACK TO PLANNER
         </Link>
 
         <div className="flex flex-col gap-4">
-          <p className="text-gold/60 font-mono text-xs tracking-widest">
+          <p className="text-gold font-mono text-xs tracking-widest">
             CHALLENGE PLAN
           </p>
           <div className="flex items-start justify-between gap-4">
@@ -156,12 +156,12 @@ export default function ChallengeResultsPage({
               <h1 className="font-display text-parchment text-5xl leading-none">
                 {challenge.title}
               </h1>
-              <p className="text-parchment/40 font-mono">
+              <p className="text-parchment-dim font-sans">
                 {challenge.itemCount} films ·{' '}
                 {Math.round(challenge.totalRuntime / 60)}h total
               </p>
             </div>
-            <span className="text-gold/30 flex-shrink-0 font-mono text-4xl">
+            <span className="text-gold/60 flex-shrink-0 font-mono text-4xl">
               {challenge.icon}
             </span>
           </div>

@@ -20,17 +20,17 @@ export default function ChallengesPage() {
           <div className="flex flex-col gap-3">
             <Link
               href="/"
-              className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+              className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
             >
               ← BACK
             </Link>
-            <p className="text-gold/60 font-mono text-xs tracking-widest">
+            <p className="text-gold font-mono text-xs tracking-widest">
               FILM CHALLENGES
             </p>
             <h1 className="font-display text-parchment text-6xl leading-none">
               Choose your journey
             </h1>
-            <p className="text-parchment/40 font-mono text-lg">
+            <p className="text-parchment-dim font-mono text-lg">
               Curated collections for the dedicated cinephile
             </p>
           </div>
@@ -41,7 +41,7 @@ export default function ChallengesPage() {
             if (items.length === 0) return null
             return (
               <div key={key} className="flex flex-col gap-4">
-                <h2 className="font-display text-parchment/60 text-2xl">
+                <h2 className="font-display text-parchment-dim text-2xl">
                   {label}
                 </h2>
                 <div className="grid gap-4 sm:grid-cols-2">

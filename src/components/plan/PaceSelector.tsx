@@ -55,21 +55,21 @@ export default function PaceSelector({ value, onChange }: PaceSelectorProps) {
           className={`flex items-center justify-between rounded-sm border p-4 text-left transition-colors ${
             value === p.mode
               ? 'border-gold/50 bg-ink'
-              : 'border-gold/10 hover:border-gold/20'
+              : 'border-line hover:border-line-strong'
           } `}
         >
           <div className="flex flex-col gap-0.5">
             <span
-              className={`font-mono text-base ${value === p.mode ? 'text-parchment' : 'text-parchment/50'}`}
+              className={`font-mono text-base ${value === p.mode ? 'text-parchment' : 'text-parchment-dim'}`}
             >
               {p.label}
             </span>
-            <span className="text-parchment/30 font-mono text-xs">
+            <span className="text-parchment-faint font-mono text-xs">
               {p.desc}
             </span>
           </div>
           <span
-            className={`font-mono text-sm ${value === p.mode ? 'text-gold' : 'text-parchment/20'}`}
+            className={`font-mono text-sm ${value === p.mode ? 'text-gold' : 'text-parchment-faint'}`}
           >
             {p.multiplier}
           </span>

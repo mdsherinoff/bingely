@@ -79,7 +79,7 @@ export default function ScreeningRoom() {
         {/* Top label */}
         <div className="absolute top-8 right-0 left-0 flex flex-col items-center gap-2">
           <div className="bg-gold/40 h-px w-8" />
-          <p className="text-gold/40 font-mono text-xs tracking-[0.5em]">
+          <p className="text-gold/60 font-mono text-xs tracking-[0.5em]">
             THE SCREENING ROOM
           </p>
           <div className="bg-gold/40 h-px w-8" />
@@ -93,7 +93,7 @@ export default function ScreeningRoom() {
           <p className="font-display text-parchment text-4xl leading-relaxed md:text-5xl">
             {q.quote}
           </p>
-          <p className="text-parchment/40 font-mono text-xs tracking-widest">
+          <p className="text-parchment-dim font-mono text-xs tracking-widest">
             — {q.film}
           </p>
         </div>
@@ -117,17 +117,17 @@ export default function ScreeningRoom() {
       </div>
 
       {/* Secret content */}
-      <div className="bg-ink border-gold/20 border-t px-6 py-16">
+      <div className="bg-ink border-line-strong border-t px-6 py-16">
         <div className="mx-auto flex max-w-4xl flex-col gap-12">
           {/* Welcome message */}
           <div className="flex flex-col items-center gap-4 text-center">
-            <p className="text-gold/50 font-mono text-xs tracking-[0.4em]">
+            <p className="text-gold font-mono text-xs tracking-[0.4em]">
               YOU FOUND THE SCREENING ROOM
             </p>
             <h1 className="font-display text-parchment text-5xl">
               A Place for Cinephiles
             </h1>
-            <p className="text-parchment/40 font-display max-w-lg italic">
+            <p className="text-parchment-dim font-display max-w-lg italic">
               Only those who know the code may enter. Welcome.
             </p>
           </div>
@@ -135,33 +135,33 @@ export default function ScreeningRoom() {
           {/* Film reel decoration */}
           <div className="flex items-center gap-4">
             <div className="bg-gold/20 h-px flex-1" />
-            <span className="text-gold/40 font-mono text-xl">◎</span>
+            <span className="text-gold/60 font-mono text-xl">◎</span>
             <div className="bg-gold/20 h-px flex-1" />
           </div>
 
           {/* Secret featured challenge */}
           <div className="flex flex-col gap-4">
-            <p className="text-gold/50 text-center font-mono text-xs tracking-widest">
+            <p className="text-gold text-center font-mono text-xs tracking-widest">
               TONIGHT'S FEATURE PRESENTATION
             </p>
             <Link
               href={`/challenges/${SECRET_CHALLENGE.id}`}
-              className="group border-gold/20 hover:border-gold/50 flex flex-col gap-4 rounded-sm border p-8 text-center transition-colors"
+              className="group border-line-strong hover:border-gold/50 flex flex-col gap-4 rounded-sm border p-8 text-center transition-colors"
             >
-              <span className="text-gold/40 group-hover:text-gold/70 font-mono text-4xl transition-colors">
+              <span className="text-gold/60 group-hover:text-gold font-mono text-4xl transition-colors">
                 {SECRET_CHALLENGE.icon}
               </span>
               <h2 className="font-display text-parchment group-hover:text-gold text-3xl transition-colors">
                 {SECRET_CHALLENGE.title}
               </h2>
-              <p className="text-parchment/40 font-display italic">
+              <p className="text-parchment-dim font-display italic">
                 {SECRET_CHALLENGE.description}
               </p>
-              <p className="text-gold/40 mt-2 font-mono text-xs tracking-widest">
+              <p className="text-gold/60 mt-2 font-mono text-xs tracking-widest">
                 {SECRET_CHALLENGE.itemCount} films ·{' '}
                 {Math.round(SECRET_CHALLENGE.totalRuntime / 60)}h total
               </p>
-              <p className="text-gold/30 group-hover:text-gold/60 font-mono text-xs tracking-widest transition-colors">
+              <p className="text-gold/60 group-hover:text-gold font-mono text-xs tracking-widest transition-colors">
                 BEGIN THE JOURNEY →
               </p>
             </Link>
@@ -188,12 +188,12 @@ export default function ScreeningRoom() {
             ].map((f) => (
               <div
                 key={f.stat}
-                className="border-gold/10 flex flex-col gap-2 rounded-sm border p-5 text-center"
+                className="border-line flex flex-col gap-2 rounded-sm border p-5 text-center"
               >
-                <p className="font-display text-parchment/80 text-3xl">
+                <p className="font-display text-parchment-dim text-3xl">
                   {f.stat}
                 </p>
-                <p className="text-parchment/30 font-mono text-xs leading-relaxed">
+                <p className="text-parchment-faint font-mono text-xs leading-relaxed">
                   {f.label}
                 </p>
               </div>
@@ -201,12 +201,12 @@ export default function ScreeningRoom() {
           </div>
 
           {/* Achievement status */}
-          <div className="border-gold/20 flex flex-col items-center gap-3 rounded-sm border p-6 text-center">
+          <div className="border-line-strong flex flex-col items-center gap-3 rounded-sm border p-6 text-center">
             <span className="text-gold font-mono text-2xl">★</span>
-            <p className="text-gold/60 font-mono text-xs tracking-widest">
+            <p className="text-gold font-mono text-xs tracking-widest">
               CINEPHILE ELITE
             </p>
-            <p className="text-parchment/60 font-mono text-sm">
+            <p className="text-parchment-dim font-mono text-sm">
               {isUnlocked('challenge-accepted')
                 ? 'Achievement unlocked. You are among the few.'
                 : 'Keep exploring to unlock this achievement.'}
@@ -217,12 +217,12 @@ export default function ScreeningRoom() {
           <div className="flex flex-col items-center gap-4">
             <div className="flex items-center gap-4">
               <div className="bg-gold/10 h-px flex-1" />
-              <span className="text-parchment/20 font-mono text-xs">◎</span>
+              <span className="text-parchment-faint font-mono text-xs">◎</span>
               <div className="bg-gold/10 h-px flex-1" />
             </div>
             <Link
               href="/"
-              className="text-parchment/20 hover:text-parchment/50 font-mono text-xs tracking-widest transition-colors"
+              className="text-parchment-faint hover:text-parchment-dim font-mono text-xs tracking-widest transition-colors"
             >
               RETURN TO BINGELY →
             </Link>

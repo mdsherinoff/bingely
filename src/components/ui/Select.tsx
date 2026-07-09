@@ -14,12 +14,12 @@ export default function Select({
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <label className="text-parchment/50 font-mono text-xs tracking-widest uppercase">
+        <label className="text-parchment-dim font-mono text-xs tracking-widest uppercase">
           {label}
         </label>
       )}
       <select
-        className={`bg-ink border-gold/20 text-parchment focus:border-gold/60 cursor-pointer appearance-none rounded-sm border px-4 py-3 font-mono text-base transition-colors focus:outline-none ${className} `}
+        className={`bg-ink border-line-strong text-parchment focus:border-gold/60 cursor-pointer appearance-none rounded-sm border px-4 py-3 font-sans text-base transition-colors focus:outline-none ${className} `}
         {...props}
       >
         {options.map((opt) => (

@@ -26,19 +26,19 @@ export default async function ChallengePlanPage({
         <div className="flex flex-col gap-3">
           <Link
             href={`/challenges/${id}`}
-            className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+            className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
           >
             ← BACK TO CHALLENGE
           </Link>
           <div className="flex items-center gap-3">
-            <span className="text-gold/50 font-mono text-3xl">
+            <span className="text-gold font-mono text-3xl">
               {challenge.icon}
             </span>
           </div>
           <h1 className="font-display text-parchment text-5xl leading-none">
             Plan — {challenge.title}
           </h1>
-          <p className="text-parchment/40 font-mono">
+          <p className="text-parchment-dim font-sans">
             {challenge.itemCount} films ·{' '}
             {Math.round(challenge.totalRuntime / 60)}h total
           </p>

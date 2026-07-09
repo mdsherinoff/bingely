@@ -34,7 +34,7 @@ export default function MilestoneCard({
             {milestone.percent}%
           </Badge>
         </div>
-        <p className="text-parchment/30 font-mono text-xs">
+        <p className="text-parchment-faint font-mono text-xs">
           Week {milestone.week} · Episode {milestone.episode}
         </p>
       </div>

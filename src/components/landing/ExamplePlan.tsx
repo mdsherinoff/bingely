@@ -6,13 +6,13 @@ export default function ExamplePlan() {
       <div className="mx-auto grid max-w-5xl items-center gap-16 md:grid-cols-2">
         {/* Left — copy */}
         <div className="flex flex-col gap-6">
-          <p className="text-gold/60 font-mono text-xs tracking-[0.3em] uppercase">
+          <p className="text-gold font-mono text-xs tracking-[0.3em] uppercase">
             See it in action
           </p>
           <h2 className="font-display text-parchment text-5xl leading-tight">
             One Piece in 11 months
           </h2>
-          <p className="text-parchment/50 font-mono text-lg leading-relaxed">
+          <p className="text-parchment-dim font-sans text-lg leading-relaxed">
             1,122 episodes sounds impossible. With 3 hours free on weekdays and
             6 on weekends, Bingely maps out exactly how you get there — arc by
             arc, week by week.
@@ -26,7 +26,7 @@ export default function ExamplePlan() {
 
         {/* Right — timeline preview */}
         <Card className="flex flex-col gap-1">
-          <p className="text-parchment/30 mb-4 font-mono text-xs tracking-widest">
+          <p className="text-parchment-faint mb-4 font-mono text-xs tracking-widest">
             WATCH PLAN — ONE PIECE
           </p>
           <TimelineItem

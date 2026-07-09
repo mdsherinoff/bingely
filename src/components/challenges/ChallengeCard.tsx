@@ -36,10 +36,10 @@ export default function ChallengeCard({
     >
       <Link
         href={`/challenges/${challenge.id}`}
-        className="group border-gold/10 hover:border-gold/30 bg-espresso hover:bg-ink flex flex-col gap-4 rounded-sm border p-5 transition-colors"
+        className="group border-line hover:border-gold/30 bg-espresso hover:bg-ink flex flex-col gap-4 rounded-sm border p-5 transition-colors"
       >
         <div className="flex items-start justify-between">
-          <span className="text-gold/40 group-hover:text-gold/70 font-mono text-2xl transition-colors">
+          <span className="text-gold/60 group-hover:text-gold font-mono text-2xl transition-colors">
             {challenge.icon}
           </span>
           <Badge variant="muted">{categoryLabels[challenge.category]}</Badge>
@@ -49,14 +49,14 @@ export default function ChallengeCard({
           <h3 className="font-display text-parchment group-hover:text-gold text-2xl transition-colors">
             {challenge.title}
           </h3>
-          <p className="text-parchment/40 font-mono text-sm leading-relaxed">
+          <p className="text-parchment-dim font-mono text-sm leading-relaxed">
             {challenge.description}
           </p>
         </div>
 
-        <div className="border-gold/10 flex items-center gap-4 border-t pt-2">
+        <div className="border-line flex items-center gap-4 border-t pt-2">
           <div className="flex flex-col gap-0.5">
-            <p className="text-parchment/20 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               FILMS
             </p>
             <p className="text-parchment font-mono text-sm">
@@ -64,7 +64,7 @@ export default function ChallengeCard({
             </p>
           </div>
           <div className="flex flex-col gap-0.5">
-            <p className="text-parchment/20 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               RUNTIME
             </p>
             <p className="text-parchment font-mono text-sm">
@@ -72,7 +72,7 @@ export default function ChallengeCard({
             </p>
           </div>
           <div className="ml-auto">
-            <p className="text-gold/40 group-hover:text-gold/70 font-mono text-xs transition-colors">
+            <p className="text-gold/60 group-hover:text-gold font-mono text-xs transition-colors">
               START →
             </p>
           </div>

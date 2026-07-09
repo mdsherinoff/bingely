@@ -1,29 +1,38 @@
 @import 'tailwindcss';
 
 @theme {
-  /* Monochrome palette */
-  --color-cinema-black: #080808;
-  --color-cinema-dark: #111111;
-  --color-cinema-surface: #1a1a1a;
-  --color-cinema-border: #2a2a2a;
-  --color-cinema-muted: #555555;
-  --color-cinema-silver: #a0a0a0;
-  --color-cinema-white: #f0f0f0;
-  --color-cinema-bright: #ffffff;
+  /* The Criterion Cut — warm cinema palette.
+     Three surface steps give elevation; ink tiers replace
+     opacity-based text so secondary copy stays legible. */
+  --color-espresso: #100c09; /* ground */
+  --color-espresso-light: #14100b;
+  --color-ink: #1a140e; /* surface */
+  --color-raised: #241b12; /* raised surface */
+  --color-line: #3a2c1c; /* hairline borders */
+  --color-line-strong: #4a3a24;
 
-  /* badge variants */
-  --color-espresso: #080808;
-  --color-espresso-light: #111111;
-  --color-ink: #1a1a1a;
-  --color-parchment: #f0f0f0;
-  --color-parchment-muted: #a0a0a0;
-  --color-gold: #d4d4d4;
-  --color-gold-muted: #a0a0a0;
-  --color-rose: #c0c0c0;
-  --color-rose-muted: #888888;
+  --color-parchment: #f3e9d7; /* primary ink */
+  --color-parchment-dim: #b5a78f; /* secondary ink, 8.2:1 on ground */
+  --color-parchment-faint: #8d7f68; /* tertiary ink, ~4.6:1 on ground */
+  --color-parchment-muted: #b5a78f;
+
+  --color-gold: #e0a43c; /* full-strength amber, reserved for payoff moments */
+  --color-gold-muted: #8a5e1e;
+  --color-rose: #c96f6f; /* series accent */
+  --color-rose-muted: #7a4646;
+
+  /* legacy aliases used by landing components */
+  --color-cinema-black: #0b0805;
+  --color-cinema-dark: #14100b;
+  --color-cinema-surface: #1a140e;
+  --color-cinema-border: #32271a;
+  --color-cinema-muted: #8d7f68;
+  --color-cinema-silver: #b5a78f;
+  --color-cinema-white: #f3e9d7;
+  --color-cinema-bright: #fbf4e4;
 
   --font-display: var(--font-playfair), serif;
-  --font-mono: var(--font-space-mono), monospace;
+  --font-sans: var(--font-sora), system-ui, sans-serif;
   --font-mono: var(--font-space-mono), monospace;
 
   --animate-marquee: marquee 40s linear infinite;
@@ -99,17 +108,13 @@ body::before {
 
 /* Focus rings */
 :focus-visible {
-  outline: 2px solid #f0f0f0;
+  outline: 2px solid #e0a43c;
   outline-offset: 3px;
   border-radius: 2px;
 }
 
 :focus:not(:focus-visible) {
   outline: none;
-}
-
-:root {
-  --color-gold: #d4d4d4;
 }
 /* Classic Cinema Mode */
 .cinema-classic {

@@ -32,11 +32,11 @@ export default function Hero() {
   return (
     <section className="grain relative flex min-h-screen flex-col items-center justify-center gap-10 px-4 text-center">
       {/* Vignette */}
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_#080808_100%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_#100c09_100%)]" />
 
       <div className="relative z-10 flex flex-col items-center gap-6">
         {/* Eyebrow */}
-        <p className="text-gold/60 font-mono text-xs tracking-[0.3em] uppercase">
+        <p className="text-gold font-mono text-xs tracking-[0.3em] uppercase">
           Your personal cinema planner
         </p>
 
@@ -50,13 +50,13 @@ export default function Hero() {
 
         {/* Hidden quote reveal */}
         {quote && (
-          <p className="text-gold/60 animate-in font-display max-w-sm text-sm italic">
+          <p className="text-gold animate-in font-display max-w-sm text-sm italic">
             {quote}
           </p>
         )}
 
         {/* Tagline */}
-        <p className="text-parchment/50 max-w-md font-mono text-xl">
+        <p className="text-parchment-dim max-w-md font-sans text-xl">
           Stop wondering when you'll finish. Start watching with a plan.
         </p>
 
@@ -85,7 +85,7 @@ export default function Hero() {
             <button
               key={s}
               onClick={() => router.push(`/search?q=${encodeURIComponent(s)}`)}
-              className="text-parchment/30 hover:text-gold/70 font-mono text-xs tracking-widest transition-colors"
+              className="text-parchment-faint hover:text-gold font-mono text-xs tracking-widest transition-colors"
             >
               {s}
             </button>

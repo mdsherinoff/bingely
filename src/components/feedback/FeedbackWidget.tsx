@@ -43,14 +43,14 @@ export default function FeedbackWidget() {
       <button
         onClick={() => setOpen(!open)}
         aria-label="Give feedback"
-        className="bg-ink border-gold/20 hover:border-gold/50 text-parchment/60 hover:text-parchment fixed right-6 bottom-6 z-40 rounded-sm border px-4 py-2 font-mono text-xs tracking-widest transition-all"
+        className="bg-ink border-line-strong hover:border-gold/50 text-parchment-dim hover:text-parchment fixed right-6 bottom-6 z-40 rounded-sm border px-4 py-2 font-mono text-xs tracking-widest transition-all"
       >
         FEEDBACK
       </button>
 
       {/* Panel */}
       {open && (
-        <div className="bg-ink border-gold/20 fixed right-6 bottom-16 z-50 flex w-72 flex-col gap-4 rounded-sm border p-5 shadow-xl">
+        <div className="bg-ink border-line-strong fixed right-6 bottom-16 z-50 flex w-72 flex-col gap-4 rounded-sm border p-5 shadow-xl">
           {submitted ? (
             <div className="flex flex-col items-center gap-2 py-4">
               <span className="text-gold font-mono text-xl">✓</span>
@@ -61,13 +61,13 @@ export default function FeedbackWidget() {
           ) : (
             <>
               <div className="flex items-center justify-between">
-                <p className="text-parchment/40 font-mono text-xs tracking-widest">
+                <p className="text-parchment-dim font-mono text-xs tracking-widest">
                   FEEDBACK
                 </p>
                 <button
                   onClick={() => setOpen(false)}
                   aria-label="Close feedback"
-                  className="text-parchment/20 hover:text-parchment/50 font-mono text-xs transition-colors"
+                  className="text-parchment-faint hover:text-parchment-dim font-mono text-xs transition-colors"
                 >
                   ✕
                 </button>
@@ -82,7 +82,7 @@ export default function FeedbackWidget() {
                     className={`flex flex-1 flex-col items-center gap-1 rounded-sm border py-2 text-xs transition-colors ${
                       type === t.value
                         ? 'border-gold/40 bg-espresso text-parchment'
-                        : 'border-gold/10 text-parchment/30 hover:border-gold/20'
+                        : 'border-line text-parchment-faint hover:border-line-strong'
                     } `}
                   >
                     <span className="font-mono">{t.icon}</span>
@@ -103,7 +103,7 @@ export default function FeedbackWidget() {
                       : 'What did you love?'
                 }
                 rows={3}
-                className="bg-espresso border-gold/20 text-parchment placeholder:text-parchment/20 focus:border-gold/40 resize-none rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
+                className="bg-espresso border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/40 resize-none rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
               />
 
               <button
@@ -114,7 +114,7 @@ export default function FeedbackWidget() {
                 Send
               </button>
 
-              <p className="text-parchment/20 text-center font-mono text-xs">
+              <p className="text-parchment-faint text-center font-mono text-xs">
                 Page:{' '}
                 {typeof window !== 'undefined' ? window.location.pathname : ''}
               </p>

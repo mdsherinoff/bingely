@@ -32,7 +32,7 @@ export default async function ChallengePage({
         {/* Back */}
         <Link
           href="/challenges"
-          className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+          className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
         >
           ← ALL CHALLENGES
         </Link>
@@ -40,7 +40,7 @@ export default async function ChallengePage({
         {/* Header */}
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
-            <span className="text-gold/50 font-mono text-3xl">
+            <span className="text-gold font-mono text-3xl">
               {challenge.icon}
             </span>
             <Badge variant="gold">{challenge.category}</Badge>
@@ -48,14 +48,14 @@ export default async function ChallengePage({
           <h1 className="font-display text-parchment text-6xl leading-none">
             {challenge.title}
           </h1>
-          <p className="text-parchment/40 font-mono text-lg">
+          <p className="text-parchment-dim font-mono text-lg">
             {challenge.description}
           </p>
 
           {/* Stats */}
           <div className="flex gap-8 pt-2">
             <div className="flex flex-col gap-0.5">
-              <p className="text-parchment/30 font-mono text-xs tracking-widest">
+              <p className="text-parchment-faint font-mono text-xs tracking-widest">
                 FILMS
               </p>
               <p className="text-parchment font-mono text-2xl">
@@ -63,7 +63,7 @@ export default async function ChallengePage({
               </p>
             </div>
             <div className="flex flex-col gap-0.5">
-              <p className="text-parchment/30 font-mono text-xs tracking-widest">
+              <p className="text-parchment-faint font-mono text-xs tracking-widest">
                 TOTAL RUNTIME
               </p>
               <p className="text-parchment font-mono text-2xl">{totalHours}h</p>
@@ -72,11 +72,11 @@ export default async function ChallengePage({
         </div>
 
         {/* Plan this challenge CTA */}
-        <div className="border-gold/20 bg-ink flex flex-col gap-3 rounded-sm border p-6">
-          <p className="text-gold/60 font-mono text-xs tracking-widest">
+        <div className="border-line-strong bg-ink flex flex-col gap-3 rounded-sm border p-6">
+          <p className="text-gold font-mono text-xs tracking-widest">
             READY TO START?
           </p>
-          <p className="text-parchment/60 font-mono text-sm">
+          <p className="text-parchment-dim font-mono text-sm">
             Plan this entire challenge around your schedule. Get a week-by-week
             breakdown and know exactly when you'll finish.
           </p>
@@ -97,20 +97,20 @@ export default async function ChallengePage({
             {challenge.items.map((item, i) => (
               <div
                 key={item.tmdbId}
-                className="border-gold/10 flex items-center gap-4 border-b py-3 last:border-0"
+                className="border-line flex items-center gap-4 border-b py-3 last:border-0"
               >
-                <span className="text-parchment/20 w-6 flex-shrink-0 font-mono text-xs">
+                <span className="text-parchment-faint w-6 flex-shrink-0 font-mono text-xs">
                   {String(i + 1).padStart(2, '0')}
                 </span>
                 <div className="flex-1">
                   <p className="text-parchment font-mono text-base">
                     {item.title}
                   </p>
-                  <p className="text-parchment/30 font-mono text-xs">
+                  <p className="text-parchment-faint font-mono text-xs">
                     {item.year}
                   </p>
                 </div>
-                <p className="text-parchment/30 flex-shrink-0 font-mono text-xs">
+                <p className="text-parchment-faint flex-shrink-0 font-mono text-xs">
                   {formatRuntime(item.runtime)}
                 </p>
               </div>

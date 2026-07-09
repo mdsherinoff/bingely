@@ -4,12 +4,12 @@ import { WatchPlan } from '@/types/media'
 import { MoviePlan } from '@/lib/scheduler'
 
 const C = {
-  espresso: [26, 20, 16] as const,
-  ink: [44, 24, 16] as const,
-  parchment: [242, 232, 213] as const,
-  gold: [201, 146, 42] as const,
-  muted: [140, 120, 100] as const,
-  border: [60, 40, 20] as const,
+  espresso: [16, 12, 9] as const,
+  ink: [26, 20, 14] as const,
+  parchment: [243, 233, 215] as const,
+  gold: [224, 164, 60] as const,
+  muted: [181, 167, 143] as const,
+  border: [58, 44, 28] as const,
 }
 
 function rgb(
@@ -55,7 +55,7 @@ async function generateQRDataUrl(text: string): Promise<string> {
   return QRCode.toDataURL(text, {
     width: 120,
     margin: 1,
-    color: { dark: '#C9922A', light: '#1A1410' },
+    color: { dark: '#E0A43C', light: '#100C09' },
   })
 }
 

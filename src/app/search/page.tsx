@@ -17,7 +17,7 @@ function SearchContent() {
     <>
       <section className="mx-auto max-w-6xl px-6 py-10">
         {!initialQuery && !loading && (
-          <p className="text-parchment/30 mb-8 font-mono text-xs tracking-widest">
+          <p className="text-parchment-faint mb-8 font-mono text-xs tracking-widest">
             TRENDING THIS WEEK
           </p>
         )}
@@ -35,10 +35,10 @@ function SearchContent() {
         ) : results.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-4 py-32">
             <span className="text-gold/20 font-mono text-4xl">◎</span>
-            <p className="font-display text-parchment/30 text-3xl">
+            <p className="font-display text-parchment-faint text-3xl">
               No results found
             </p>
-            <p className="text-parchment/20 font-mono">
+            <p className="text-parchment-faint font-mono">
               Try searching for something else
             </p>
           </div>
@@ -60,7 +60,7 @@ export default function SearchPage() {
       <Suspense
         fallback={
           <div className="bg-espresso flex min-h-screen items-center justify-center">
-            <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint animate-pulse font-mono text-xs tracking-widest">
               LOADING...
             </p>
           </div>

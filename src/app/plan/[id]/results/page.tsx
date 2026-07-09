@@ -6,7 +6,7 @@ import { useMediaDetails } from '@/hooks/useMediaDetails'
 import { useWatchPlan } from '@/hooks/useWatchPlan'
 import CompletionCard from '@/components/results/CompletionCard'
 import RuntimeCard from '@/components/results/RuntimeCard'
-import ProgressChart from '@/components/results/ProgressChart'
+import FilmstripTimeline from '@/components/results/FilmstripTimeline'
 import MilestoneCard from '@/components/results/MilestoneCard'
 import WeekRow from '@/components/results/WeekRow'
 import { Button } from '@/components/ui'
@@ -156,7 +156,7 @@ export default function ResultsPage({
         id="main-content"
         className="bg-espresso flex min-h-screen items-center justify-center"
       >
-        <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
+        <p className="text-parchment-faint animate-pulse font-mono text-xs tracking-widest">
           GENERATING YOUR PLAN...
         </p>
       </main>
@@ -178,19 +178,37 @@ export default function ResultsPage({
   }
 
   return (
-    <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
-      <div className="mx-auto flex max-w-5xl flex-col gap-12">
+    <main
+      id="main-content"
+      className="bg-espresso relative min-h-screen overflow-hidden px-6 py-12"
+    >
+      {/* Ambient glow from the title's own backdrop */}
+      {media.backdropPath && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[440px]"
+        >
+          <img
+            src={media.backdropPath}
+            alt=""
+            className="h-full w-full scale-110 object-cover opacity-40 blur-2xl"
+          />
+          <div className="from-espresso/10 via-espresso/60 to-espresso absolute inset-0 bg-gradient-to-b" />
+        </div>
+      )}
+
+      <div className="relative mx-auto flex max-w-5xl flex-col gap-12">
         {/* Back link */}
         <Link
           href={`/plan/${id}?type=${type}`}
-          className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+          className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
         >
           ← BACK TO PLANNER
         </Link>
 
         {/* Header */}
         <div className="flex flex-col gap-4">
-          <p className="text-gold/60 font-mono text-xs tracking-widest">
+          <p className="text-gold font-mono text-xs tracking-widest">
             WATCH PLAN
           </p>
 
@@ -200,12 +218,12 @@ export default function ResultsPage({
                 {media.title}
               </h1>
 
-              <p className="text-parchment/40 font-mono text-sm sm:text-base">
+              <p className="text-parchment-dim font-mono text-sm sm:text-base">
                 {media.releaseYear} · {media.genres.slice(0, 3).join(', ')}
               </p>
 
               {goal.mode === 'finish-before' && (
-                <p className="text-rose/70 font-mono text-xs tracking-widest">
+                <p className="text-rose font-mono text-xs tracking-widest">
                   ◈ FINISH BEFORE ·{' '}
                   {new Date(goal.targetDate).toLocaleDateString('en-US', {
                     month: 'long',
@@ -216,13 +234,13 @@ export default function ResultsPage({
               )}
 
               {goal.mode === 'vacation' && (
-                <p className="text-rose/70 font-mono text-xs tracking-widest">
+                <p className="text-rose font-mono text-xs tracking-widest">
                   ◉ VACATION MODE · {goal.hoursPerDay}h/day
                 </p>
               )}
 
               {goal.mode === 'new-season' && (
-                <p className="text-rose/70 font-mono text-xs tracking-widest">
+                <p className="text-rose font-mono text-xs tracking-widest">
                   ◆ NEW SEASON PREP ·{' '}
                   {(goal as NewSeasonGoal).seasonName || 'Catch up plan'}
                 </p>
@@ -230,7 +248,7 @@ export default function ResultsPage({
             </div>
 
             {media.posterPath && (
-              <div className="border-gold/10 aspect-[2/3] w-20 flex-shrink-0 overflow-hidden rounded-sm border sm:w-32 md:w-48">
+              <div className="border-line aspect-[2/3] w-20 flex-shrink-0 overflow-hidden rounded-sm border sm:w-32 md:w-48">
                 <img
                   src={media.posterPath}
                   alt={`${media.title} poster`}
@@ -254,11 +272,12 @@ export default function ResultsPage({
               </div>
             </div>
 
-            {/* Progress chart */}
+            {/* Filmstrip timeline — one frame per week */}
             {plan.mediaType === 'tv' && plan.weeklyBlocks.length > 1 && (
-              <div className="border-gold/10 rounded-sm border p-6">
-                <ProgressChart blocks={plan.weeklyBlocks} />
-              </div>
+              <FilmstripTimeline
+                blocks={plan.weeklyBlocks}
+                completionDate={plan.completionDate}
+              />
             )}
 
             {/* TV Calendar */}
@@ -267,7 +286,7 @@ export default function ResultsPage({
                 <h2 className="font-display text-parchment text-2xl">
                   Viewing calendar
                 </h2>
-                <div className="border-gold/10 rounded-sm border p-6">
+                <div className="border-line rounded-sm border p-6">
                   <TVCalendar
                     config={config}
                     weeklyBlocks={plan.weeklyBlocks}
@@ -310,8 +329,8 @@ export default function ResultsPage({
                   ))}
                 </div>
 
-                <div className="border-gold/10 mt-4 flex flex-col gap-3 border-t pt-6">
-                  <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                <div className="border-line mt-4 flex flex-col gap-3 border-t pt-6">
+                  <p className="text-parchment-faint font-mono text-xs tracking-widest">
                     EXPORT
                   </p>
 

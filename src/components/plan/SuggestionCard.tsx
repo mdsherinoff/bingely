@@ -5,7 +5,7 @@ interface SuggestionCardProps {
 }
 
 const levelStyles: Record<Suggestion['level'], string> = {
-  tip: 'border-gold/20 bg-ink',
+  tip: 'border-line-strong bg-ink',
   warning: 'border-rose/30 bg-rose/5',
   success: 'border-gold/30 bg-ink',
 }
@@ -17,8 +17,8 @@ const icons: Record<Suggestion['level'], string> = {
 }
 
 const iconColors: Record<Suggestion['level'], string> = {
-  tip: 'text-gold/50',
-  warning: 'text-rose/70',
+  tip: 'text-gold',
+  warning: 'text-rose',
   success: 'text-gold',
 }
 
@@ -38,7 +38,7 @@ export default function SuggestionCard({ suggestion }: SuggestionCardProps) {
         >
           {suggestion.title}
         </p>
-        <p className="text-parchment/50 font-mono text-sm leading-relaxed">
+        <p className="text-parchment-dim font-mono text-sm leading-relaxed">
           {suggestion.body}
         </p>
       </div>

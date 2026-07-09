@@ -59,9 +59,9 @@ export default function ListMovieResults({
         ].map((s) => (
           <div
             key={s.label}
-            className="border-gold/10 bg-ink flex flex-col gap-1 rounded-sm border p-4"
+            className="border-line bg-ink flex flex-col gap-1 rounded-sm border p-4"
           >
-            <p className="text-parchment/30 font-mono text-xs tracking-widest">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               {s.label}
             </p>
             <p className="text-parchment font-mono text-lg">{s.value}</p>
@@ -74,7 +74,7 @@ export default function ListMovieResults({
         <h2 className="font-display text-parchment text-2xl">
           Viewing calendar
         </h2>
-        <div className="border-gold/10 rounded-sm border p-6">
+        <div className="border-line rounded-sm border p-6">
           <MovieCalendar sessions={moviePlan.sessions} />
         </div>
       </div>
@@ -88,7 +88,7 @@ export default function ListMovieResults({
           {itemSessions.map(({ item, sessions }, i) => (
             <div
               key={item.tmdbId}
-              className="border-gold/10 flex flex-col gap-3 rounded-sm border p-5"
+              className="border-line flex flex-col gap-3 rounded-sm border p-5"
             >
               {/* Title header */}
               <div className="flex items-start gap-3">
@@ -100,13 +100,13 @@ export default function ListMovieResults({
                   />
                 )}
                 <div className="flex flex-col gap-0.5">
-                  <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                  <p className="text-parchment-faint font-mono text-xs tracking-widest">
                     {String(i + 1).padStart(2, '0')}
                   </p>
                   <p className="text-parchment font-mono text-base">
                     {item.title}
                   </p>
-                  <p className="text-parchment/30 font-mono text-xs">
+                  <p className="text-parchment-faint font-mono text-xs">
                     {item.runtime} min · {sessions.length} session
                     {sessions.length > 1 ? 's' : ''}
                   </p>
@@ -118,17 +118,17 @@ export default function ListMovieResults({
                 {sessions.map((s) => (
                   <div
                     key={s.sessionNumber}
-                    className="border-gold/10 flex items-center justify-between rounded-sm border px-3 py-2"
+                    className="border-line flex items-center justify-between rounded-sm border px-3 py-2"
                   >
                     <div className="flex flex-col gap-0.5">
-                      <p className="text-parchment/70 font-mono text-sm">
+                      <p className="text-parchment-dim font-mono text-sm">
                         {s.date.toLocaleDateString('en-US', {
                           weekday: 'long',
                           month: 'short',
                           day: 'numeric',
                         })}
                       </p>
-                      <p className="text-parchment/30 font-mono text-xs">
+                      <p className="text-parchment-faint font-mono text-xs">
                         {formatTime(s.start)} — {formatTime(s.end)}
                       </p>
                     </div>
@@ -137,7 +137,7 @@ export default function ListMovieResults({
                         {s.durationMins} min
                       </p>
                       {sessions.length > 1 && (
-                        <p className="text-parchment/20 font-mono text-xs">
+                        <p className="text-parchment-faint font-mono text-xs">
                           mins {s.minuteStart}–{s.minuteEnd}
                         </p>
                       )}
@@ -151,27 +151,27 @@ export default function ListMovieResults({
 
         {/* Right — export */}
         <div className="flex flex-col gap-4">
-          <div className="border-gold/10 flex flex-col gap-3 rounded-sm border p-5">
-            <p className="text-parchment/30 font-mono text-xs tracking-widest">
+          <div className="border-line flex flex-col gap-3 rounded-sm border p-5">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               YOUR LIST
             </p>
             {list.items.map((item, i) => (
               <div key={item.tmdbId} className="flex items-center gap-2">
-                <span className="text-parchment/20 w-5 flex-shrink-0 font-mono text-xs">
+                <span className="text-parchment-faint w-5 flex-shrink-0 font-mono text-xs">
                   {String(i + 1).padStart(2, '0')}
                 </span>
-                <p className="text-parchment/60 flex-1 truncate font-mono text-xs">
+                <p className="text-parchment-dim flex-1 truncate font-mono text-xs">
                   {item.title}
                 </p>
-                <span className="text-parchment/20 flex-shrink-0 font-mono text-xs">
+                <span className="text-parchment-faint flex-shrink-0 font-mono text-xs">
                   {item.runtime}m
                 </span>
               </div>
             ))}
           </div>
 
-          <div className="border-gold/10 flex flex-col gap-3 border-t pt-4">
-            <p className="text-parchment/30 font-mono text-xs tracking-widest">
+          <div className="border-line flex flex-col gap-3 border-t pt-4">
+            <p className="text-parchment-faint font-mono text-xs tracking-widest">
               EXPORT
             </p>
             <ExportButton

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Space_Mono } from 'next/font/google'
+import { Playfair_Display, Space_Mono, Sora } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import SkipLink from '@/components/layout/SkipLink'
@@ -26,15 +26,23 @@ const spaceMono = Space_Mono({
   variable: '--font-space-mono',
 })
 
+const sora = Sora({
+  subsets: ['latin'],
+  variable: '--font-sora',
+})
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${spaceMono.variable}`}>
+    <html
+      lang="en"
+      className={`${playfair.variable} ${spaceMono.variable} ${sora.variable}`}
+    >
       <body
-        className={`${playfair.variable} ${spaceMono.variable} bg-cinema-black text-cinema-white font-mono`}
+        className={`${playfair.variable} ${spaceMono.variable} ${sora.variable} bg-espresso text-parchment font-sans`}
       >
         <SkipLink />
         <Header />

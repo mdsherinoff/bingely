@@ -30,11 +30,11 @@ export default function TimelineItem({
       </div>
       {/* Content */}
       <div className="pb-6">
-        <p className="text-parchment/40 mb-1 font-mono text-xs tracking-widest">
+        <p className="text-parchment-dim mb-1 font-mono text-xs tracking-widest">
           WEEK {week}
         </p>
         <p className="text-parchment font-mono text-base">{label}</p>
-        <p className="text-gold/70 mt-1 font-mono text-xs">
+        <p className="text-gold mt-1 font-mono text-xs">
           {episodes} episodes
         </p>
       </div>

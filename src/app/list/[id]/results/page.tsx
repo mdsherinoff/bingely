@@ -7,7 +7,7 @@ import { useWatchPlan } from '@/hooks/useWatchPlan'
 import { AvailabilityConfig, WatchGoal } from '@/types/media'
 import CompletionCard from '@/components/results/CompletionCard'
 import RuntimeCard from '@/components/results/RuntimeCard'
-import ProgressChart from '@/components/results/ProgressChart'
+import FilmstripTimeline from '@/components/results/FilmstripTimeline'
 import WeekRow from '@/components/results/WeekRow'
 import MilestoneCard from '@/components/results/MilestoneCard'
 import ExportButton from '@/components/results/ExportButton'
@@ -134,7 +134,7 @@ export default function ListResultsPage({
   if (loading || !ready) {
     return (
       <main className="bg-espresso flex min-h-screen items-center justify-center">
-        <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
+        <p className="text-parchment-faint animate-pulse font-mono text-xs tracking-widest">
           GENERATING YOUR PLAN...
         </p>
       </main>
@@ -157,20 +157,20 @@ export default function ListResultsPage({
       <div className="mx-auto flex max-w-5xl flex-col gap-12">
         <Link
           href={`/list/${id}/plan`}
-          className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+          className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
         >
           ← BACK TO PLANNER
         </Link>
 
         {/* Header — always shown */}
         <div className="flex flex-col gap-4">
-          <p className="text-gold/60 font-mono text-xs tracking-widest">
+          <p className="text-gold font-mono text-xs tracking-widest">
             CUSTOM LIST PLAN
           </p>
           <h1 className="font-display text-parchment text-5xl leading-none">
             {list.title}
           </h1>
-          <p className="text-parchment/40 font-mono">
+          <p className="text-parchment-dim font-sans">
             {list.items.length} titles · {Math.round(totalRuntime / 60)}h total
           </p>
         </div>
@@ -197,9 +197,10 @@ export default function ListResultsPage({
             </div>
 
             {plan.weeklyBlocks.length > 1 && (
-              <div className="border-gold/10 rounded-sm border p-6">
-                <ProgressChart blocks={plan.weeklyBlocks} />
-              </div>
+              <FilmstripTimeline
+                blocks={plan.weeklyBlocks}
+                completionDate={plan.completionDate}
+              />
             )}
 
             <div className="grid gap-10 md:grid-cols-3">
@@ -232,26 +233,26 @@ export default function ListResultsPage({
                     />
                   ))}
                 </div>
-                <div className="border-gold/10 mt-2 flex flex-col gap-2 border-t pt-4">
-                  <p className="text-parchment/30 mb-1 font-mono text-xs tracking-widest">
+                <div className="border-line mt-2 flex flex-col gap-2 border-t pt-4">
+                  <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
                     YOUR TITLES
                   </p>
                   {list.items.map((item, i) => (
                     <div key={item.tmdbId} className="flex items-center gap-2">
-                      <span className="text-parchment/20 w-5 font-mono text-xs">
+                      <span className="text-parchment-faint w-5 font-mono text-xs">
                         {String(i + 1).padStart(2, '0')}
                       </span>
-                      <p className="text-parchment/60 flex-1 truncate font-mono text-xs">
+                      <p className="text-parchment-dim flex-1 truncate font-mono text-xs">
                         {item.title}
                       </p>
-                      <span className="text-parchment/20 flex-shrink-0 font-mono text-xs">
+                      <span className="text-parchment-faint flex-shrink-0 font-mono text-xs">
                         {item.runtime}m
                       </span>
                     </div>
                   ))}
                 </div>
-                <div className="border-gold/10 mt-2 flex flex-col gap-3 border-t pt-6">
-                  <p className="text-parchment/30 font-mono text-xs tracking-widest">
+                <div className="border-line mt-2 flex flex-col gap-3 border-t pt-6">
+                  <p className="text-parchment-faint font-mono text-xs tracking-widest">
                     EXPORT
                   </p>
                   <ExportButton

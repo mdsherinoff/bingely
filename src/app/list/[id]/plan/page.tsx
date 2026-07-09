@@ -20,7 +20,7 @@ export default function ListPlanPage({
   if (!ready) {
     return (
       <main className="bg-espresso flex min-h-screen items-center justify-center">
-        <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
+        <p className="text-parchment-faint animate-pulse font-mono text-xs tracking-widest">
           LOADING...
         </p>
       </main>
@@ -30,7 +30,7 @@ export default function ListPlanPage({
   if (!list) {
     return (
       <main className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4">
-        <p className="text-parchment/40 font-mono">List not found</p>
+        <p className="text-parchment-dim font-sans">List not found</p>
         <Button onClick={() => router.push('/list/new')} variant="secondary">
           Create a new list
         </Button>
@@ -48,17 +48,17 @@ export default function ListPlanPage({
         <div className="flex flex-col gap-3">
           <Link
             href="/list/new"
-            className="text-parchment/30 hover:text-parchment/60 w-fit font-mono text-xs tracking-widest transition-colors"
+            className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
           >
             ← BACK TO LIST BUILDER
           </Link>
-          <p className="text-gold/60 font-mono text-xs tracking-widest">
+          <p className="text-gold font-mono text-xs tracking-widest">
             CUSTOM LIST
           </p>
           <h1 className="font-display text-parchment text-5xl leading-none">
             {list.title}
           </h1>
-          <p className="text-parchment/40 font-mono">
+          <p className="text-parchment-dim font-sans">
             {list.items.length} titles · {Math.round(totalRuntime / 60)}h total
           </p>
         </div>

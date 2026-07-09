@@ -88,7 +88,7 @@ export default function KonamiEgg() {
         {stage === 'flicker' && (
           <div className="flex animate-pulse flex-col items-center gap-8">
             <div className="bg-gold/60 h-24 w-1 rounded-full" />
-            <p className="text-gold/40 font-mono text-xs tracking-[0.4em]">
+            <p className="text-gold/60 font-mono text-xs tracking-[0.4em]">
               NOW PRESENTING
             </p>
             <div className="bg-gold/60 h-24 w-1 rounded-full" />
@@ -109,14 +109,14 @@ export default function KonamiEgg() {
 
             {stage === 'unlock' && (
               <div className="flex animate-pulse flex-col items-center gap-2">
-                <p className="text-gold/60 font-mono text-xs tracking-[0.4em]">
+                <p className="text-gold font-mono text-xs tracking-[0.4em]">
                   CINEPHILE ELITE · UNLOCKED
                 </p>
               </div>
             )}
 
             {stage === 'done' && (
-              <p className="text-parchment/30 font-mono text-xs tracking-widest">
+              <p className="text-parchment-faint font-mono text-xs tracking-widest">
                 ENTERING THE SCREENING ROOM...
               </p>
             )}

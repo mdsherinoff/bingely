@@ -64,9 +64,9 @@ test.describe('Planning flow', () => {
     await mondayBtn.click()
 
     await page.getByRole('button', { name: /generate watch plan/i }).click()
-    await page.waitForSelector('text=FINISH LINE', { timeout: 10000 })
+    await page.waitForSelector("text=YOU'LL FINISH ON", { timeout: 10000 })
 
-    await expect(page.getByText('FINISH LINE')).toBeVisible()
+    await expect(page.getByText("YOU'LL FINISH ON")).toBeVisible()
   })
 
   test('results page shows week by week breakdown', async ({ page }) => {

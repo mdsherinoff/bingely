@@ -92,7 +92,7 @@ export default function PlanPage({
         id="main-content"
         className="bg-espresso flex min-h-screen items-center justify-center"
       >
-        <p className="text-parchment/30 animate-pulse font-mono text-xs tracking-widest">
+        <p className="text-parchment-faint animate-pulse font-mono text-xs tracking-widest">
           LOADING...
         </p>
       </main>
@@ -119,7 +119,7 @@ export default function PlanPage({
         {/* Runtime override for TV */}
         {media.mediaType === 'tv' && (
           <div className="flex flex-col gap-2">
-            <label className="text-parchment/50 font-mono text-xs tracking-widest uppercase">
+            <label className="text-parchment-dim font-mono text-xs tracking-widest uppercase">
               Minutes per episode
             </label>
             <div className="flex items-center gap-4">
@@ -138,9 +138,9 @@ export default function PlanPage({
                     Math.min(180, Math.max(1, Math.round(Number(value))))
                   )
                 }}
-                className="bg-ink border-gold/20 text-parchment focus:border-gold/50 w-24 rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
+                className="bg-ink border-line-strong text-parchment focus:border-gold/50 w-24 rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
               />
-              <span className="text-parchment/30 font-mono text-xs">
+              <span className="text-parchment-faint font-mono text-xs">
                 TMDB suggests {media.episodeRuntime ?? 24} min
               </span>
             </div>
@@ -178,8 +178,8 @@ export default function PlanPage({
             <PaceSelector value={pace} onChange={setPace} />
 
             {/* Live preview */}
-            <div className="border-gold/10 bg-ink mt-2 rounded-sm border p-4">
-              <p className="text-parchment/30 mb-3 font-mono text-xs tracking-widest">
+            <div className="border-line bg-ink mt-2 rounded-sm border p-4">
+              <p className="text-parchment-faint mb-3 font-mono text-xs tracking-widest">
                 ESTIMATED PLAN
               </p>
               {media.mediaType === 'tv' ? (
@@ -187,7 +187,7 @@ export default function PlanPage({
                   <p className="text-parchment font-mono text-lg">
                     {adjustedEpsPerWeek} episodes / week
                   </p>
-                  <p className="text-gold/60 mt-1 font-mono text-xs">
+                  <p className="text-gold mt-1 font-mono text-xs">
                     {adjustedEpsPerWeek > 0
                       ? `Done in ~${Math.ceil((media.episodeCount || 0) / adjustedEpsPerWeek)} weeks`
                       : 'Select at least one day'}
@@ -198,7 +198,7 @@ export default function PlanPage({
                   <p className="text-parchment font-mono text-lg">
                     {media.runtime} min total
                   </p>
-                  <p className="text-gold/60 mt-1 font-mono text-xs">
+                  <p className="text-gold mt-1 font-mono text-xs">
                     {(() => {
                       const availableMinsPerWeek =
                         weeklyMinutes(schedule) * paceMultiplier[pace]

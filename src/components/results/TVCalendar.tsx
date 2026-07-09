@@ -99,16 +99,16 @@ export default function TVCalendar({ config, weeklyBlocks }: TVCalendarProps) {
         <button
           onClick={() => setWeekOffset((o) => Math.max(0, o - 1))}
           disabled={weekOffset === 0}
-          className="text-parchment/30 hover:text-parchment/60 px-2 py-1 font-mono text-xs transition-colors disabled:opacity-20"
+          className="text-parchment-faint hover:text-parchment-dim px-2 py-1 font-mono text-xs transition-colors disabled:opacity-20"
         >
           ← PREV
         </button>
         <div className="flex flex-col items-center gap-0.5">
-          <p className="text-parchment/40 font-mono text-xs tracking-widest">
+          <p className="text-parchment-dim font-mono text-xs tracking-widest">
             {weekLabel} — {weekEndLabel}
           </p>
           {currentBlock && (
-            <p className="text-gold/50 font-mono text-xs">
+            <p className="text-gold font-mono text-xs">
               Week {currentBlock.week} · Eps {currentBlock.startEpisode}–
               {currentBlock.endEpisode}
             </p>
@@ -117,7 +117,7 @@ export default function TVCalendar({ config, weeklyBlocks }: TVCalendarProps) {
         <button
           onClick={() => setWeekOffset((o) => Math.min(maxOffset, o + 1))}
           disabled={weekOffset >= maxOffset}
-          className="text-parchment/30 hover:text-parchment/60 px-2 py-1 font-mono text-xs transition-colors disabled:opacity-20"
+          className="text-parchment-faint hover:text-parchment-dim px-2 py-1 font-mono text-xs transition-colors disabled:opacity-20"
         >
           NEXT →
         </button>
@@ -128,7 +128,7 @@ export default function TVCalendar({ config, weeklyBlocks }: TVCalendarProps) {
         {DAY_LABELS.map((label) => (
           <div
             key={label}
-            className="text-parchment/20 py-1 text-center font-mono text-xs tracking-widest"
+            className="text-parchment-faint py-1 text-center font-mono text-xs tracking-widest"
           >
             {label}
           </div>
@@ -146,12 +146,12 @@ export default function TVCalendar({ config, weeklyBlocks }: TVCalendarProps) {
                 info
                   ? 'border-gold/30 bg-ink'
                   : isToday
-                    ? 'border-parchment/10 bg-espresso'
-                    : 'border-gold/5 bg-espresso'
+                    ? 'border-line bg-espresso'
+                    : 'border-line bg-espresso'
               } `}
             >
               <p
-                className={`text-right font-mono text-xs ${isToday ? 'text-gold' : 'text-parchment/20'} `}
+                className={`text-right font-mono text-xs ${isToday ? 'text-gold' : 'text-parchment-faint'} `}
               >
                 {day.getDate()}
               </p>
@@ -163,7 +163,7 @@ export default function TVCalendar({ config, weeklyBlocks }: TVCalendarProps) {
                   {info.windows.map((w, wi) => (
                     <p
                       key={wi}
-                      className="text-gold/50 font-mono text-xs leading-tight"
+                      className="text-gold font-mono text-xs leading-tight"
                     >
                       {w}
                     </p>
@@ -178,7 +178,7 @@ export default function TVCalendar({ config, weeklyBlocks }: TVCalendarProps) {
       {/* Legend */}
       <div className="flex items-center gap-3">
         <div className="bg-gold/20 border-gold/30 h-3 w-3 rounded-sm border" />
-        <p className="text-parchment/30 font-mono text-xs">
+        <p className="text-parchment-faint font-mono text-xs">
           Viewing day — shows episodes and time windows
         </p>
       </div>
