@@ -7,6 +7,7 @@ import {
   PaceMode,
   AvailabilityConfig,
   WatchGoal,
+  MediaType,
 } from '@/types/media'
 import { defaultSchedule, weeklyMinutes } from '@/lib/scheduleUtils'
 import DaySelector from './DaySelector'
@@ -25,7 +26,12 @@ interface AvailabilityFormProps {
   episodeRuntime: number
   mediaType: 'movie' | 'tv'
   resultsPath: string
-  exactItems?: { title: string; runtime: number }[]
+  exactItems?: { title: string; runtime: number; mediaType: MediaType }[]
+  // Custom lists live only in the creator's localStorage, so a shared
+  // results link can't look the title up by id on another device —
+  // carry it in the URL so the results page can rebuild the list
+  // from the link alone.
+  shareTitle?: string
 }
 
 const paceMultiplier: Record<PaceMode, number> = {
@@ -43,6 +49,7 @@ export default function AvailabilityForm({
   mediaType,
   resultsPath,
   exactItems,
+  shareTitle,
 }: AvailabilityFormProps) {
   const router = useRouter()
   const [schedule, setSchedule] = useState<WeekSchedule>(defaultSchedule())
@@ -79,8 +86,11 @@ export default function AvailabilityForm({
     const encoded = encodeState(config)
     const goalEncoded = encodeState(goal)
     const itemsEncoded = exactItems ? `&items=${encodeState(exactItems)}` : ''
+    const titleEncoded = shareTitle
+      ? `&title=${encodeURIComponent(shareTitle)}`
+      : ''
     router.push(
-      `${resultsPath}?config=${encoded}&goal=${goalEncoded}${itemsEncoded}`
+      `${resultsPath}?config=${encoded}&goal=${goalEncoded}${itemsEncoded}${titleEncoded}`
     )
   }
 

@@ -54,6 +54,7 @@ export default async function ChallengePlanPage({
           exactItems={challenge.items.map((i) => ({
             title: i.title,
             runtime: i.runtime,
+            mediaType: i.mediaType,
           }))}
         />
       </div>

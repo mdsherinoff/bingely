@@ -4,7 +4,7 @@ import { use, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useCustomLists } from '@/hooks/useCustomLists'
 import { useWatchPlan } from '@/hooks/useWatchPlan'
-import { AvailabilityConfig, WatchGoal } from '@/types/media'
+import { AvailabilityConfig, WatchGoal, CustomList } from '@/types/media'
 import CompletionCard from '@/components/results/CompletionCard'
 import RuntimeCard from '@/components/results/RuntimeCard'
 import FilmstripTimeline from '@/components/results/FilmstripTimeline'
@@ -36,7 +36,6 @@ export default function ListResultsPage({
   const searchParams = useSearchParams()
   const router = useRouter()
   const { getList, ready } = useCustomLists()
-  const list = getList(id)
 
   const rawConfig = searchParams.get('config')
   const config: AvailabilityConfig | null = useMemo(() => {
@@ -49,6 +48,41 @@ export default function ListResultsPage({
     if (!rawGoal) return { mode: 'standard' }
     return decodeState<WatchGoal>(rawGoal) ?? { mode: 'standard' }
   }, [rawGoal])
+
+  const rawItems = searchParams.get('items')
+  const exactItems: { title: string; runtime: number; mediaType: 'movie' | 'tv' }[] | null =
+    useMemo(() => {
+      if (!rawItems) return null
+      return decodeState<{ title: string; runtime: number; mediaType: 'movie' | 'tv' }[]>(
+        rawItems
+      )
+    }, [rawItems])
+
+  // Custom lists only ever live in the creator's localStorage. A shared
+  // link therefore carries the title + items directly in the URL, so
+  // anyone opening it — including on a device that's never seen this
+  // list — can still see the plan instead of a bare "failed" screen.
+  const rawTitle = searchParams.get('title')
+  const sharedTitle = rawTitle ? decodeURIComponent(rawTitle) : null
+
+  const list: CustomList | null = useMemo(() => {
+    const stored = getList(id)
+    if (stored) return stored
+    if (!sharedTitle || !exactItems) return null
+    return {
+      id,
+      title: sharedTitle,
+      createdAt: new Date().toISOString(),
+      items: exactItems.map((item, i) => ({
+        tmdbId: -1 - i,
+        title: item.title,
+        mediaType: item.mediaType,
+        posterPath: null,
+        runtime: item.runtime,
+        releaseYear: '',
+      })),
+    }
+  }, [id, sharedTitle, exactItems, getList])
 
   const totalItems = list?.items.length ?? 0
   const totalRuntime = list?.items.reduce((acc, i) => acc + i.runtime, 0) ?? 0
@@ -85,13 +119,6 @@ export default function ListResultsPage({
     avgRuntime
   )
 
-  const rawItems = searchParams.get('items')
-  const exactItems: { title: string; runtime: number }[] | null =
-    useMemo(() => {
-      if (!rawItems) return null
-      return decodeState<{ title: string; runtime: number }[]>(rawItems)
-    }, [rawItems])
-
   const listPlan = useMemo(() => {
     if (!config || !exactItems) return null
     return generateListPlan(config, exactItems, config.pace)
@@ -109,16 +136,9 @@ export default function ListResultsPage({
   }, [config, list, exactItems, allMovies])
 
   const mixedPlan: MixedListPlan | null = useMemo(() => {
-    if (!config || !list || !exactItems || !isMixed) return null
-    return generateMixedListPlan(
-      config,
-      list.items.map((item, i) => ({
-        title: exactItems[i]?.title ?? item.title,
-        runtime: exactItems[i]?.runtime ?? item.runtime,
-        mediaType: item.mediaType,
-      }))
-    )
-  }, [config, list, exactItems, isMixed])
+    if (!config || !exactItems || !isMixed) return null
+    return generateMixedListPlan(config, exactItems)
+  }, [config, exactItems, isMixed])
 
   if (loading || !ready) {
     return (

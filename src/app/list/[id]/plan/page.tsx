@@ -73,7 +73,9 @@ export default function ListPlanPage({
           exactItems={list.items.map((i) => ({
             title: i.title,
             runtime: i.runtime,
+            mediaType: i.mediaType,
           }))}
+          shareTitle={list.title}
         />
       </div>
     </main>
