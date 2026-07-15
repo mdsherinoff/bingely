@@ -23,6 +23,7 @@ import { WatchGoal } from '@/types/media'
 import { checkFeasibility, PlanFeasibility } from '@/lib/scheduler'
 import FeasibilityIndicator from '@/components/plan/FeasibilityIndicator'
 import SmartSuggestions from '@/components/plan/SmartSuggestions'
+import { encodeState } from '@/lib/urlState'
 
 const paceMultiplier: Record<PaceMode, number> = {
   casual: 0.6,
@@ -63,8 +64,8 @@ export default function PlanPage({
       pace,
       episodeRuntime: runtime,
     }
-    const encoded = encodeURIComponent(JSON.stringify(config))
-    const goalEncoded = encodeURIComponent(JSON.stringify(goal))
+    const encoded = encodeState(config)
+    const goalEncoded = encodeState(goal)
     router.push(
       `/plan/${id}/results?type=${type}&config=${encoded}&goal=${goalEncoded}`
     )

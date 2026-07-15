@@ -16,6 +16,7 @@ import SmartSuggestions from './SmartSuggestions'
 import FeasibilityIndicator from './FeasibilityIndicator'
 import { Button } from '@/components/ui'
 import { checkFeasibility } from '@/lib/scheduler'
+import { encodeState } from '@/lib/urlState'
 
 interface AvailabilityFormProps {
   totalRuntime: number
@@ -75,11 +76,9 @@ export default function AvailabilityForm({
       pace,
       episodeRuntime: customRuntime,
     }
-    const encoded = encodeURIComponent(JSON.stringify(config))
-    const goalEncoded = encodeURIComponent(JSON.stringify(goal))
-    const itemsEncoded = exactItems
-      ? `&items=${encodeURIComponent(JSON.stringify(exactItems))}`
-      : ''
+    const encoded = encodeState(config)
+    const goalEncoded = encodeState(goal)
+    const itemsEncoded = exactItems ? `&items=${encodeState(exactItems)}` : ''
     router.push(
       `${resultsPath}?config=${encoded}&goal=${goalEncoded}${itemsEncoded}`
     )

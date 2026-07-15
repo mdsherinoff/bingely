@@ -15,6 +15,7 @@ import {
 } from '@/lib/scheduler'
 import ListMovieResults from '@/components/results/ListMovieResults'
 import { CustomList } from '@/types/media'
+import { decodeState } from '@/lib/urlState'
 
 export default function ChallengeResultsPage({
   params,
@@ -30,21 +31,13 @@ export default function ChallengeResultsPage({
   const rawConfig = searchParams.get('config')
   const config: AvailabilityConfig | null = useMemo(() => {
     if (!rawConfig) return null
-    try {
-      return JSON.parse(decodeURIComponent(rawConfig))
-    } catch {
-      return null
-    }
+    return decodeState<AvailabilityConfig>(rawConfig)
   }, [rawConfig])
 
   const rawGoal = searchParams.get('goal')
   const goal: WatchGoal = useMemo(() => {
     if (!rawGoal) return { mode: 'standard' }
-    try {
-      return JSON.parse(decodeURIComponent(rawGoal))
-    } catch {
-      return { mode: 'standard' }
-    }
+    return decodeState<WatchGoal>(rawGoal) ?? { mode: 'standard' }
   }, [rawGoal])
 
   const totalItems = challenge?.itemCount ?? 0

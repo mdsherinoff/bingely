@@ -29,6 +29,7 @@ import {
 } from '@/types/media'
 import MovieResults from '@/components/results/MovieResults'
 import TVCalendar from '@/components/results/TVCalendar'
+import { decodeState } from '@/lib/urlState'
 
 export default function ResultsPage({
   params,
@@ -43,21 +44,13 @@ export default function ResultsPage({
   const rawConfig = searchParams.get('config')
   const config: AvailabilityConfig | null = useMemo(() => {
     if (!rawConfig) return null
-    try {
-      return JSON.parse(decodeURIComponent(rawConfig))
-    } catch {
-      return null
-    }
+    return decodeState<AvailabilityConfig>(rawConfig)
   }, [rawConfig])
 
   const rawGoal = searchParams.get('goal')
   const goal: WatchGoal = useMemo(() => {
     if (!rawGoal) return { mode: 'standard' }
-    try {
-      return JSON.parse(decodeURIComponent(rawGoal))
-    } catch {
-      return { mode: 'standard' }
-    }
+    return decodeState<WatchGoal>(rawGoal) ?? { mode: 'standard' }
   }, [rawGoal])
 
   const { media, loading: mediaLoading } = useMediaDetails(Number(id), type)
@@ -129,21 +122,16 @@ export default function ResultsPage({
     if (plan.pace === 'hardcore') unlock('hardcore')
     if (plan.totalWeeks <= 2) unlock('speed-runner')
 
-    if (rawConfig) {
-      try {
-        const parsedConfig = JSON.parse(
-          decodeURIComponent(rawConfig)
-        ) as AvailabilityConfig
-        const activeDays = Object.entries(parsedConfig.schedule)
-          .filter(([, d]) => d.enabled)
-          .map(([day]) => day)
-        const onlyWeekends = activeDays.every((d) =>
-          ['Saturday', 'Sunday'].includes(d)
-        )
-        if (onlyWeekends) unlock('weekend-warrior')
-      } catch {}
+    if (config) {
+      const activeDays = Object.entries(config.schedule)
+        .filter(([, d]) => d.enabled)
+        .map(([day]) => day)
+      const onlyWeekends = activeDays.every((d) =>
+        ['Saturday', 'Sunday'].includes(d)
+      )
+      if (onlyWeekends) unlock('weekend-warrior')
     }
-  }, [plan, media])
+  }, [plan, media, config, unlock])
 
   const moviePlan: MoviePlan | null = useMemo(() => {
     if (type !== 'movie' || !config || !media?.runtime) return null
