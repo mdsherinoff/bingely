@@ -1,11 +1,14 @@
 'use client'
 
-import { use } from 'react'
-import { useCustomLists } from '@/hooks/useCustomLists'
+import { use, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { useResolvedList } from '@/hooks/useResolvedList'
 import AvailabilityForm from '@/components/plan/AvailabilityForm'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui'
+import { AvailabilityConfig, WatchGoal } from '@/types/media'
+import { decodeState } from '@/lib/urlState'
 
 export default function ListPlanPage({
   params,
@@ -13,9 +16,21 @@ export default function ListPlanPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = use(params)
-  const { getList, ready } = useCustomLists()
+  const { list, ready } = useResolvedList(id)
   const router = useRouter()
-  const list = getList(id)
+  const searchParams = useSearchParams()
+
+  const rawConfig = searchParams.get('config')
+  const initialConfig: AvailabilityConfig | null = useMemo(() => {
+    if (!rawConfig) return null
+    return decodeState<AvailabilityConfig>(rawConfig)
+  }, [rawConfig])
+
+  const rawGoal = searchParams.get('goal')
+  const initialGoal: WatchGoal | null = useMemo(() => {
+    if (!rawGoal) return null
+    return decodeState<WatchGoal>(rawGoal)
+  }, [rawGoal])
 
   if (!ready) {
     return (
@@ -76,6 +91,8 @@ export default function ListPlanPage({
             mediaType: i.mediaType,
           }))}
           shareTitle={list.title}
+          initialConfig={initialConfig ?? undefined}
+          initialGoal={initialGoal ?? undefined}
         />
       </div>
     </main>

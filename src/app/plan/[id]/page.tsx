@@ -23,7 +23,7 @@ import { WatchGoal } from '@/types/media'
 import { checkFeasibility, PlanFeasibility } from '@/lib/scheduler'
 import FeasibilityIndicator from '@/components/plan/FeasibilityIndicator'
 import SmartSuggestions from '@/components/plan/SmartSuggestions'
-import { encodeState } from '@/lib/urlState'
+import { encodeState, decodeState } from '@/lib/urlState'
 
 const paceMultiplier: Record<PaceMode, number> = {
   casual: 0.6,
@@ -44,10 +44,22 @@ export default function PlanPage({
 
   const { media, loading, error } = useMediaDetails(Number(id), type)
 
-  const [schedule, setSchedule] = useState<WeekSchedule>(defaultSchedule())
-  const [pace, setPace] = useState<PaceMode>('balanced')
-  const [episodeRuntime, setEpisodeRuntime] = useState<number | null>(null)
-  const [goal, setGoal] = useState<WatchGoal>({ mode: 'standard' })
+  // Arriving via "Edit Plan" on a results page pre-fills these instead
+  // of the defaults, so editing someone else's plan starts from what
+  // they chose.
+  const rawConfig = searchParams.get('config')
+  const initialConfig = rawConfig ? decodeState<AvailabilityConfig>(rawConfig) : null
+  const rawGoal = searchParams.get('goal')
+  const initialGoal = rawGoal ? decodeState<WatchGoal>(rawGoal) : null
+
+  const [schedule, setSchedule] = useState<WeekSchedule>(
+    initialConfig?.schedule ?? defaultSchedule()
+  )
+  const [pace, setPace] = useState<PaceMode>(initialConfig?.pace ?? 'balanced')
+  const [episodeRuntime, setEpisodeRuntime] = useState<number | null>(
+    initialConfig?.episodeRuntime ?? null
+  )
+  const [goal, setGoal] = useState<WatchGoal>(initialGoal ?? { mode: 'standard' })
 
   const runtime =
     episodeRuntime ?? media?.episodeRuntime ?? media?.runtime ?? 24

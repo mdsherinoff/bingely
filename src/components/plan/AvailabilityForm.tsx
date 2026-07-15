@@ -32,6 +32,11 @@ interface AvailabilityFormProps {
   // carry it in the URL so the results page can rebuild the list
   // from the link alone.
   shareTitle?: string
+  // When arriving via "Edit Plan" on a results page, pre-fill the form
+  // with that plan's settings instead of the defaults, so editing a
+  // shared plan starts from what the sender chose.
+  initialConfig?: AvailabilityConfig
+  initialGoal?: WatchGoal
 }
 
 const paceMultiplier: Record<PaceMode, number> = {
@@ -50,12 +55,18 @@ export default function AvailabilityForm({
   resultsPath,
   exactItems,
   shareTitle,
+  initialConfig,
+  initialGoal,
 }: AvailabilityFormProps) {
   const router = useRouter()
-  const [schedule, setSchedule] = useState<WeekSchedule>(defaultSchedule())
-  const [pace, setPace] = useState<PaceMode>('balanced')
-  const [goal, setGoal] = useState<WatchGoal>({ mode: 'standard' })
-  const [customRuntime, setCustomRuntime] = useState(episodeRuntime)
+  const [schedule, setSchedule] = useState<WeekSchedule>(
+    initialConfig?.schedule ?? defaultSchedule()
+  )
+  const [pace, setPace] = useState<PaceMode>(initialConfig?.pace ?? 'balanced')
+  const [goal, setGoal] = useState<WatchGoal>(initialGoal ?? { mode: 'standard' })
+  const [customRuntime, setCustomRuntime] = useState(
+    initialConfig?.episodeRuntime ?? episodeRuntime
+  )
 
   const weeklyMins = weeklyMinutes(schedule)
   const rawItemsPerWeek =

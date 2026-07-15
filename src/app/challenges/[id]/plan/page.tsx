@@ -2,6 +2,8 @@ import { getChallengeById, challenges } from '@/lib/challenges'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import AvailabilityForm from '@/components/plan/AvailabilityForm'
+import { AvailabilityConfig, WatchGoal } from '@/types/media'
+import { decodeState } from '@/lib/urlState'
 
 export function generateStaticParams() {
   return challenges.map((c) => ({ id: c.id }))
@@ -9,15 +11,25 @@ export function generateStaticParams() {
 
 export default async function ChallengePlanPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams: Promise<{ config?: string; goal?: string }>
 }) {
   const { id } = await params
+  const { config: rawConfig, goal: rawGoal } = await searchParams
   const challenge = getChallengeById(id)
 
   if (!challenge) notFound()
 
   const avgRuntime = Math.round(challenge.totalRuntime / challenge.itemCount)
+  // Arriving via "Edit Plan" on a results page pre-fills these instead
+  // of the defaults, so editing someone else's plan starts from what
+  // they chose.
+  const initialConfig = rawConfig
+    ? decodeState<AvailabilityConfig>(rawConfig)
+    : null
+  const initialGoal = rawGoal ? decodeState<WatchGoal>(rawGoal) : null
 
   return (
     <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
@@ -56,6 +68,8 @@ export default async function ChallengePlanPage({
             runtime: i.runtime,
             mediaType: i.mediaType,
           }))}
+          initialConfig={initialConfig ?? undefined}
+          initialGoal={initialGoal ?? undefined}
         />
       </div>
     </main>

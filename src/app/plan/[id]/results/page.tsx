@@ -187,12 +187,25 @@ export default function ResultsPage({
 
       <div className="relative mx-auto flex max-w-5xl flex-col gap-12">
         {/* Back link */}
-        <Link
-          href={`/plan/${id}?type=${type}`}
-          className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
-        >
-          ← BACK TO PLANNER
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            href={`/plan/${id}?type=${type}`}
+            className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
+          >
+            ← BACK TO PLANNER
+          </Link>
+          <Link
+            href={`/plan/${id}?type=${type}&${[
+              rawConfig && `config=${rawConfig}`,
+              rawGoal && `goal=${rawGoal}`,
+            ]
+              .filter(Boolean)
+              .join('&')}`}
+            className="border-line-strong text-parchment hover:border-gold/60 rounded-sm border px-4 py-2 font-sans text-sm transition-colors"
+          >
+            Edit this plan
+          </Link>
+        </div>
 
         {/* Header */}
         <div className="flex flex-col gap-4">
