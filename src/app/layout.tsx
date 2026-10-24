@@ -4,6 +4,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import SkipLink from '@/components/layout/SkipLink'
 import FeedbackWidget from '@/components/feedback/FeedbackWidget'
+import CinemaModeChip from '@/components/easter-eggs/CinemaModeChip'
 import { Analytics } from '@vercel/analytics/next'
 
 const playfair = Playfair_Display({
@@ -48,6 +49,7 @@ export default function RootLayout({
         <Header />
         {children}
         <FeedbackWidget />
+        <CinemaModeChip />
         <Analytics />
       </body>
     </html>

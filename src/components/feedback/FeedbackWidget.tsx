@@ -40,17 +40,23 @@ export default function FeedbackWidget() {
   return (
     <>
       {/* Trigger button */}
+      {/* Compact round icon on phones so it doesn't sit on top of page
+          buttons; the full label returns on wider screens */}
       <button
         onClick={() => setOpen(!open)}
         aria-label="Give feedback"
-        className="bg-ink border-line-strong hover:border-gold/50 text-parchment-dim hover:text-parchment fixed right-6 bottom-6 z-40 rounded-sm border px-4 py-2 font-mono text-xs tracking-widest transition-all"
+        aria-expanded={open}
+        className="bg-ink border-line-strong hover:border-gold/50 text-parchment-dim hover:text-parchment fixed right-4 bottom-4 z-40 flex h-10 w-10 items-center justify-center rounded-full border font-mono text-sm transition-all md:right-6 md:bottom-6 md:h-auto md:w-auto md:rounded-sm md:px-4 md:py-2 md:text-xs md:tracking-widest"
       >
-        FEEDBACK
+        <span aria-hidden className="md:hidden">
+          ✎
+        </span>
+        <span className="hidden md:inline">FEEDBACK</span>
       </button>
 
       {/* Panel */}
       {open && (
-        <div className="bg-ink border-line-strong fixed right-6 bottom-16 z-50 flex w-72 flex-col gap-4 rounded-sm border p-5 shadow-xl">
+        <div className="bg-ink border-line-strong fixed right-4 bottom-16 z-50 flex w-[min(18rem,calc(100vw-2rem))] flex-col gap-4 rounded-sm border p-5 shadow-xl md:right-6">
           {submitted ? (
             <div className="flex flex-col items-center gap-2 py-4">
               <span className="text-gold font-mono text-xl">✓</span>

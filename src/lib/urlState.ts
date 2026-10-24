@@ -35,3 +35,15 @@ export function decodeState<T>(raw: string): T | null {
     return null
   }
 }
+
+// Build a query string from already-decoded values (e.g. straight from
+// searchParams.get). Re-encoding matters: a title like "Tom & Jerry" or
+// a compressed payload containing "+" would otherwise break the link.
+export function toQuery(params: Record<string, string | null | undefined>): string {
+  const query = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value) query.set(key, value)
+  }
+  const s = query.toString()
+  return s ? `?${s}` : ''
+}

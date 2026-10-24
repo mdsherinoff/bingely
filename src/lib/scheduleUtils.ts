@@ -25,7 +25,12 @@ export function defaultSchedule(): WeekSchedule {
 export function windowMinutes(window: TimeWindow): number {
   const [sh, sm] = window.start.split(':').map(Number)
   const [eh, em] = window.end.split(':').map(Number)
-  return Math.max(0, eh * 60 + em - (sh * 60 + sm))
+  const start = sh * 60 + sm
+  const end = eh * 60 + em
+  if ([start, end].some(Number.isNaN)) return 0
+  // An end before the start means the window runs past midnight
+  // (e.g. 22:00 → 01:00 is three hours, not zero)
+  return end >= start ? end - start : 24 * 60 - start + end
 }
 
 export function dailyMinutes(schedule: WeekSchedule, day: string): number {

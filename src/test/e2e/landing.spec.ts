@@ -14,7 +14,9 @@ test.describe('Landing page', () => {
 
   test('hero search navigates to search page', async ({ page }) => {
     await page.goto('/')
-    const input = page.getByPlaceholder('Search a film, series, or anime...')
+    const input = page.getByRole('searchbox', {
+      name: /search for a film, series, or anime/i,
+    })
     await input.fill('Breaking Bad')
     await input.press('Enter')
     await expect(page).toHaveURL(/\/search\?q=Breaking/)

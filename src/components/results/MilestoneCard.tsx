@@ -4,11 +4,15 @@ import { Badge } from '@/components/ui'
 interface MilestoneCardProps {
   milestone: Milestone
   isLast?: boolean
+  // List plans count whole titles by watch time, so an episode number
+  // means nothing there
+  showEpisode?: boolean
 }
 
 export default function MilestoneCard({
   milestone,
   isLast = false,
+  showEpisode = true,
 }: MilestoneCardProps) {
   return (
     <div className="flex items-start gap-4">
@@ -27,7 +31,7 @@ export default function MilestoneCard({
       {/* Content */}
       <div className="flex flex-col gap-1.5 pb-6">
         <div className="flex items-center gap-2">
-          <p className="text-parchment font-mono text-base">
+          <p className="text-parchment font-sans text-base">
             {milestone.label}
           </p>
           <Badge variant={isLast ? 'gold' : 'muted'}>
@@ -35,7 +39,8 @@ export default function MilestoneCard({
           </Badge>
         </div>
         <p className="text-parchment-faint font-mono text-xs">
-          Week {milestone.week} · Episode {milestone.episode}
+          Week {milestone.week}
+          {showEpisode && ` · Episode ${milestone.episode}`}
         </p>
       </div>
     </div>

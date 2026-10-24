@@ -129,3 +129,19 @@ body::before {
 .cinema-classic .grain::after {
   opacity: 0.12;
 }
+
+/* Floating buttons (feedback, mystery reel) sit in the bottom corners;
+   leave room so the last button on a page can scroll clear of them */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: 4.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee,
+  .animate-pulse,
+  .animate-spin {
+    animation: none !important;
+  }
+}

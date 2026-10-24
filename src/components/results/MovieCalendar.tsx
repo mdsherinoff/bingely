@@ -102,13 +102,13 @@ export default function MovieCalendar({ sessions }: MovieCalendarProps) {
           return (
             <div
               key={i}
-              className={`flex min-h-[80px] flex-col gap-1 rounded-sm border p-2 ${
+              className={`flex min-h-[80px] min-w-0 flex-col gap-1 overflow-hidden rounded-sm border p-1 sm:p-2 ${
                 daySessions.length > 0
                   ? 'border-gold/30 bg-ink'
                   : isToday
-                    ? 'border-line bg-espresso'
+                    ? 'border-gold/50 bg-espresso'
                     : 'border-line bg-espresso'
-              } `}
+              }`}
             >
               <p
                 className={`text-right font-mono text-xs ${isToday ? 'text-gold' : 'text-parchment-faint'} `}
@@ -120,10 +120,10 @@ export default function MovieCalendar({ sessions }: MovieCalendarProps) {
                   key={s.sessionNumber}
                   className="bg-gold/20 border-gold/30 rounded-sm border px-1 py-0.5"
                 >
-                  <p className="text-gold font-mono text-xs leading-tight">
+                  <p className="text-gold font-mono text-[10px] leading-tight sm:text-xs">
                     S{s.sessionNumber}
                   </p>
-                  <p className="text-gold font-mono text-xs leading-tight">
+                  <p className="text-gold font-mono text-[10px] leading-tight sm:text-xs">
                     {s.durationMins}m
                   </p>
                 </div>

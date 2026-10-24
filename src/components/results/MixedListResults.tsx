@@ -186,6 +186,7 @@ export default function MixedListResults({
                     block={block}
                     totalEpisodes={tvPlan.totalEpisodes}
                     index={i}
+                    titles={mixedPlan.tvItems.map((t) => t.title)}
                   />
                 ))}
               </div>
@@ -197,6 +198,7 @@ export default function MixedListResults({
               <div className="flex flex-col">
                 {tvPlan.milestones.map((m, i) => (
                   <MilestoneCard
+                    showEpisode={false}
                     key={m.percent}
                     milestone={m}
                     isLast={i === tvPlan.milestones.length - 1}

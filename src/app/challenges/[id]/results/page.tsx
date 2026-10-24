@@ -3,19 +3,17 @@
 import { use, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { getChallengeById } from '@/lib/challenges'
-import { useWatchPlan } from '@/hooks/useWatchPlan'
-import { AvailabilityConfig, WatchGoal } from '@/types/media'
-import { Button } from '@/components/ui'
-import Link from 'next/link'
+import { AvailabilityConfig } from '@/types/media'
 import {
-  generateFinishBeforePlan,
-  generateVacationPlan,
   generateListMoviePlan,
+  generateListPlan,
   MoviePlan,
 } from '@/lib/scheduler'
 import ListMovieResults from '@/components/results/ListMovieResults'
+import PlanActionBar from '@/components/results/PlanActionBar'
+import PlanUnavailable from '@/components/results/PlanUnavailable'
 import { CustomList } from '@/types/media'
-import { decodeState } from '@/lib/urlState'
+import { decodeState, toQuery } from '@/lib/urlState'
 
 export default function ChallengeResultsPage({
   params,
@@ -34,49 +32,6 @@ export default function ChallengeResultsPage({
     return decodeState<AvailabilityConfig>(rawConfig)
   }, [rawConfig])
 
-  const rawGoal = searchParams.get('goal')
-  const goal: WatchGoal = useMemo(() => {
-    if (!rawGoal) return { mode: 'standard' }
-    return decodeState<WatchGoal>(rawGoal) ?? { mode: 'standard' }
-  }, [rawGoal])
-
-  const totalItems = challenge?.itemCount ?? 0
-  const avgRuntime = challenge
-    ? Math.round(challenge.totalRuntime / challenge.itemCount)
-    : 90
-
-  const goalPlan = useMemo(() => {
-    if (!config || !challenge) return null
-    if (goal.mode === 'finish-before') {
-      return generateFinishBeforePlan(
-        goal.targetDate,
-        totalItems,
-        avgRuntime,
-        'movie'
-      )
-    }
-    if (goal.mode === 'vacation') {
-      return generateVacationPlan(
-        goal.startDate,
-        goal.endDate,
-        goal.hoursPerDay,
-        totalItems,
-        avgRuntime,
-        'movie'
-      )
-    }
-    return null
-  }, [goal, config, challenge, totalItems, avgRuntime])
-
-  const { plan: standardPlan, loading } = useWatchPlan(
-    goal.mode === 'standard' ? config : null,
-    totalItems,
-    'movie',
-    avgRuntime
-  )
-
-  const plan = goalPlan ?? standardPlan
-
   // Build exact items from challenge for the movie calendar
   const exactItems = useMemo(() => {
     if (!challenge) return null
@@ -86,10 +41,19 @@ export default function ChallengeResultsPage({
     }))
   }, [challenge])
 
+  // Films are scheduled session by session into real free slots; the
+  // week-based plan only backs the summary stats in the PDF export
   const moviePlan: MoviePlan | null = useMemo(() => {
     if (!config || !exactItems) return null
     return generateListMoviePlan(config, exactItems)
   }, [config, exactItems])
+
+  const plan = useMemo(() => {
+    if (!config || !exactItems) return null
+    return generateListPlan(config, exactItems, config.pace)
+  }, [config, exactItems])
+
+  const editHref = `/challenges/${id}/plan${toQuery({ config: rawConfig })}`
 
   // Convert challenge to CustomList shape for ListMovieResults
   const challengeAsList: CustomList | null = useMemo(() => {
@@ -109,50 +73,18 @@ export default function ChallengeResultsPage({
     }
   }, [challenge])
 
-  if (loading) {
-    return (
-      <main className="bg-espresso flex min-h-screen items-center justify-center">
-        <p className="text-parchment-faint animate-pulse font-mono text-xs tracking-widest">
-          GENERATING YOUR PLAN...
-        </p>
-      </main>
-    )
-  }
-
   if (!plan || !challenge || !moviePlan || !challengeAsList) {
     return (
-      <main className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4">
-        <p className="text-rose font-mono">Failed to generate plan</p>
-        <Button onClick={() => router.back()} variant="secondary">
-          Go back
-        </Button>
-      </main>
+      <PlanUnavailable
+        retryHref={challenge ? `/challenges/${id}/plan` : '/challenges'}
+        onBack={() => router.back()}
+      />
     )
   }
 
   return (
     <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
       <div className="mx-auto flex max-w-5xl flex-col gap-12">
-        <div className="flex items-center justify-between gap-4">
-          <Link
-            href={`/challenges/${id}/plan`}
-            className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
-          >
-            ← BACK TO PLANNER
-          </Link>
-          <Link
-            href={`/challenges/${id}/plan?${[
-              rawConfig && `config=${rawConfig}`,
-              rawGoal && `goal=${rawGoal}`,
-            ]
-              .filter(Boolean)
-              .join('&')}`}
-            className="border-line-strong text-parchment hover:border-gold/60 rounded-sm border px-4 py-2 font-sans text-sm transition-colors"
-          >
-            Edit this plan
-          </Link>
-        </div>
-
         <div className="flex flex-col gap-4">
           <p className="text-gold font-mono text-xs tracking-widest">
             CHALLENGE PLAN
@@ -166,6 +98,9 @@ export default function ChallengeResultsPage({
                 {challenge.itemCount} films ·{' '}
                 {Math.round(challenge.totalRuntime / 60)}h total
               </p>
+              <div className="mt-2">
+                <PlanActionBar editHref={editHref} title={challenge.title} />
+              </div>
             </div>
             <span className="text-gold/60 flex-shrink-0 font-mono text-4xl">
               {challenge.icon}

@@ -3,24 +3,18 @@
 import { use, useMemo, useEffect } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useMediaDetails } from '@/hooks/useMediaDetails'
-import { useWatchPlan } from '@/hooks/useWatchPlan'
 import CompletionCard from '@/components/results/CompletionCard'
 import RuntimeCard from '@/components/results/RuntimeCard'
 import FilmstripTimeline from '@/components/results/FilmstripTimeline'
 import MilestoneCard from '@/components/results/MilestoneCard'
 import WeekRow from '@/components/results/WeekRow'
-import { Button } from '@/components/ui'
-import Link from 'next/link'
 import ExportButton from '@/components/results/ExportButton'
 import ShareButton from '@/components/results/ShareButton'
+import PlanActionBar from '@/components/results/PlanActionBar'
+import PlanUnavailable from '@/components/results/PlanUnavailable'
 import { useAchievements } from '@/hooks/useAchievements'
 import AchievementToast from '@/components/achievements/AchievementToast'
-import { generateFinishBeforePlan, generateVacationPlan } from '@/lib/scheduler'
-import {
-  generateNewSeasonPlan,
-  generateMoviePlan,
-  MoviePlan,
-} from '@/lib/scheduler'
+import { buildTitlePlan, generateMoviePlan, MoviePlan } from '@/lib/scheduler'
 import {
   AvailabilityConfig,
   MediaType,
@@ -29,7 +23,7 @@ import {
 } from '@/types/media'
 import MovieResults from '@/components/results/MovieResults'
 import TVCalendar from '@/components/results/TVCalendar'
-import { decodeState } from '@/lib/urlState'
+import { decodeState, toQuery } from '@/lib/urlState'
 
 export default function ResultsPage({
   params,
@@ -57,57 +51,16 @@ export default function ResultsPage({
   const totalEpisodes = media?.episodeCount ?? 1
   const runtime = media?.runtime ?? config?.episodeRuntime ?? 24
 
-  const standardPlan = useWatchPlan(
-    goal.mode === 'standard' ? config : null,
-    totalEpisodes,
-    type,
-    runtime
-  )
-
-  const goalPlan = useMemo(() => {
+  // Same builder the planner preview uses, so the estimate shown before
+  // generating always matches this plan
+  const plan = useMemo(() => {
     if (!config || !media) return null
-
-    if (goal.mode === 'finish-before') {
-      return generateFinishBeforePlan(
-        goal.targetDate,
-        totalEpisodes,
-        config.episodeRuntime,
-        type,
-        runtime
-      )
-    }
-
-    if (goal.mode === 'vacation') {
-      return generateVacationPlan(
-        goal.startDate,
-        goal.endDate,
-        goal.hoursPerDay,
-        totalEpisodes,
-        config.episodeRuntime,
-        type
-      )
-    }
-
-    if (goal.mode === 'new-season') {
-      const newSeasonGoal = goal as NewSeasonGoal
-      return generateNewSeasonPlan(
-        newSeasonGoal.targetDate,
-        newSeasonGoal.currentEpisode,
-        totalEpisodes,
-        config.episodeRuntime,
-        type
-      )
-    }
-
-    return null
+    return buildTitlePlan(config, goal, totalEpisodes, type, runtime)
   }, [goal, config, media, totalEpisodes, type, runtime])
-
-  const plan = goalPlan ?? standardPlan.plan
-  const planLoading = goal.mode === 'standard' ? standardPlan.loading : false
 
   const { unlock, newUnlock, clearNewUnlock } = useAchievements()
 
-  const loading = mediaLoading || planLoading
+  const loading = mediaLoading
 
   useEffect(() => {
     if (!plan || !media) return
@@ -153,15 +106,10 @@ export default function ResultsPage({
 
   if (!plan || !media) {
     return (
-      <main
-        id="main-content"
-        className="bg-espresso flex min-h-screen flex-col items-center justify-center gap-4"
-      >
-        <p className="text-rose font-mono">Failed to generate plan</p>
-        <Button onClick={() => router.back()} variant="secondary">
-          Go back
-        </Button>
-      </main>
+      <PlanUnavailable
+        retryHref={`/plan/${id}?type=${type}`}
+        onBack={() => router.back()}
+      />
     )
   }
 
@@ -174,7 +122,7 @@ export default function ResultsPage({
       {media.backdropPath && (
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-[440px]"
+          className="pointer-events-none absolute inset-x-0 top-0 h-[440px] overflow-hidden"
         >
           <img
             src={media.backdropPath}
@@ -186,27 +134,6 @@ export default function ResultsPage({
       )}
 
       <div className="relative mx-auto flex max-w-5xl flex-col gap-12">
-        {/* Back link */}
-        <div className="flex items-center justify-between gap-4">
-          <Link
-            href={`/plan/${id}?type=${type}`}
-            className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
-          >
-            ← BACK TO PLANNER
-          </Link>
-          <Link
-            href={`/plan/${id}?type=${type}&${[
-              rawConfig && `config=${rawConfig}`,
-              rawGoal && `goal=${rawGoal}`,
-            ]
-              .filter(Boolean)
-              .join('&')}`}
-            className="border-line-strong text-parchment hover:border-gold/60 rounded-sm border px-4 py-2 font-sans text-sm transition-colors"
-          >
-            Edit this plan
-          </Link>
-        </div>
-
         {/* Header */}
         <div className="flex flex-col gap-4">
           <p className="text-gold font-mono text-xs tracking-widest">
@@ -246,6 +173,17 @@ export default function ResultsPage({
                   {(goal as NewSeasonGoal).seasonName || 'Catch up plan'}
                 </p>
               )}
+
+              <div className="mt-4">
+                <PlanActionBar
+                  title={media.title}
+                  editHref={`/plan/${id}${toQuery({
+                    type,
+                    config: rawConfig,
+                    goal: rawGoal,
+                  })}`}
+                />
+              </div>
             </div>
 
             {media.posterPath && (

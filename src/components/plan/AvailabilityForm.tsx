@@ -6,17 +6,14 @@ import {
   WeekSchedule,
   PaceMode,
   AvailabilityConfig,
-  WatchGoal,
   MediaType,
 } from '@/types/media'
 import { defaultSchedule, weeklyMinutes } from '@/lib/scheduleUtils'
 import DaySelector from './DaySelector'
 import PaceSelector from './PaceSelector'
-import GoalModeSelector from './GoalModeSelector'
 import SmartSuggestions from './SmartSuggestions'
-import FeasibilityIndicator from './FeasibilityIndicator'
 import { Button } from '@/components/ui'
-import { checkFeasibility } from '@/lib/scheduler'
+import { buildListPreview, generateListPlan, listKind } from '@/lib/scheduler'
 import { encodeState } from '@/lib/urlState'
 
 interface AvailabilityFormProps {
@@ -26,25 +23,19 @@ interface AvailabilityFormProps {
   episodeRuntime: number
   mediaType: 'movie' | 'tv'
   resultsPath: string
-  exactItems?: { title: string; runtime: number; mediaType: MediaType }[]
+  exactItems: { title: string; runtime: number; mediaType: MediaType }[]
   // Custom lists live only in the creator's localStorage, so a shared
   // results link can't look the title up by id on another device —
   // carry it in the URL so the results page can rebuild the list
   // from the link alone.
   shareTitle?: string
-  // When arriving via "Edit Plan" on a results page, pre-fill the form
-  // with that plan's settings instead of the defaults, so editing a
+  // When arriving via "Edit this plan" on a results page, pre-fill the
+  // form with that plan's settings instead of the defaults, so editing a
   // shared plan starts from what the sender chose.
   initialConfig?: AvailabilityConfig
-  initialGoal?: WatchGoal
 }
 
-const paceMultiplier: Record<PaceMode, number> = {
-  casual: 0.6,
-  balanced: 0.8,
-  binge: 1.0,
-  hardcore: 1.2,
-}
+const PACES: PaceMode[] = ['casual', 'balanced', 'binge', 'hardcore']
 
 export default function AvailabilityForm({
   totalRuntime,
@@ -56,53 +47,48 @@ export default function AvailabilityForm({
   exactItems,
   shareTitle,
   initialConfig,
-  initialGoal,
 }: AvailabilityFormProps) {
   const router = useRouter()
   const [schedule, setSchedule] = useState<WeekSchedule>(
     initialConfig?.schedule ?? defaultSchedule()
   )
   const [pace, setPace] = useState<PaceMode>(initialConfig?.pace ?? 'balanced')
-  const [goal, setGoal] = useState<WatchGoal>(initialGoal ?? { mode: 'standard' })
-  const [customRuntime, setCustomRuntime] = useState(
-    initialConfig?.episodeRuntime ?? episodeRuntime
+
+  const kind = listKind(exactItems)
+  const hasFreeTime = weeklyMinutes(schedule) > 0
+  // Films are slotted session by session into your real free time, so
+  // pace only changes anything when series are involved
+  const usesPace = kind !== 'movies'
+
+  const config: AvailabilityConfig = useMemo(
+    () => ({ schedule, pace, episodeRuntime }),
+    [schedule, pace, episodeRuntime]
   )
 
-  const weeklyMins = weeklyMinutes(schedule)
-  const rawItemsPerWeek =
-    customRuntime > 0 ? Math.floor(weeklyMins / customRuntime) : 0
-  const adjustedItemsPerWeek = Math.max(
-    1,
-    Math.floor(rawItemsPerWeek * paceMultiplier[pace])
+  // Same generators the results page uses, so this always matches
+  const preview = useMemo(
+    () => buildListPreview(config, exactItems),
+    [config, exactItems]
   )
-  const weeksToFinish =
-    adjustedItemsPerWeek > 0
-      ? Math.ceil(totalItems / adjustedItemsPerWeek)
-      : null
 
-  const feasibility = useMemo(() => {
-    if (goal.mode !== 'finish-before' && goal.mode !== 'new-season') return null
-    const targetDate =
-      goal.mode === 'finish-before' ? goal.targetDate : goal.targetDate
-    if (!targetDate) return null
-    return checkFeasibility(targetDate, totalItems, customRuntime, schedule)
-  }, [goal, totalItems, customRuntime, schedule])
+  const paceEstimates = useMemo(() => {
+    if (kind !== 'tv' || !hasFreeTime) return undefined
+    return Object.fromEntries(
+      PACES.map((p) => {
+        const plan = generateListPlan({ ...config, pace: p }, exactItems, p)
+        return [p, `~${plan.totalWeeks} week${plan.totalWeeks === 1 ? '' : 's'}`]
+      })
+    ) as Partial<Record<PaceMode, string>>
+  }, [kind, hasFreeTime, config, exactItems])
 
   const handleGenerate = () => {
-    const config: AvailabilityConfig = {
-      schedule,
-      pace,
-      episodeRuntime: customRuntime,
-    }
+    if (!hasFreeTime) return
     const encoded = encodeState(config)
-    const goalEncoded = encodeState(goal)
-    const itemsEncoded = exactItems ? `&items=${encodeState(exactItems)}` : ''
+    const itemsEncoded = `&items=${encodeState(exactItems)}`
     const titleEncoded = shareTitle
       ? `&title=${encodeURIComponent(shareTitle)}`
       : ''
-    router.push(
-      `${resultsPath}?config=${encoded}&goal=${goalEncoded}${itemsEncoded}${titleEncoded}`
-    )
+    router.push(`${resultsPath}?config=${encoded}${itemsEncoded}${titleEncoded}`)
   }
 
   const totalHours = Math.round((totalRuntime / 60) * 10) / 10
@@ -110,63 +96,21 @@ export default function AvailabilityForm({
   return (
     <div className="flex flex-col gap-10">
       {/* Summary */}
-      <div className="border-line bg-ink flex flex-col gap-3 rounded-sm border p-5">
-        <p className="text-parchment-faint font-mono text-xs tracking-widest">
-          WHAT YOU'RE PLANNING
-        </p>
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
-              {itemLabel.toUpperCase()}
-            </p>
-            <p className="text-parchment font-mono text-2xl">{totalItems}</p>
-          </div>
-          <div>
-            <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
-              TOTAL
-            </p>
-            <p className="text-parchment font-mono text-2xl">{totalHours}h</p>
-          </div>
-          <div>
-            <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
-              AVG RUNTIME
-            </p>
-            <div className="flex items-center gap-2">
-              <input
-                type="number"
-                min={1}
-                max={300}
-                value={customRuntime}
-                onChange={(e) => {
-                  const value = e.target.value
-                  setCustomRuntime(
-                    value === ''
-                      ? episodeRuntime
-                      : Math.min(300, Math.max(1, Math.round(Number(value))))
-                  )
-                }}
-                className="bg-espresso border-line-strong text-parchment focus:border-gold/50 w-16 rounded-sm border px-2 py-1 font-mono text-sm focus:outline-none"
-              />
-              <span className="text-parchment-faint font-mono text-xs">min</span>
-            </div>
-          </div>
+      <div className="border-line bg-ink grid grid-cols-2 gap-4 rounded-sm border p-5">
+        <div>
+          <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
+            {itemLabel.toUpperCase()}
+          </p>
+          <p className="text-parchment font-mono text-2xl">{totalItems}</p>
+        </div>
+        <div>
+          <p className="text-parchment-faint mb-1 font-mono text-xs tracking-widest">
+            TOTAL WATCH TIME
+          </p>
+          <p className="text-parchment font-mono text-2xl">{totalHours}h</p>
         </div>
       </div>
 
-      {/* Goal mode */}
-      <div className="flex flex-col gap-3">
-        <h2 className="font-display text-parchment text-2xl">
-          What's your goal?
-        </h2>
-        <GoalModeSelector
-          value={goal}
-          onChange={setGoal}
-          totalEpisodes={totalItems}
-        />
-        {feasibility && <FeasibilityIndicator feasibility={feasibility} />}
-      </div>
-
-      {/* Schedule + pace */}
       <div className="grid gap-10 md:grid-cols-2">
         <div className="flex flex-col gap-4">
           <h2 className="font-display text-parchment text-2xl">
@@ -176,41 +120,62 @@ export default function AvailabilityForm({
         </div>
 
         <div className="flex flex-col gap-4">
-          <h2 className="font-display text-parchment text-2xl">
-            What's your pace?
-          </h2>
-          <PaceSelector value={pace} onChange={setPace} />
+          {usesPace && (
+            <>
+              <h2 className="font-display text-parchment text-2xl">
+                What&apos;s your pace?
+              </h2>
+              <PaceSelector
+                value={pace}
+                onChange={setPace}
+                estimates={paceEstimates}
+              />
+            </>
+          )}
 
-          {/* Live estimate */}
-          <div className="border-line bg-ink mt-2 rounded-sm border p-4">
-            <p className="text-parchment-faint mb-3 font-mono text-xs tracking-widest">
-              ESTIMATED PLAN
+          {/* Live preview — same generators as the results page */}
+          <div
+            aria-live="polite"
+            className="border-gold/30 bg-ink rounded-sm border p-5"
+          >
+            <p className="text-parchment-dim mb-2 font-mono text-xs tracking-widest">
+              {preview ? "YOU'LL FINISH ON" : 'YOUR PLAN'}
             </p>
-            <p className="text-parchment font-mono text-lg">
-              {adjustedItemsPerWeek} {itemLabel} / week
-            </p>
-            <p className="text-gold mt-1 font-mono text-xs">
-              {weeksToFinish
-                ? `Done in ~${weeksToFinish} weeks`
-                : 'Select at least one day'}
-            </p>
+            {preview ? (
+              <>
+                <p className="font-display text-gold text-3xl leading-tight">
+                  {preview.completionDate}
+                </p>
+                {preview.summary && (
+                  <p className="text-parchment-dim mt-1 font-mono text-xs tabular-nums">
+                    {preview.summary}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-parchment-dim font-sans text-sm">
+                Pick the days you&apos;re free and we&apos;ll show your finish
+                date here.
+              </p>
+            )}
           </div>
 
-          {/* Smart suggestions */}
-          <SmartSuggestions
-            schedule={schedule}
-            pace={pace}
-            episodeRuntime={customRuntime}
-            totalEpisodes={totalItems}
-            mediaType={mediaType}
-          />
+          {usesPace && (
+            <SmartSuggestions
+              schedule={schedule}
+              pace={pace}
+              episodeRuntime={episodeRuntime}
+              totalEpisodes={totalItems}
+              mediaType={mediaType}
+            />
+          )}
 
           <Button
             onClick={handleGenerate}
             className="mt-2 w-full"
-            disabled={!weeksToFinish}
+            disabled={!hasFreeTime}
           >
-            Generate Watch Plan →
+            {hasFreeTime ? 'Generate Watch Plan →' : 'Pick at least one day'}
           </Button>
         </div>
       </div>

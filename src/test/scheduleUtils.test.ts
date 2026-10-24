@@ -16,8 +16,12 @@ describe('windowMinutes', () => {
     expect(windowMinutes({ start: '19:00', end: '19:00' })).toBe(0)
   })
 
-  it('returns 0 when end is before start', () => {
-    expect(windowMinutes({ start: '22:00', end: '19:00' })).toBe(0)
+  it('wraps past midnight when end is before start', () => {
+    expect(windowMinutes({ start: '22:00', end: '01:00' })).toBe(180)
+  })
+
+  it('returns 0 for unparseable times', () => {
+    expect(windowMinutes({ start: '', end: '22:00' })).toBe(0)
   })
 
   it('handles 90 minute windows', () => {

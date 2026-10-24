@@ -5,76 +5,85 @@ import { PaceMode } from '@/types/media'
 interface PaceSelectorProps {
   value: PaceMode
   onChange: (pace: PaceMode) => void
+  // What each pace means for the plan being built (e.g. "4 eps / wk").
+  // Shown instead of the abstract share of free time when provided.
+  estimates?: Partial<Record<PaceMode, string>>
 }
 
 const paces: {
   mode: PaceMode
   label: string
   desc: string
-  multiplier: string
+  share: string
 }[] = [
   {
     mode: 'casual',
     label: 'Casual',
     desc: 'Relaxed viewing, no pressure',
-    multiplier: '×0.6',
+    share: 'Uses 60% of your free time',
   },
   {
     mode: 'balanced',
     label: 'Balanced',
     desc: 'Steady pace, life friendly',
-    multiplier: '×0.8',
+    share: 'Uses 80% of your free time',
   },
   {
     mode: 'binge',
     label: 'Binge',
     desc: 'All available time used',
-    multiplier: '×1.0',
+    share: 'Uses all your free time',
   },
   {
     mode: 'hardcore',
     label: 'Hardcore',
-    desc: 'Maximum episodes possible',
-    multiplier: '×1.2',
+    desc: 'Squeezes in extra episodes',
+    share: 'Runs 20% past your free time',
   },
 ]
 
-export default function PaceSelector({ value, onChange }: PaceSelectorProps) {
+export default function PaceSelector({
+  value,
+  onChange,
+  estimates,
+}: PaceSelectorProps) {
   return (
     <div
       role="radiogroup"
       aria-label="Viewing pace"
-      className="flex flex-col gap-3"
+      className="grid grid-cols-2 gap-3"
     >
-      {paces.map((p) => (
-        <button
-          key={p.mode}
-          onClick={() => onChange(p.mode)}
-          role="radio"
-          aria-checked={value === p.mode}
-          className={`flex items-center justify-between rounded-sm border p-4 text-left transition-colors ${
-            value === p.mode
-              ? 'border-gold/50 bg-ink'
-              : 'border-line hover:border-line-strong'
-          } `}
-        >
-          <div className="flex flex-col gap-0.5">
+      {paces.map((p) => {
+        const selected = value === p.mode
+        const estimate = estimates?.[p.mode]
+        return (
+          <button
+            key={p.mode}
+            onClick={() => onChange(p.mode)}
+            role="radio"
+            aria-checked={selected}
+            className={`flex flex-col gap-1 rounded-sm border p-4 text-left transition-colors ${
+              selected
+                ? 'border-gold/60 bg-ink'
+                : 'border-line hover:border-line-strong'
+            }`}
+          >
             <span
-              className={`font-mono text-base ${value === p.mode ? 'text-parchment' : 'text-parchment-dim'}`}
+              className={`font-sans text-base font-medium ${selected ? 'text-parchment' : 'text-parchment-dim'}`}
             >
               {p.label}
             </span>
-            <span className="text-parchment-faint font-mono text-xs">
+            <span className="text-parchment-faint font-sans text-xs leading-snug">
               {p.desc}
             </span>
-          </div>
-          <span
-            className={`font-mono text-sm ${value === p.mode ? 'text-gold' : 'text-parchment-faint'}`}
-          >
-            {p.multiplier}
-          </span>
-        </button>
-      ))}
+            <span
+              className={`mt-1 font-mono text-xs tabular-nums ${selected ? 'text-gold' : 'text-parchment-faint'}`}
+            >
+              {estimate ?? p.share}
+            </span>
+          </button>
+        )
+      })}
     </div>
   )
 }

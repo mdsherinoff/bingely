@@ -174,12 +174,15 @@ export default function ListMovieResults({
             <p className="text-parchment-faint font-mono text-xs tracking-widest">
               EXPORT
             </p>
+            {/* Pass the session plan so the PDF matches the sessions on
+                screen rather than a week-based approximation */}
             <ExportButton
               plan={exportPlan}
+              moviePlan={moviePlan}
               title={list.title}
               releaseYear={new Date().getFullYear().toString()}
             />
-            <ShareButton />
+            <ShareButton title={list.title} />
           </div>
         </div>
       </div>

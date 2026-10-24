@@ -8,14 +8,30 @@ interface WeekRowProps {
   block: WeeklyBlock
   totalEpisodes: number
   index?: number
+  // For list plans each "episode" is a whole title, and one long series
+  // can span many weeks; pass the titles so rows say what's watched
+  // instead of "Episodes 1–1 · 0 eps"
+  titles?: string[]
+}
+
+function listLabel(block: WeeklyBlock, titles: string[]): string {
+  const current = titles[block.startEpisode - 1] ?? ''
+  if (block.episodes === 0) return `Keep watching ${current}`
+  const finished = titles.slice(block.startEpisode - 1, block.endEpisode)
+  if (finished.length <= 2) return `Finish ${finished.join(' & ')}`
+  return `Finish ${finished[0]} + ${finished.length - 1} more`
 }
 
 export default function WeekRow({
   block,
   totalEpisodes,
   index = 0,
+  titles,
 }: WeekRowProps) {
-  const isLast = block.endEpisode >= totalEpisodes
+  // The week the plan actually completes — not merely the week that
+  // touches the last item, which for a list can be every week
+  const isLast =
+    block.cumulativePercent >= 100 && block.endEpisode >= totalEpisodes
 
   return (
     <motion.div
@@ -53,10 +69,18 @@ export default function WeekRow({
       <div className="flex flex-1 items-center justify-between gap-4 px-4 py-3">
         <div className="flex min-w-0 flex-col gap-1">
           <p className="text-parchment truncate font-sans text-sm sm:text-base">
-            Episodes {block.startEpisode}–{block.endEpisode}
+            {titles
+              ? listLabel(block, titles)
+              : block.startEpisode === block.endEpisode
+                ? `Episode ${block.startEpisode}`
+                : `Episodes ${block.startEpisode}–${block.endEpisode}`}
           </p>
           <p className="text-parchment-faint font-mono text-[11px] tracking-wide tabular-nums">
-            {block.episodes} EPS · {block.hoursWatched}H
+            {titles
+              ? block.episodes === 0
+                ? `IN PROGRESS · ${block.hoursWatched}H`
+                : `${block.episodes} FINISHED · ${block.hoursWatched}H`
+              : `${block.episodes} EP${block.episodes === 1 ? '' : 'S'} · ${block.hoursWatched}H`}
           </p>
         </div>
         <div className="w-24 flex-shrink-0 sm:w-32">

@@ -27,7 +27,9 @@ export function useResolvedList(id: string) {
     const stored = getList(id)
     if (stored) return stored
 
-    const sharedTitle = rawTitle ? decodeURIComponent(rawTitle) : null
+    // searchParams.get() has already decoded this; decoding again would
+    // throw on a title like "100% Scary"
+    const sharedTitle = rawTitle || null
     const sharedItems = rawItems
       ? decodeState<SharedListItem[]>(rawItems)
       : null

@@ -7,7 +7,7 @@ import AvailabilityForm from '@/components/plan/AvailabilityForm'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui'
-import { AvailabilityConfig, WatchGoal } from '@/types/media'
+import { AvailabilityConfig } from '@/types/media'
 import { decodeState } from '@/lib/urlState'
 
 export default function ListPlanPage({
@@ -26,11 +26,6 @@ export default function ListPlanPage({
     return decodeState<AvailabilityConfig>(rawConfig)
   }, [rawConfig])
 
-  const rawGoal = searchParams.get('goal')
-  const initialGoal: WatchGoal | null = useMemo(() => {
-    if (!rawGoal) return null
-    return decodeState<WatchGoal>(rawGoal)
-  }, [rawGoal])
 
   if (!ready) {
     return (
@@ -62,10 +57,10 @@ export default function ListPlanPage({
       <div className="mx-auto flex max-w-4xl flex-col gap-10">
         <div className="flex flex-col gap-3">
           <Link
-            href="/list/new"
+            href="/lists"
             className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
           >
-            ← BACK TO LIST BUILDER
+            ← MY LISTS
           </Link>
           <p className="text-gold font-mono text-xs tracking-widest">
             CUSTOM LIST
@@ -92,7 +87,6 @@ export default function ListPlanPage({
           }))}
           shareTitle={list.title}
           initialConfig={initialConfig ?? undefined}
-          initialGoal={initialGoal ?? undefined}
         />
       </div>
     </main>

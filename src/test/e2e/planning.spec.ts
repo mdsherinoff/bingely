@@ -86,17 +86,26 @@ test.describe('Planning flow', () => {
     })
   })
 
-  test('back to planner link works from results', async ({ page }) => {
+  test('edit this plan returns to the planner with choices kept', async ({
+    page,
+  }) => {
     await page.goto(`/plan/${TV_ID}?type=tv`)
     await page.waitForSelector('h1', { timeout: 10000 })
 
-    const mondayBtn = page.getByRole('button', { name: /monday/i })
-    await mondayBtn.click()
+    await page.getByRole('button', { name: /monday/i }).click()
+    await page.getByRole('radio', { name: /binge/i }).click()
 
     await page.getByRole('button', { name: /generate watch plan/i }).click()
-    await page.waitForSelector('text=BACK TO PLANNER', { timeout: 10000 })
+    await page.getByRole('link', { name: /edit this plan/i }).click()
 
-    await page.getByText('← BACK TO PLANNER').click()
-    await expect(page).toHaveURL(new RegExp(`/plan/${TV_ID}`))
+    await expect(page).toHaveURL(new RegExp(`/plan/${TV_ID}\\?`))
+    await expect(page.getByRole('button', { name: /monday/i })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    )
+    await expect(page.getByRole('radio', { name: /binge/i })).toHaveAttribute(
+      'aria-checked',
+      'true'
+    )
   })
 })

@@ -142,13 +142,13 @@ export default function TVCalendar({ config, weeklyBlocks }: TVCalendarProps) {
           return (
             <div
               key={i}
-              className={`flex min-h-[80px] flex-col gap-1 rounded-sm border p-2 ${
+              className={`flex min-h-[80px] min-w-0 flex-col gap-1 overflow-hidden rounded-sm border p-1 sm:p-2 ${
                 info
                   ? 'border-gold/30 bg-ink'
                   : isToday
-                    ? 'border-line bg-espresso'
+                    ? 'border-gold/50 bg-espresso'
                     : 'border-line bg-espresso'
-              } `}
+              }`}
             >
               <p
                 className={`text-right font-mono text-xs ${isToday ? 'text-gold' : 'text-parchment-faint'} `}
@@ -157,13 +157,14 @@ export default function TVCalendar({ config, weeklyBlocks }: TVCalendarProps) {
               </p>
               {info && (
                 <div className="bg-gold/20 border-gold/30 flex flex-col gap-0.5 rounded-sm border px-1 py-1">
-                  <p className="text-gold font-mono text-xs leading-tight">
+                  <p className="text-gold font-mono text-[10px] leading-tight sm:text-xs">
                     {info.eps} eps
                   </p>
+                  {/* Time windows don't fit a phone-width day cell */}
                   {info.windows.map((w, wi) => (
                     <p
                       key={wi}
-                      className="text-gold font-mono text-xs leading-tight"
+                      className="text-gold hidden font-mono text-xs leading-tight sm:block"
                     >
                       {w}
                     </p>

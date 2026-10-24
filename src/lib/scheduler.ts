@@ -5,6 +5,7 @@ import {
   Milestone,
   WeekSchedule,
   PaceMode,
+  WatchGoal,
 } from '@/types/media'
 import { weeklyMinutes, windowMinutes } from './scheduleUtils'
 import { DAYS } from '@/lib/scheduleUtils'
@@ -65,48 +66,72 @@ export function generateWatchPlan(
 
   const availableWeeklyMins = weeklyMinutes(config.schedule) * multiplier
 
-  // How many weeks to consume all content
-  const totalWeeks =
-    availableWeeklyMins > 0 ? Math.ceil(totalMinutes / availableWeeklyMins) : 1
+  // Whole episodes that fit in a week. Plans are counted in whole
+  // episodes, so weeks and hours must be too — counting weeks by raw
+  // minutes while counting episodes in whole units let the totals
+  // drift apart (wrong hours per week, a crammed final week).
+  const fullEpisodesPerWeek = Math.floor(availableWeeklyMins / episodeRuntime)
+  const episodesPerWeek = Math.max(1, fullEpisodesPerWeek)
 
-  // For movies and short content, episodesPerWeek means
-  // "how many full items fit per week" — but we track by minutes
-  const episodesPerWeek = Math.max(
-    1,
-    Math.floor(availableWeeklyMins / episodeRuntime)
-  )
+  // When not even one episode fits in a week (e.g. a long film on a
+  // light schedule), fall back to spreading its minutes across weeks.
+  const spansWeeks = fullEpisodesPerWeek < 1 && availableWeeklyMins > 0
+  const totalWeeks =
+    availableWeeklyMins <= 0
+      ? 1
+      : spansWeeks
+        ? Math.ceil(totalMinutes / availableWeeklyMins)
+        : Math.ceil(totalEpisodes / episodesPerWeek)
 
   const weeklyBlocks: WeeklyBlock[] = []
   let remainingMinutes = totalMinutes
   let episodesCounted = 0
 
   for (let week = 1; week <= totalWeeks; week++) {
-    const minutesThisWeek = Math.min(remainingMinutes, availableWeeklyMins)
-    // How many full episodes fit this week
-    const episodesThisWeek =
-      week < totalWeeks
-        ? Math.min(episodesPerWeek, totalEpisodes - episodesCounted)
-        : totalEpisodes - episodesCounted
+    if (spansWeeks) {
+      const minutesThisWeek = Math.min(remainingMinutes, availableWeeklyMins)
+      remainingMinutes -= minutesThisWeek
+      const isLast = remainingMinutes <= 0
+      weeklyBlocks.push({
+        week,
+        episodes: isLast ? totalEpisodes - episodesCounted : 0,
+        startEpisode: episodesCounted + 1,
+        endEpisode: isLast ? totalEpisodes : episodesCounted + 1,
+        hoursWatched: Math.round((minutesThisWeek / 60) * 10) / 10,
+        cumulativePercent: Math.min(
+          100,
+          Math.round(((totalMinutes - remainingMinutes) / totalMinutes) * 100)
+        ),
+      })
+      if (isLast) {
+        episodesCounted = totalEpisodes
+        break
+      }
+      continue
+    }
 
-    const startEpisode = episodesCounted + 1
-    const endEpisode = episodesCounted + Math.max(1, episodesThisWeek)
-    const cumulativePercent = Math.min(
-      100,
-      Math.round((endEpisode / totalEpisodes) * 100)
+    const episodesThisWeek = Math.min(
+      episodesPerWeek,
+      totalEpisodes - episodesCounted
     )
+    const startEpisode = episodesCounted + 1
+    const endEpisode = episodesCounted + episodesThisWeek
 
     weeklyBlocks.push({
       week,
-      episodes: Math.max(1, episodesThisWeek),
+      episodes: episodesThisWeek,
       startEpisode,
-      endEpisode: Math.min(endEpisode, totalEpisodes),
-      hoursWatched: Math.round((minutesThisWeek / 60) * 10) / 10,
-      cumulativePercent,
+      endEpisode,
+      hoursWatched:
+        Math.round(((episodesThisWeek * episodeRuntime) / 60) * 10) / 10,
+      cumulativePercent: Math.min(
+        100,
+        Math.round((endEpisode / totalEpisodes) * 100)
+      ),
     })
 
-    episodesCounted += Math.max(1, episodesThisWeek)
-    remainingMinutes -= minutesThisWeek
-    if (remainingMinutes <= 0 || episodesCounted >= totalEpisodes) break
+    episodesCounted = endEpisode
+    if (episodesCounted >= totalEpisodes) break
   }
 
   const milestones = generateMilestones(totalEpisodes, weeklyBlocks)
@@ -643,5 +668,90 @@ export function generateMixedListPlan(
     overallCompletionDate: getCompletionDate(totalWeeks),
     movieItems,
     tvItems,
+  }
+}
+
+// The single source of truth for a one-title plan. The results page
+// and the planner's live preview both call this, so the estimate a
+// user sees before generating always matches the plan they get.
+export function buildTitlePlan(
+  config: AvailabilityConfig,
+  goal: WatchGoal,
+  totalEpisodes: number,
+  mediaType: 'movie' | 'tv',
+  runtime?: number
+): WatchPlan {
+  switch (goal.mode) {
+    case 'finish-before':
+      return generateFinishBeforePlan(
+        goal.targetDate,
+        totalEpisodes,
+        config.episodeRuntime,
+        mediaType,
+        runtime
+      )
+    case 'vacation':
+      return generateVacationPlan(
+        goal.startDate,
+        goal.endDate,
+        goal.hoursPerDay,
+        totalEpisodes,
+        config.episodeRuntime,
+        mediaType
+      )
+    case 'new-season':
+      return generateNewSeasonPlan(
+        goal.targetDate,
+        goal.currentEpisode,
+        totalEpisodes,
+        config.episodeRuntime,
+        mediaType
+      )
+    default:
+      return generateWatchPlan(config, totalEpisodes, mediaType, runtime)
+  }
+}
+
+export type ListKind = 'movies' | 'tv' | 'mixed'
+
+export function listKind(items: { mediaType: string }[]): ListKind {
+  if (items.length > 0 && items.every((i) => i.mediaType === 'movie'))
+    return 'movies'
+  if (items.every((i) => i.mediaType === 'tv')) return 'tv'
+  return 'mixed'
+}
+
+export interface ListPreview {
+  completionDate: string
+  // e.g. "9 sessions" for films, "~4 weeks" for series
+  summary: string
+}
+
+// Mirrors exactly which generator the list/challenge results page uses
+// for each kind of list, so the planner preview matches the result.
+export function buildListPreview(
+  config: AvailabilityConfig,
+  items: { title: string; runtime: number; mediaType: string }[]
+): ListPreview | null {
+  if (items.length === 0 || weeklyMinutes(config.schedule) <= 0) return null
+  const kind = listKind(items)
+
+  if (kind === 'movies') {
+    const plan = generateListMoviePlan(config, items)
+    return {
+      completionDate: plan.completionDate,
+      summary: `${plan.totalSessions} session${plan.totalSessions === 1 ? '' : 's'}`,
+    }
+  }
+
+  if (kind === 'mixed') {
+    const plan = generateMixedListPlan(config, items)
+    return { completionDate: plan.overallCompletionDate, summary: '' }
+  }
+
+  const plan = generateListPlan(config, items, config.pace)
+  return {
+    completionDate: plan.completionDate,
+    summary: `~${plan.totalWeeks} week${plan.totalWeeks === 1 ? '' : 's'}`,
   }
 }

@@ -7,6 +7,15 @@ import { CustomListItem } from '@/types/media'
 import { Button, Badge } from '@/components/ui'
 import Link from 'next/link'
 
+// Series store their whole-show runtime, so show hours rather than a
+// four-digit minute count
+function formatRuntime(mins: number): string {
+  if (mins < 120) return `${mins}m`
+  const h = Math.floor(mins / 60)
+  const m = mins % 60
+  return m === 0 ? `${h}h` : `${h}h ${m}m`
+}
+
 export default function NewListPage() {
   const router = useRouter()
   const { createList } = useCustomLists()
@@ -15,15 +24,19 @@ export default function NewListPage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState<CustomListItem[]>([])
   const [searching, setSearching] = useState(false)
+  const [searchError, setSearchError] = useState<string | null>(null)
+  const [searched, setSearched] = useState(false)
   const [items, setItems] = useState<CustomListItem[]>([])
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return
     setSearching(true)
+    setSearchError(null)
     try {
       const res = await fetch(
         `/api/search?q=${encodeURIComponent(searchQuery)}`
       )
+      if (!res.ok) throw new Error('search failed')
       const data = await res.json()
       // Fetch runtime for each result
       const withRuntime: CustomListItem[] = await Promise.all(
@@ -71,7 +84,11 @@ export default function NewListPage() {
           )
       )
       setSearchResults(withRuntime)
+    } catch {
+      setSearchResults([])
+      setSearchError("Search isn't working right now. Try again in a moment.")
     } finally {
+      setSearched(true)
       setSearching(false)
     }
   }
@@ -100,10 +117,10 @@ export default function NewListPage() {
         {/* Header */}
         <div className="flex flex-col gap-3">
           <Link
-            href="/"
+            href="/lists"
             className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
           >
-            ← BACK
+            ← MY LISTS
           </Link>
           <p className="text-gold font-mono text-xs tracking-widest">
             CUSTOM LIST
@@ -118,15 +135,19 @@ export default function NewListPage() {
 
         {/* List title */}
         <div className="flex flex-col gap-2">
-          <label className="text-parchment-dim font-mono text-xs tracking-widest uppercase">
+          <label
+            htmlFor="list-name"
+            className="text-parchment-dim font-mono text-xs tracking-widest uppercase"
+          >
             List name
           </label>
           <input
+            id="list-name"
             type="text"
-            placeholder="e.g. My 2025 Watchlist, Date Night Films..."
+            placeholder={`e.g. My ${new Date().getFullYear()} Watchlist, Date Night Films…`}
             value={listTitle}
             onChange={(e) => setListTitle(e.target.value)}
-            className="bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/50 max-w-lg rounded-sm border px-4 py-3 font-mono text-lg focus:outline-none"
+            className="bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/60 max-w-lg rounded-sm border px-4 py-3 font-sans text-lg focus:outline-none"
           />
         </div>
 
@@ -135,23 +156,38 @@ export default function NewListPage() {
           <div className="flex flex-col gap-4">
             <h2 className="font-display text-parchment text-2xl">Add titles</h2>
 
-            <div className="flex gap-2">
+            <form
+              role="search"
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleSearch()
+              }}
+              className="flex gap-2"
+            >
               <input
-                type="text"
-                placeholder="Search films or series..."
+                type="search"
+                aria-label="Search films or series to add"
+                placeholder="Search films or series…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/50 flex-1 rounded-sm border px-4 py-2.5 font-mono text-sm focus:outline-none"
+                className="bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/60 min-w-0 flex-1 rounded-sm border px-4 py-2.5 font-sans text-sm focus:outline-none"
               />
-              <Button
-                onClick={handleSearch}
-                disabled={searching}
-                variant="secondary"
-              >
-                {searching ? '...' : 'Search'}
+              <Button type="submit" disabled={searching} variant="secondary">
+                {searching ? 'Searching…' : 'Search'}
               </Button>
-            </div>
+            </form>
+
+            {searchError && (
+              <p role="alert" className="text-rose font-sans text-sm">
+                {searchError}
+              </p>
+            )}
+
+            {searched && !searching && !searchError && searchResults.length === 0 && (
+              <p className="text-parchment-dim font-sans text-sm">
+                No films or series match that. Try a shorter or different title.
+              </p>
+            )}
 
             {/* Search results */}
             {searchResults.length > 0 && (
@@ -184,7 +220,7 @@ export default function NewListPage() {
                             {item.releaseYear}
                           </span>
                           <span className="text-parchment-faint font-mono text-xs">
-                            {item.runtime}min
+                            {formatRuntime(item.runtime)}
                           </span>
                         </div>
                       </div>
@@ -249,7 +285,7 @@ export default function NewListPage() {
                         {item.title}
                       </p>
                       <p className="text-parchment-faint font-mono text-xs">
-                        {item.runtime}min
+                        {formatRuntime(item.runtime)}
                       </p>
                     </div>
                     <button
@@ -281,6 +317,15 @@ export default function NewListPage() {
             >
               Plan this list →
             </Button>
+            {(!listTitle.trim() || items.length === 0) && (
+              <p className="text-parchment-faint -mt-1 text-center font-sans text-xs">
+                {items.length === 0 && !listTitle.trim()
+                  ? 'Name your list and add at least one title'
+                  : items.length === 0
+                    ? 'Add at least one title'
+                    : 'Give your list a name'}
+              </p>
+            )}
           </div>
         </div>
       </div>

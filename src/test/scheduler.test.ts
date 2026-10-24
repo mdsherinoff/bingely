@@ -111,6 +111,51 @@ describe('generateWatchPlan — TV', () => {
   })
 })
 
+describe('generateWatchPlan — weekly accounting', () => {
+  // 6h/week on weekends at balanced pace = 288 min → 5 whole 56-min eps
+  function weekendConfig(episodeRuntime: number): AvailabilityConfig {
+    const schedule = defaultSchedule()
+    schedule['Saturday'] = {
+      enabled: true,
+      windows: [{ start: '19:00', end: '22:00' }],
+    }
+    schedule['Sunday'] = {
+      enabled: true,
+      windows: [{ start: '19:00', end: '22:00' }],
+    }
+    return { schedule, pace: 'balanced', episodeRuntime }
+  }
+
+  it('reports hours as whole episodes × runtime', () => {
+    const plan = generateWatchPlan(weekendConfig(56), 62, 'tv')
+    expect(plan.episodesPerWeek).toBe(5)
+    plan.weeklyBlocks.forEach((b) => {
+      expect(b.hoursWatched).toBe(Math.round(((b.episodes * 56) / 60) * 10) / 10)
+    })
+    const finale = plan.weeklyBlocks[plan.weeklyBlocks.length - 1]
+    expect(finale.episodes).toBe(2)
+    expect(finale.hoursWatched).toBe(1.9)
+  })
+
+  it('never crams the final week beyond the weekly pace', () => {
+    // 288 min / 50 = 5.76 → 5 whole eps; minutes alone would say 11 weeks
+    const plan = generateWatchPlan(weekendConfig(50), 62, 'tv')
+    expect(plan.totalWeeks).toBe(13)
+    expect(plan.weeklyBlocks).toHaveLength(13)
+    plan.weeklyBlocks.forEach((b) => {
+      expect(b.episodes).toBeLessThanOrEqual(plan.episodesPerWeek)
+    })
+  })
+
+  it('totalWeeks always matches the number of weekly blocks', () => {
+    for (const runtime of [22, 24, 45, 50, 56, 60]) {
+      const plan = generateWatchPlan(weekendConfig(runtime), 100, 'tv')
+      expect(plan.weeklyBlocks).toHaveLength(plan.totalWeeks)
+      expect(plan.weeklyBlocks.at(-1)!.endEpisode).toBe(100)
+    }
+  })
+})
+
 describe('generateWatchPlan — Movie', () => {
   it('generates a single block for movies', () => {
     const plan = generateWatchPlan(makeConfig(), 1, 'movie', 148)

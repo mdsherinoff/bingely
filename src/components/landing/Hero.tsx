@@ -30,7 +30,7 @@ export default function Hero() {
   }
 
   return (
-    <section className="grain relative flex min-h-screen flex-col items-center justify-center gap-10 px-4 text-center">
+    <section className="grain relative flex min-h-[calc(100svh-6.5rem)] flex-col items-center justify-center gap-10 px-4 py-16 text-center">
       {/* Vignette */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_40%,_#100c09_100%)]" />
 
@@ -61,21 +61,30 @@ export default function Hero() {
         </p>
 
         {/* Search */}
-        <div className="mt-4 flex w-full max-w-xl flex-col gap-3 sm:flex-row">
+        <form
+          role="search"
+          onSubmit={(e) => {
+            e.preventDefault()
+            handleSearch()
+          }}
+          className="mt-4 flex w-full max-w-xl flex-col gap-3 sm:flex-row"
+        >
           <Input
-            placeholder="Search a film, series, or anime..."
+            type="search"
+            aria-label="Search for a film, series, or anime"
+            placeholder="Search a film, series, or anime…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-            className="flex-1"
+            wrapperClassName="flex-1"
           />
-          <Button onClick={handleSearch} className="sm:flex-shrink-0">
+          <Button type="submit" className="sm:flex-shrink-0 sm:px-7">
             Plan It
           </Button>
-        </div>
+        </form>
 
         {/* Suggestions */}
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span className="text-parchment-faint font-sans text-xs">Try:</span>
           {[
             'One Piece',
             'Breaking Bad',
@@ -84,8 +93,9 @@ export default function Hero() {
           ].map((s) => (
             <button
               key={s}
+              type="button"
               onClick={() => router.push(`/search?q=${encodeURIComponent(s)}`)}
-              className="text-parchment-faint hover:text-gold font-mono text-xs tracking-widest transition-colors"
+              className="border-line text-parchment-dim hover:border-gold/50 hover:text-gold rounded-full border px-3 py-1 font-sans text-xs transition-colors"
             >
               {s}
             </button>
