@@ -56,12 +56,18 @@ export default function CompletionCard({ plan, title }: CompletionCardProps) {
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <StatChip>{plan.totalHours}h total</StatChip>
+        <StatChip>
+          {plan.totalHours}h {plan.startEpisode ? 'left' : 'total'}
+        </StatChip>
         <StatChip>{plan.episodesPerWeek} eps / week</StatChip>
         <StatChip>
           {plan.totalWeeks} week{plan.totalWeeks === 1 ? '' : 's'}
         </StatChip>
-        <StatChip>{plan.totalEpisodes} episodes</StatChip>
+        <StatChip>
+          {plan.startEpisode
+            ? `${plan.totalEpisodes - plan.startEpisode + 1} episodes left`
+            : `${plan.totalEpisodes} episodes`}
+        </StatChip>
       </div>
 
       <div className="bg-line h-px" />

@@ -57,10 +57,10 @@ export default function ListPlanPage({
       <div className="mx-auto flex max-w-4xl flex-col gap-10">
         <div className="flex flex-col gap-3">
           <Link
-            href="/lists"
+            href="/library"
             className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
           >
-            ← MY LISTS
+            ← LIBRARY
           </Link>
           <p className="text-gold font-mono text-xs tracking-widest">
             CUSTOM LIST

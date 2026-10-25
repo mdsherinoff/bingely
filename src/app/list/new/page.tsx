@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import Image from 'next/image'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCustomLists } from '@/hooks/useCustomLists'
 import { CustomListItem } from '@/types/media'
@@ -28,14 +29,21 @@ export default function NewListPage() {
   const [searched, setSearched] = useState(false)
   const [items, setItems] = useState<CustomListItem[]>([])
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) return
+  // Only the newest search may update the results
+  const latest = useRef<AbortController | null>(null)
+
+  const handleSearch = async (q: string = searchQuery) => {
+    if (!q.trim()) return
+    latest.current?.abort()
+    const controller = new AbortController()
+    latest.current = controller
+    const { signal } = controller
     setSearching(true)
     setSearchError(null)
     try {
-      const res = await fetch(
-        `/api/search?q=${encodeURIComponent(searchQuery)}`
-      )
+      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, {
+        signal,
+      })
       if (!res.ok) throw new Error('search failed')
       const data = await res.json()
       // Fetch runtime for each result
@@ -52,7 +60,8 @@ export default function NewListPage() {
             }) => {
               try {
                 const detail = await fetch(
-                  `/api/media/${item.id}?type=${item.mediaType}`
+                  `/api/media/${item.id}?type=${item.mediaType}`,
+                  { signal }
                 )
                 const d = await detail.json()
                 // For series, runtime is the whole show's total minutes —
@@ -60,7 +69,8 @@ export default function NewListPage() {
                 // full watch time
                 const runtime =
                   item.mediaType === 'tv'
-                    ? (d.episodeRuntime ?? 24) * Math.max(1, d.episodeCount ?? 1)
+                    ? (d.episodeRuntime ?? 24) *
+                      Math.max(1, d.episodeCount ?? 1)
                     : (d.runtime ?? 90)
                 return {
                   tmdbId: item.id,
@@ -83,15 +93,27 @@ export default function NewListPage() {
             }
           )
       )
+      if (signal.aborted) return
       setSearchResults(withRuntime)
+      setSearched(true)
+      setSearching(false)
     } catch {
+      if (signal.aborted) return
       setSearchResults([])
       setSearchError("Search isn't working right now. Try again in a moment.")
-    } finally {
       setSearched(true)
       setSearching(false)
     }
   }
+
+  // Search as you type, once typing pauses
+  useEffect(() => {
+    const q = searchQuery.trim()
+    if (q.length < 3) return
+    const timer = setTimeout(() => handleSearch(q), 450)
+    return () => clearTimeout(timer)
+    // handleSearch is recreated each render; the query is what matters
+  }, [searchQuery])
 
   const addItem = (item: CustomListItem) => {
     if (items.find((i) => i.tmdbId === item.tmdbId)) return
@@ -117,10 +139,10 @@ export default function NewListPage() {
         {/* Header */}
         <div className="flex flex-col gap-3">
           <Link
-            href="/lists"
+            href="/library"
             className="text-parchment-faint hover:text-parchment-dim w-fit font-mono text-xs tracking-widest transition-colors"
           >
-            ← MY LISTS
+            ← LIBRARY
           </Link>
           <p className="text-gold font-mono text-xs tracking-widest">
             CUSTOM LIST
@@ -183,11 +205,15 @@ export default function NewListPage() {
               </p>
             )}
 
-            {searched && !searching && !searchError && searchResults.length === 0 && (
-              <p className="text-parchment-dim font-sans text-sm">
-                No films or series match that. Try a shorter or different title.
-              </p>
-            )}
+            {searched &&
+              !searching &&
+              !searchError &&
+              searchResults.length === 0 && (
+                <p className="text-parchment-dim font-sans text-sm">
+                  No films or series match that. Try a shorter or different
+                  title.
+                </p>
+              )}
 
             {/* Search results */}
             {searchResults.length > 0 && (
@@ -200,11 +226,15 @@ export default function NewListPage() {
                       className="border-line hover:border-line-strong flex items-center gap-3 rounded-sm border p-3 transition-colors"
                     >
                       {item.posterPath && (
-                        <img
-                          src={item.posterPath}
-                          alt={item.title}
-                          className="poster-color aspect-[2/3] w-8 flex-shrink-0 rounded-sm object-cover"
-                        />
+                        <div className="relative aspect-[2/3] w-8 flex-shrink-0 overflow-hidden rounded-sm">
+                          <Image
+                            src={item.posterPath}
+                            alt=""
+                            fill
+                            sizes="32px"
+                            className="poster-color object-cover"
+                          />
+                        </div>
                       )}
                       <div className="min-w-0 flex-1">
                         <p className="text-parchment truncate font-mono text-sm">
@@ -274,11 +304,15 @@ export default function NewListPage() {
                       {String(i + 1).padStart(2, '0')}
                     </span>
                     {item.posterPath && (
-                      <img
-                        src={item.posterPath}
-                        alt={item.title}
-                        className="aspect-[2/3] w-6 flex-shrink-0 rounded-sm object-cover"
-                      />
+                      <div className="relative aspect-[2/3] w-6 flex-shrink-0 overflow-hidden rounded-sm">
+                        <Image
+                          src={item.posterPath}
+                          alt=""
+                          fill
+                          sizes="24px"
+                          className="object-cover"
+                        />
+                      </div>
                     )}
                     <div className="min-w-0 flex-1">
                       <p className="text-parchment truncate font-mono text-sm">
@@ -302,9 +336,7 @@ export default function NewListPage() {
                   <p className="text-parchment-faint font-mono text-xs tracking-widest">
                     TOTAL
                   </p>
-                  <p className="text-gold font-mono text-xs">
-                    {totalHours}h
-                  </p>
+                  <p className="text-gold font-mono text-xs">{totalHours}h</p>
                 </div>
               </div>
             )}

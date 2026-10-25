@@ -48,7 +48,8 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
   const removeWindow = (day: string, index: number) => {
     const windows = schedule[day].windows.filter((_, i) => i !== index)
     setDay(day, {
-      windows: windows.length > 0 ? windows : [{ start: '19:00', end: '21:00' }],
+      windows:
+        windows.length > 0 ? windows : [{ start: '19:00', end: '21:00' }],
     })
   }
 
@@ -66,7 +67,9 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Day toggles */}
-      <div className="grid grid-cols-7 gap-1.5">
+      {/* Full day names: what's shown is exactly what's announced, so
+          screen readers and voice control ("click Monday") both work */}
+      <div role="group" aria-label="Days you're free" className="flex flex-wrap gap-1.5">
         {DAYS.map((day) => {
           const on = schedule[day].enabled
           return (
@@ -75,14 +78,13 @@ export default function DaySelector({ schedule, onChange }: DaySelectorProps) {
               type="button"
               onClick={() => toggleDay(day)}
               aria-pressed={on}
-              aria-label={day}
-              className={`flex min-h-[44px] items-center justify-center rounded-sm border font-mono text-xs tracking-wide transition-colors ${
+              className={`min-h-[44px] rounded-sm border px-3 font-sans text-sm transition-colors ${
                 on
-                  ? 'border-gold bg-gold text-espresso font-bold'
+                  ? 'border-gold bg-gold text-espresso font-semibold'
                   : 'border-line-strong text-parchment-dim hover:border-gold/50 hover:text-parchment'
               }`}
             >
-              {day.slice(0, 3)}
+              {day}
             </button>
           )
         })}

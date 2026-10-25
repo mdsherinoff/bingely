@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { MoviePlan } from '@/lib/scheduler'
 import { CustomList } from '@/types/media'
 import MovieCalendar from './MovieCalendar'
@@ -93,11 +94,15 @@ export default function ListMovieResults({
               {/* Title header */}
               <div className="flex items-start gap-3">
                 {item.posterPath && (
-                  <img
-                    src={item.posterPath}
-                    alt={item.title}
-                    className="poster-color aspect-[2/3] w-10 flex-shrink-0 rounded-sm object-cover"
-                  />
+                  <div className="relative aspect-[2/3] w-10 flex-shrink-0 overflow-hidden rounded-sm">
+                    <Image
+                      src={item.posterPath}
+                      alt=""
+                      fill
+                      sizes="40px"
+                      className="poster-color object-cover"
+                    />
+                  </div>
                 )}
                 <div className="flex flex-col gap-0.5">
                   <p className="text-parchment-faint font-mono text-xs tracking-widest">

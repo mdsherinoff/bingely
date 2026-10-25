@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Input from '@/components/ui/Input'
-import Button from '@/components/ui/Button'
+import SearchBox from '@/components/search/SearchBox'
 
 const hiddenQuotes = [
   '"Here\'s looking at you, kid." — Casablanca',
@@ -14,14 +13,8 @@ const hiddenQuotes = [
 ]
 
 export default function Hero() {
-  const [query, setQuery] = useState('')
   const [quote, setQuote] = useState<string | null>(null)
   const router = useRouter()
-
-  const handleSearch = () => {
-    if (!query.trim()) return
-    router.push(`/search?q=${encodeURIComponent(query.trim())}`)
-  }
 
   const revealQuote = () => {
     const random = hiddenQuotes[Math.floor(Math.random() * hiddenQuotes.length)]
@@ -61,26 +54,13 @@ export default function Hero() {
         </p>
 
         {/* Search */}
-        <form
-          role="search"
-          onSubmit={(e) => {
-            e.preventDefault()
-            handleSearch()
-          }}
-          className="mt-4 flex w-full max-w-xl flex-col gap-3 sm:flex-row"
-        >
-          <Input
-            type="search"
-            aria-label="Search for a film, series, or anime"
+        <div role="search" className="mt-4 w-full max-w-xl">
+          <SearchBox
+            size="lg"
             placeholder="Search a film, series, or anime…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            wrapperClassName="flex-1"
+            submitLabel="Plan It"
           />
-          <Button type="submit" className="sm:flex-shrink-0 sm:px-7">
-            Plan It
-          </Button>
-        </form>
+        </div>
 
         {/* Suggestions */}
         <div className="flex flex-wrap items-center justify-center gap-2">

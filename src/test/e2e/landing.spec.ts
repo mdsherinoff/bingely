@@ -14,8 +14,8 @@ test.describe('Landing page', () => {
 
   test('hero search navigates to search page', async ({ page }) => {
     await page.goto('/')
-    const input = page.getByRole('searchbox', {
-      name: /search for a film, series, or anime/i,
+    const input = page.getByRole('combobox', {
+      name: /search films, series, and anime/i,
     })
     await input.fill('Breaking Bad')
     await input.press('Enter')

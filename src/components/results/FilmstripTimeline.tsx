@@ -46,7 +46,7 @@ export default function FilmstripTimeline({
               }}
             >
               {showNumbers && (
-                <span className="text-espresso font-mono text-[10px] font-bold tabular-nums">
+                <span className="bg-espresso/85 text-parchment rounded-sm px-1 font-mono text-[10px] font-bold tabular-nums">
                   {block.week}
                 </span>
               )}

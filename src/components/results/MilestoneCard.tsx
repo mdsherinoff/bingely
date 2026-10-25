@@ -1,4 +1,5 @@
-import { Milestone } from '@/types/media'
+import { Milestone, Season } from '@/types/media'
+import { episodeLabel } from '@/lib/episodes'
 import { Badge } from '@/components/ui'
 
 interface MilestoneCardProps {
@@ -7,12 +8,14 @@ interface MilestoneCardProps {
   // List plans count whole titles by watch time, so an episode number
   // means nothing there
   showEpisode?: boolean
+  seasons?: Season[]
 }
 
 export default function MilestoneCard({
   milestone,
   isLast = false,
   showEpisode = true,
+  seasons,
 }: MilestoneCardProps) {
   return (
     <div className="flex items-start gap-4">
@@ -40,7 +43,7 @@ export default function MilestoneCard({
         </div>
         <p className="text-parchment-faint font-mono text-xs">
           Week {milestone.week}
-          {showEpisode && ` · Episode ${milestone.episode}`}
+          {showEpisode && ` · ${episodeLabel(milestone.episode, seasons)}`}
         </p>
       </div>
     </div>

@@ -3,7 +3,13 @@
 import { useState, use, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useMediaDetails } from '@/hooks/useMediaDetails'
-import { defaultSchedule, weeklyMinutes } from '@/lib/scheduleUtils'
+import {
+  defaultSchedule,
+  intersectSchedules,
+  weeklyMinutes,
+} from '@/lib/scheduleUtils'
+import TogetherSection from '@/components/plan/TogetherSection'
+import WhereToWatch from '@/components/plan/WhereToWatch'
 import {
   AvailabilityConfig,
   PaceMode,
@@ -26,6 +32,7 @@ import FeasibilityIndicator from '@/components/plan/FeasibilityIndicator'
 import SmartSuggestions from '@/components/plan/SmartSuggestions'
 import PlannerSkeleton from '@/components/plan/PlannerSkeleton'
 import { encodeState, decodeState } from '@/lib/urlState'
+import { episodeLabel } from '@/lib/episodes'
 
 const PACES: PaceMode[] = ['casual', 'balanced', 'binge', 'hardcore']
 
@@ -37,7 +44,9 @@ function goalIsComplete(goal: WatchGoal): boolean {
     case 'finish-before':
       return valid(goal.targetDate)
     case 'vacation':
-      return valid(goal.startDate) && valid(goal.endDate) && goal.hoursPerDay > 0
+      return (
+        valid(goal.startDate) && valid(goal.endDate) && goal.hoursPerDay > 0
+      )
     case 'new-season':
       return valid(goal.targetDate) && goal.currentEpisode >= 1
     default:
@@ -61,23 +70,43 @@ export default function PlanPage({
   // instead of the defaults, so editing someone else's plan starts from
   // what they chose.
   const rawConfig = searchParams.get('config')
-  const initialConfig = rawConfig ? decodeState<AvailabilityConfig>(rawConfig) : null
+  const initialConfig = rawConfig
+    ? decodeState<AvailabilityConfig>(rawConfig)
+    : null
   const rawGoal = searchParams.get('goal')
   const initialGoal = rawGoal ? decodeState<WatchGoal>(rawGoal) : null
 
+  // Your own free time; with "watch together" on, the plan uses only the
+  // overlap with theirs
   const [schedule, setSchedule] = useState<WeekSchedule>(
-    initialConfig?.schedule ?? defaultSchedule()
+    initialConfig?.together?.mine ??
+      initialConfig?.schedule ??
+      defaultSchedule()
+  )
+  const [together, setTogether] = useState(Boolean(initialConfig?.together))
+  const [theirs, setTheirs] = useState<WeekSchedule>(
+    initialConfig?.together?.theirs ?? defaultSchedule()
+  )
+  const effectiveSchedule = useMemo(
+    () => (together ? intersectSchedules(schedule, theirs) : schedule),
+    [together, schedule, theirs]
   )
   const [pace, setPace] = useState<PaceMode>(initialConfig?.pace ?? 'balanced')
   const [episodeRuntime, setEpisodeRuntime] = useState<number | null>(
     initialConfig?.episodeRuntime ?? null
   )
-  const [goal, setGoal] = useState<WatchGoal>(initialGoal ?? { mode: 'standard' })
+  const [goal, setGoal] = useState<WatchGoal>(
+    initialGoal ?? { mode: 'standard' }
+  )
+  // Most people plan a show they're already partway through
+  const [startEpisode, setStartEpisode] = useState<number | null>(
+    initialConfig?.startEpisode ?? null
+  )
 
   const isTV = media?.mediaType === 'tv'
   const runtime =
     episodeRuntime ?? media?.episodeRuntime ?? media?.runtime ?? 24
-  const hasFreeTime = weeklyMinutes(schedule) > 0
+  const hasFreeTime = weeklyMinutes(effectiveSchedule) > 0
   // Goal modes only apply to series; a film is always planned into your
   // free slots, so ignore any goal carried over in the URL
   const effectiveGoal: WatchGoal = isTV ? goal : { mode: 'standard' }
@@ -87,9 +116,21 @@ export default function PlanPage({
     goalIsComplete(effectiveGoal) &&
     (effectiveGoal.mode !== 'standard' || hasFreeTime)
 
+  const totalEpisodes = media?.episodeCount ?? 1
+  const start =
+    startEpisode && startEpisode > 1
+      ? Math.min(startEpisode, totalEpisodes)
+      : null
+
   const config: AvailabilityConfig = useMemo(
-    () => ({ schedule, pace, episodeRuntime: runtime }),
-    [schedule, pace, runtime]
+    () => ({
+      schedule: effectiveSchedule,
+      pace,
+      episodeRuntime: runtime,
+      ...(start ? { startEpisode: start } : {}),
+      ...(together ? { together: { mine: schedule, theirs } } : {}),
+    }),
+    [effectiveSchedule, pace, runtime, start, together, schedule, theirs]
   )
 
   // Built with the same function as the results page, so this preview
@@ -155,12 +196,17 @@ export default function PlanPage({
     const remainingEpisodes =
       goal.mode === 'new-season'
         ? (media.episodeCount ?? 0) - goal.currentEpisode + 1
-        : (media.episodeCount ?? 0)
+        : (media.episodeCount ?? 0) - (start ?? 1) + 1
 
     if (remainingEpisodes <= 0) return null
 
-    return checkFeasibility(goal.targetDate, remainingEpisodes, runtime, schedule)
-  }, [goal, media, runtime, schedule])
+    return checkFeasibility(
+      goal.targetDate,
+      remainingEpisodes,
+      runtime,
+      effectiveSchedule
+    )
+  }, [goal, media, runtime, effectiveSchedule, start])
 
   if (loading) return <PlannerSkeleton />
 
@@ -186,49 +232,93 @@ export default function PlanPage({
     )
   }
 
-  const generateLabel = !hasFreeTime && effectiveGoal.mode === 'standard'
-    ? 'Pick at least one day'
-    : !goalIsComplete(effectiveGoal)
-      ? 'Finish setting your goal'
-      : 'Generate Watch Plan →'
+  const generateLabel =
+    !hasFreeTime && effectiveGoal.mode === 'standard'
+      ? 'Pick at least one day'
+      : !goalIsComplete(effectiveGoal)
+        ? 'Finish setting your goal'
+        : 'Generate Watch Plan →'
 
   return (
     <main id="main-content" className="bg-espresso min-h-screen px-6 py-12">
       <div className="mx-auto flex max-w-4xl flex-col gap-12">
         <MediaSummary media={media} />
+        <WhereToWatch id={media.id} type={media.mediaType} />
 
-        {/* Runtime override for TV */}
+        {/* Episode length + where you're up to — series only */}
         {isTV && (
-          <div className="flex flex-col gap-2">
-            <label
-              htmlFor="episode-runtime"
-              className="text-parchment-dim font-mono text-xs tracking-widest uppercase"
-            >
-              Minutes per episode
-            </label>
-            <div className="flex items-center gap-4">
-              <input
-                id="episode-runtime"
-                type="number"
-                min={1}
-                max={180}
-                value={runtime}
-                onChange={(e) => {
-                  const value = e.target.value
-                  if (value === '') {
-                    setEpisodeRuntime(null)
-                    return
-                  }
-                  setEpisodeRuntime(
-                    Math.min(180, Math.max(1, Math.round(Number(value))))
-                  )
-                }}
-                className="bg-ink border-line-strong text-parchment focus:border-gold/60 w-24 rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
-              />
-              <span className="text-parchment-faint font-sans text-xs">
-                TMDB suggests {media.episodeRuntime ?? 24} min
-              </span>
+          <div className="flex flex-wrap gap-8">
+            <div className="flex flex-col gap-2">
+              <label
+                htmlFor="episode-runtime"
+                className="text-parchment-dim font-mono text-xs tracking-widest uppercase"
+              >
+                Minutes per episode
+              </label>
+              <div className="flex items-center gap-3">
+                <input
+                  id="episode-runtime"
+                  type="number"
+                  min={1}
+                  max={180}
+                  value={runtime}
+                  onChange={(e) => {
+                    const value = e.target.value
+                    if (value === '') {
+                      setEpisodeRuntime(null)
+                      return
+                    }
+                    setEpisodeRuntime(
+                      Math.min(180, Math.max(1, Math.round(Number(value))))
+                    )
+                  }}
+                  className="bg-ink border-line-strong text-parchment focus:border-gold/60 w-24 rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
+                />
+                <span className="text-parchment-faint font-sans text-xs">
+                  TMDB suggests {media.episodeRuntime ?? 24} min
+                </span>
+              </div>
             </div>
+
+            {/* New-season prep asks for this itself */}
+            {goal.mode !== 'new-season' && totalEpisodes > 1 && (
+              <div className="flex flex-col gap-2">
+                <label
+                  htmlFor="start-episode"
+                  className="text-parchment-dim font-mono text-xs tracking-widest uppercase"
+                >
+                  Starting from episode
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="start-episode"
+                    type="number"
+                    min={1}
+                    max={totalEpisodes}
+                    value={startEpisode ?? 1}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      if (value === '') {
+                        setStartEpisode(null)
+                        return
+                      }
+                      setStartEpisode(
+                        Math.min(
+                          totalEpisodes,
+                          Math.max(1, Math.round(Number(value)))
+                        )
+                      )
+                    }}
+                    className="bg-ink border-line-strong text-parchment focus:border-gold/60 w-24 rounded-sm border px-3 py-2 font-mono text-sm focus:outline-none"
+                  />
+                  <span className="text-parchment-faint font-sans text-xs">
+                    {start
+                      ? `${episodeLabel(start, media.seasons)} · ${totalEpisodes - start + 1} to go`
+                      : 'From the very beginning'}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -254,6 +344,13 @@ export default function PlanPage({
               When are you free?
             </h2>
             <DaySelector schedule={schedule} onChange={setSchedule} />
+            <TogetherSection
+              enabled={together}
+              onToggle={setTogether}
+              theirs={theirs}
+              onTheirsChange={setTheirs}
+              shared={effectiveSchedule}
+            />
           </div>
 
           {/* Right — pace + generate */}
@@ -299,7 +396,7 @@ export default function PlanPage({
 
             {isTV && goal.mode === 'standard' && (
               <SmartSuggestions
-                schedule={schedule}
+                schedule={effectiveSchedule}
                 pace={pace}
                 episodeRuntime={runtime}
                 totalEpisodes={media.episodeCount ?? 0}

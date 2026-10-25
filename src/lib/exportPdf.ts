@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf'
 import QRCode from 'qrcode'
-import { WatchPlan } from '@/types/media'
+import { WatchPlan, Season } from '@/types/media'
+import { episodeRangeLabel } from '@/lib/episodes'
 import { MoviePlan } from '@/lib/scheduler'
 
 const C = {
@@ -396,7 +397,8 @@ async function exportTVPdf(
   genres: string[] | undefined,
   posterUrl: string | null | undefined,
   plan: WatchPlan,
-  qrDataUrl: string
+  qrDataUrl: string,
+  seasons?: Season[]
 ) {
   drawHeader(doc, W, M)
 
@@ -557,7 +559,7 @@ async function exportTVPdf(
     rgb(doc, 'text', C.muted)
     doc.setFont('helvetica', 'normal')
     doc.text(
-      `Eps ${block.startEpisode}–${block.endEpisode}`,
+      episodeRangeLabel(block.startEpisode, block.endEpisode, seasons),
       weekCols[1].x,
       y + 4
     )
@@ -603,7 +605,8 @@ export async function exportPlanAsPdf(
   posterUrl?: string | null,
   genres?: string[],
   shareUrl?: string,
-  moviePlan?: MoviePlan | null
+  moviePlan?: MoviePlan | null,
+  seasons?: Season[]
 ) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' })
   const W = doc.internal.pageSize.getWidth()
@@ -646,7 +649,8 @@ export async function exportPlanAsPdf(
       genres,
       posterUrl,
       plan,
-      qrDataUrl
+      qrDataUrl,
+      seasons
     )
   }
 

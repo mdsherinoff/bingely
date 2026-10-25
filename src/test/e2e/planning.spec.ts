@@ -79,9 +79,10 @@ test.describe('Planning flow', () => {
     await page.getByRole('button', { name: /generate watch plan/i }).click()
     await page.waitForSelector('text=Week by week', { timeout: 15000 })
 
-    await expect(page.getByText('Week by week')).toBeVisible()
-    // Check at least one week row exists
-    await expect(page.locator('text=WEEK 1').first()).toBeVisible({
+    const weeks = page.getByRole('region', { name: 'Week by week' })
+    await expect(weeks).toBeVisible()
+    // Week 1 starts at the first episode, labelled by season
+    await expect(weeks.getByText(/^S1 E1/).first()).toBeVisible({
       timeout: 10000,
     })
   })

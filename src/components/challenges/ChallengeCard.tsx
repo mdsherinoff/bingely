@@ -72,7 +72,7 @@ export default function ChallengeCard({
             </p>
           </div>
           <div className="ml-auto">
-            <p className="text-gold/60 group-hover:text-gold font-mono text-xs transition-colors">
+            <p className="text-gold font-mono text-xs transition-colors group-hover:underline">
               START →
             </p>
           </div>

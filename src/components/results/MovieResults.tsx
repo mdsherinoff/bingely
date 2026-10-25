@@ -1,9 +1,11 @@
 'use client'
 
+import Image from 'next/image'
 import { MoviePlan } from '@/lib/scheduler'
 import { MediaItem } from '@/types/media'
 import MovieSessionCard from './MovieSessionCard'
 import MovieCalendar from './MovieCalendar'
+import WhereToWatch from '@/components/plan/WhereToWatch'
 import ExportButton from './ExportButton'
 import ShareButton from './ShareButton'
 import { WatchPlan } from '@/types/media'
@@ -44,6 +46,8 @@ export default function MovieResults({
         ))}
       </div>
 
+      <WhereToWatch id={media.id} type="movie" />
+
       {/* Calendar */}
       <div className="flex flex-col gap-4">
         <h2 className="font-display text-parchment text-2xl">
@@ -74,11 +78,13 @@ export default function MovieResults({
         <div className="flex flex-col gap-4">
           {/* Poster */}
           {media.posterPath && (
-            <div className="border-line aspect-[2/3] overflow-hidden rounded-sm border">
-              <img
+            <div className="border-line relative aspect-[2/3] overflow-hidden rounded-sm border">
+              <Image
                 src={media.posterPath}
-                alt={media.title}
-                className="poster-color h-full w-full object-cover"
+                alt=""
+                fill
+                sizes="(min-width: 768px) 300px, 100vw"
+                className="poster-color object-cover"
               />
             </div>
           )}

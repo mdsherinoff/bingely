@@ -2,18 +2,17 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
+import SearchBox from '@/components/search/SearchBox'
 
 const NAV = [
   { href: '/challenges', label: 'CHALLENGES' },
-  { href: '/lists', label: 'MY LISTS' },
+  { href: '/library', label: 'LIBRARY' },
   { href: '/achievements', label: 'ACHIEVEMENTS' },
 ]
 
 export default function Header() {
-  const [query, setQuery] = useState('')
   const [menuOpen, setMenuOpen] = useState(false)
-  const router = useRouter()
   const pathname = usePathname()
   // The landing page has its own big search; a second one up here just
   // competes with it
@@ -22,25 +21,7 @@ export default function Header() {
   const isActive = (href: string) =>
     pathname === href ||
     pathname.startsWith(`${href}/`) ||
-    (href === '/lists' && pathname.startsWith('/list/'))
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!query.trim()) return
-    router.push(`/search?q=${encodeURIComponent(query.trim())}`)
-    setMenuOpen(false)
-  }
-
-  const searchInput = (extra: string) => (
-    <input
-      type="search"
-      aria-label="Search films, series, and anime"
-      placeholder="Search films, series, anime…"
-      value={query}
-      onChange={(e) => setQuery(e.target.value)}
-      className={`bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/60 w-full rounded-sm border px-4 font-sans text-sm transition-colors focus:outline-none ${extra}`}
-    />
-  )
+    (href === '/library' && pathname.startsWith('/list/'))
 
   return (
     <header className="bg-espresso/95 border-line sticky top-0 z-50 border-b backdrop-blur">
@@ -53,16 +34,15 @@ export default function Header() {
         </Link>
 
         {showSearch && (
-          <form
-            role="search"
-            onSubmit={handleSearch}
-            className="hidden max-w-xl flex-1 md:flex"
-          >
-            {searchInput('py-2')}
-          </form>
+          <div role="search" className="hidden max-w-xl flex-1 md:flex">
+            <SearchBox />
+          </div>
         )}
 
-        <nav aria-label="Main" className="ml-auto hidden items-center gap-6 md:flex">
+        <nav
+          aria-label="Main"
+          className="ml-auto hidden items-center gap-6 md:flex"
+        >
           {NAV.map((item) => (
             <Link
               key={item.href}
@@ -91,9 +71,9 @@ export default function Header() {
 
       {menuOpen && (
         <div className="border-line bg-espresso flex flex-col gap-4 border-t px-4 py-4 md:hidden">
-          <form role="search" onSubmit={handleSearch}>
-            {searchInput('py-3')}
-          </form>
+          <div role="search">
+            <SearchBox size="lg" onNavigate={() => setMenuOpen(false)} />
+          </div>
           <nav aria-label="Main" className="flex flex-col gap-1">
             {NAV.map((item) => (
               <Link

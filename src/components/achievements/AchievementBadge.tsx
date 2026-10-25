@@ -12,29 +12,30 @@ export default function AchievementBadge({
   return (
     <div
       className={`flex flex-col items-center gap-2 rounded-sm border p-4 text-center transition-colors ${
-        unlocked ? 'border-gold/30 bg-ink' : 'border-line opacity-40'
-      } `}
+        unlocked ? 'border-gold/30 bg-ink' : 'border-line-strong border-dashed'
+      }`}
     >
       <span
-        className={`font-mono text-2xl ${unlocked ? 'text-gold' : 'text-parchment-faint'} `}
+        aria-hidden
+        className={`font-mono text-2xl ${unlocked ? 'text-gold' : 'text-line-strong'}`}
       >
         {achievement.icon}
       </span>
       <div className="flex flex-col gap-0.5">
         <p
-          className={`font-mono text-sm ${unlocked ? 'text-parchment' : 'text-parchment-faint'} `}
+          className={`font-sans text-sm ${unlocked ? 'text-parchment' : 'text-parchment-dim'}`}
         >
           {achievement.title}
         </p>
-        <p className="text-parchment-faint font-mono text-xs leading-relaxed">
+        <p className="text-parchment-dim font-sans text-xs leading-relaxed">
           {achievement.condition}
         </p>
       </div>
-      {unlocked && (
-        <span className="text-gold font-mono text-xs tracking-widest">
-          UNLOCKED
-        </span>
-      )}
+      <span
+        className={`font-mono text-xs tracking-widest ${unlocked ? 'text-gold' : 'text-parchment-dim'}`}
+      >
+        {unlocked ? 'UNLOCKED' : 'LOCKED'}
+      </span>
     </div>
   )
 }

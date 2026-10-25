@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui'
 import { exportPlanAsPdf } from '@/lib/exportPdf'
-import { WatchPlan } from '@/types/media'
+import { WatchPlan, Season } from '@/types/media'
 import { MoviePlan } from '@/lib/scheduler'
 
 interface ExportButtonProps {
@@ -13,6 +13,7 @@ interface ExportButtonProps {
   posterUrl?: string | null
   genres?: string[]
   moviePlan?: MoviePlan | null
+  seasons?: Season[]
 }
 
 export default function ExportButton({
@@ -22,6 +23,7 @@ export default function ExportButton({
   posterUrl,
   genres,
   moviePlan,
+  seasons,
 }: ExportButtonProps) {
   const [exporting, setExporting] = useState(false)
 
@@ -37,7 +39,8 @@ export default function ExportButton({
         posterUrl,
         genres,
         shareUrl,
-        moviePlan
+        moviePlan,
+        seasons
       )
     } finally {
       setExporting(false)

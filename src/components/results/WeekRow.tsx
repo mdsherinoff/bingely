@@ -1,7 +1,8 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { WeeklyBlock } from '@/types/media'
+import { WeeklyBlock, Season } from '@/types/media'
+import { episodeRangeLabel } from '@/lib/episodes'
 import ProgressBar from './ProgressBar'
 
 interface WeekRowProps {
@@ -12,6 +13,11 @@ interface WeekRowProps {
   // can span many weeks; pass the titles so rows say what's watched
   // instead of "Episodes 1–1 · 0 eps"
   titles?: string[]
+  // Series season breakdown, to label weeks "S2 E3–E7"
+  seasons?: Season[]
+  // Set while the viewer follows this plan, to tick weeks off
+  watched?: boolean
+  onToggleWatched?: () => void
 }
 
 function listLabel(block: WeeklyBlock, titles: string[]): string {
@@ -27,6 +33,9 @@ export default function WeekRow({
   totalEpisodes,
   index = 0,
   titles,
+  seasons,
+  watched = false,
+  onToggleWatched,
 }: WeekRowProps) {
   // The week the plan actually completes — not merely the week that
   // touches the last item, which for a list can be every week
@@ -44,7 +53,7 @@ export default function WeekRow({
       }}
       className={`bg-ink flex shrink-0 overflow-hidden rounded-sm border transition-all hover:translate-x-1 ${
         isLast ? 'border-gold/50' : 'border-line hover:border-gold/40'
-      }`}
+      } ${watched ? 'opacity-60' : ''}`}
     >
       {/* Ticket stub */}
       <div className="border-line-strong bg-raised relative flex w-20 flex-shrink-0 flex-col justify-center gap-0.5 border-r border-dashed px-4 py-3">
@@ -57,7 +66,7 @@ export default function WeekRow({
           aria-hidden
           className="bg-espresso border-line absolute -right-2 -bottom-2 h-4 w-4 rounded-full border"
         />
-        <span className="text-parchment-faint font-mono text-[9px] tracking-[0.2em]">
+        <span className="text-parchment-dim font-mono text-[9px] tracking-[0.2em]">
           {isLast ? 'FINALE' : 'WEEK'}
         </span>
         <span className="font-display text-gold text-2xl leading-none font-bold">
@@ -71,9 +80,7 @@ export default function WeekRow({
           <p className="text-parchment truncate font-sans text-sm sm:text-base">
             {titles
               ? listLabel(block, titles)
-              : block.startEpisode === block.endEpisode
-                ? `Episode ${block.startEpisode}`
-                : `Episodes ${block.startEpisode}–${block.endEpisode}`}
+              : episodeRangeLabel(block.startEpisode, block.endEpisode, seasons)}
           </p>
           <p className="text-parchment-faint font-mono text-[11px] tracking-wide tabular-nums">
             {titles
@@ -83,12 +90,28 @@ export default function WeekRow({
               : `${block.episodes} EP${block.episodes === 1 ? '' : 'S'} · ${block.hoursWatched}H`}
           </p>
         </div>
-        <div className="w-24 flex-shrink-0 sm:w-32">
-          <ProgressBar percent={block.cumulativePercent} showLabel={false} />
-          <p className="text-gold mt-1.5 text-right font-mono text-xs tabular-nums">
-            {block.cumulativePercent}%
-          </p>
-        </div>
+        {onToggleWatched ? (
+          <button
+            type="button"
+            onClick={onToggleWatched}
+            aria-pressed={watched}
+            aria-label={`Week ${block.week} watched`}
+            className={`flex h-10 flex-shrink-0 items-center gap-2 rounded-sm border px-3 font-sans text-xs transition-colors ${
+              watched
+                ? 'border-gold bg-gold text-espresso font-semibold'
+                : 'border-line-strong text-parchment-dim hover:border-gold/60 hover:text-parchment'
+            }`}
+          >
+            {watched ? '✓ Watched' : 'Mark watched'}
+          </button>
+        ) : (
+          <div className="w-24 flex-shrink-0 sm:w-32">
+            <ProgressBar percent={block.cumulativePercent} showLabel={false} />
+            <p className="text-gold mt-1.5 text-right font-mono text-xs tabular-nums">
+              {block.cumulativePercent}%
+            </p>
+          </div>
+        )}
       </div>
     </motion.div>
   )

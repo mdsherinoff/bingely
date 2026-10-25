@@ -46,6 +46,12 @@ export interface AvailabilityConfig {
   schedule: WeekSchedule
   pace: PaceMode
   episodeRuntime: number
+  // First episode still to watch (series only). Plans pick up from here
+  // instead of always starting at episode 1.
+  startEpisode?: number
+  // "Watch together": both people's free time, kept so the planner can
+  // restore them on edit. `schedule` holds only the slots they share.
+  together?: { mine: WeekSchedule; theirs: WeekSchedule }
 }
 
 export interface WeeklyBlock {
@@ -75,6 +81,8 @@ export interface WatchPlan {
   pace: PaceMode
   mediaType: MediaType
   runtime?: number
+  // Set when the plan picks up partway through a show
+  startEpisode?: number
 }
 
 export interface FilmChallenge {

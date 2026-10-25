@@ -3,6 +3,7 @@ import {
   generateWatchPlan,
   generateFinishBeforePlan,
   generateVacationPlan,
+  buildTitlePlan,
 } from '@/lib/scheduler'
 import { defaultSchedule } from '@/lib/scheduleUtils'
 import { AvailabilityConfig } from '@/types/media'
@@ -253,5 +254,69 @@ describe('generateVacationPlan', () => {
       'tv'
     )
     expect(heavy.totalEpisodes).toBeGreaterThan(light.totalEpisodes)
+  })
+})
+
+describe('buildTitlePlan — starting partway through', () => {
+  function weekend(): AvailabilityConfig {
+    const schedule = defaultSchedule()
+    schedule['Saturday'] = { enabled: true, windows: [{ start: '19:00', end: '22:00' }] }
+    schedule['Sunday'] = { enabled: true, windows: [{ start: '19:00', end: '22:00' }] }
+    return { schedule, pace: 'balanced', episodeRuntime: 56 }
+  }
+
+  it('starts week 1 at the given episode and finishes at the last one', () => {
+    const plan = buildTitlePlan(
+      { ...weekend(), startEpisode: 30 },
+      { mode: 'standard' },
+      62,
+      'tv'
+    )
+    expect(plan.startEpisode).toBe(30)
+    expect(plan.totalEpisodes).toBe(62)
+    expect(plan.weeklyBlocks[0].startEpisode).toBe(30)
+    expect(plan.weeklyBlocks.at(-1)!.endEpisode).toBe(62)
+    // 33 episodes left at 5/week
+    expect(plan.totalWeeks).toBe(7)
+  })
+
+  it('reports progress through the whole show', () => {
+    const plan = buildTitlePlan(
+      { ...weekend(), startEpisode: 30 },
+      { mode: 'standard' },
+      62,
+      'tv'
+    )
+    expect(plan.weeklyBlocks[0].cumulativePercent).toBe(Math.round((34 / 62) * 100))
+    expect(plan.weeklyBlocks.at(-1)!.cumulativePercent).toBe(100)
+  })
+
+  it('numbers new-season prep from the current episode', () => {
+    const future = new Date()
+    future.setDate(future.getDate() + 60)
+    const plan = buildTitlePlan(
+      weekend(),
+      {
+        mode: 'new-season',
+        seasonName: 'S6',
+        targetDate: future.toISOString().split('T')[0],
+        currentEpisode: 40,
+      },
+      62,
+      'tv'
+    )
+    expect(plan.weeklyBlocks[0].startEpisode).toBe(40)
+    expect(plan.weeklyBlocks.at(-1)!.endEpisode).toBe(62)
+  })
+
+  it('ignores out-of-range start episodes', () => {
+    const plan = buildTitlePlan(
+      { ...weekend(), startEpisode: 0 },
+      { mode: 'standard' },
+      62,
+      'tv'
+    )
+    expect(plan.weeklyBlocks[0].startEpisode).toBe(1)
+    expect(plan.startEpisode).toBeUndefined()
   })
 })

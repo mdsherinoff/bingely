@@ -15,10 +15,10 @@ export default function Footer() {
             CHALLENGES
           </Link>
           <Link
-            href="/lists"
+            href="/library"
             className="text-parchment-faint hover:text-parchment-dim font-mono text-xs tracking-widest transition-colors"
           >
-            MY LISTS
+            LIBRARY
           </Link>
           <Link
             href="/achievements"

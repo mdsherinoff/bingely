@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { MixedListPlan } from '@/lib/scheduler'
 import { CustomList, WatchPlan } from '@/types/media'
 import MovieCalendar from './MovieCalendar'
@@ -105,11 +106,15 @@ export default function MixedListResults({
                 >
                   <div className="flex items-start gap-3">
                     {item.posterPath && (
-                      <img
-                        src={item.posterPath}
-                        alt={item.title}
-                        className="poster-color aspect-[2/3] w-10 flex-shrink-0 rounded-sm object-cover"
-                      />
+                      <div className="relative aspect-[2/3] w-10 flex-shrink-0 overflow-hidden rounded-sm">
+                        <Image
+                          src={item.posterPath}
+                          alt=""
+                          fill
+                          sizes="40px"
+                          className="poster-color object-cover"
+                        />
+                      </div>
                     )}
                     <div className="flex flex-col gap-0.5">
                       <p className="text-parchment-faint font-mono text-xs tracking-widest">
@@ -179,7 +184,12 @@ export default function MixedListResults({
 
           <div className="grid gap-10 md:grid-cols-3">
             <div className="flex flex-col gap-3 md:col-span-2">
-              <div className="flex max-h-[500px] flex-col gap-3 overflow-y-auto pr-2">
+              <div
+                role="region"
+                aria-label="Series week by week"
+                tabIndex={0}
+                className="flex max-h-[500px] flex-col gap-3 overflow-y-auto pr-2"
+              >
                 {tvPlan.weeklyBlocks.map((block, i) => (
                   <WeekRow
                     key={block.week}

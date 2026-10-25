@@ -1,3 +1,4 @@
+import Image from 'next/image'
 import { MediaItem } from '@/types/media'
 import { Badge } from '@/components/ui'
 
@@ -21,12 +22,15 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
   return (
     <div className="flex items-start gap-4">
       {/* Poster — smaller on mobile */}
-      <div className="bg-ink border-line aspect-[2/3] w-16 flex-shrink-0 overflow-hidden rounded-sm border sm:w-24">
+      <div className="bg-ink border-line relative aspect-[2/3] w-16 flex-shrink-0 overflow-hidden rounded-sm border sm:w-24">
         {media.posterPath ? (
-          <img
+          <Image
             src={media.posterPath}
-            alt={media.title}
-            className="poster-color h-full w-full object-cover"
+            alt=""
+            fill
+            sizes="(min-width: 640px) 96px, 64px"
+            priority
+            className="poster-color object-cover"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
@@ -56,9 +60,7 @@ export default function MediaSummary({ media }: MediaSummaryProps) {
           ))}
         </div>
         <p className="text-parchment-dim font-mono text-xs">{runtime}</p>
-        <p className="text-gold font-mono text-xs">
-          {totalHours} hours total
-        </p>
+        <p className="text-gold font-mono text-xs">{totalHours} hours total</p>
       </div>
     </div>
   )

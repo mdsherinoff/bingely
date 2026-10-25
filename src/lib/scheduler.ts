@@ -326,22 +326,6 @@ export function checkFeasibility(
   }
 }
 
-export function generateNewSeasonPlan(
-  targetDate: string,
-  currentEpisode: number,
-  totalEpisodes: number,
-  episodeRuntime: number,
-  mediaType: 'movie' | 'tv'
-): WatchPlan {
-  const remainingEpisodes = Math.max(0, totalEpisodes - currentEpisode + 1)
-  return generateFinishBeforePlan(
-    targetDate,
-    remainingEpisodes,
-    episodeRuntime,
-    mediaType
-  )
-}
-
 export function generateListPlan(
   config: AvailabilityConfig,
   items: { title: string; runtime: number }[],
@@ -681,34 +665,81 @@ export function buildTitlePlan(
   mediaType: 'movie' | 'tv',
   runtime?: number
 ): WatchPlan {
+  if (mediaType === 'movie') {
+    return generateWatchPlan(config, totalEpisodes, mediaType, runtime)
+  }
+
+  // Where the viewer actually is. New-season prep has always asked for
+  // this; every other mode now honours config.startEpisode too.
+  const start = clampEpisode(
+    goal.mode === 'new-season' ? goal.currentEpisode : config.startEpisode,
+    totalEpisodes
+  )
+  const remaining = totalEpisodes - start + 1
+
+  let plan: WatchPlan
   switch (goal.mode) {
     case 'finish-before':
-      return generateFinishBeforePlan(
+      plan = generateFinishBeforePlan(
         goal.targetDate,
-        totalEpisodes,
+        remaining,
         config.episodeRuntime,
         mediaType,
         runtime
       )
+      break
     case 'vacation':
-      return generateVacationPlan(
+      plan = generateVacationPlan(
         goal.startDate,
         goal.endDate,
         goal.hoursPerDay,
-        totalEpisodes,
+        remaining,
         config.episodeRuntime,
         mediaType
       )
+      break
     case 'new-season':
-      return generateNewSeasonPlan(
+      plan = generateFinishBeforePlan(
         goal.targetDate,
-        goal.currentEpisode,
-        totalEpisodes,
+        remaining,
         config.episodeRuntime,
         mediaType
       )
+      break
     default:
-      return generateWatchPlan(config, totalEpisodes, mediaType, runtime)
+      plan = generateWatchPlan(config, remaining, mediaType, runtime)
+  }
+
+  return start > 1 ? offsetPlan(plan, start, totalEpisodes) : plan
+}
+
+function clampEpisode(value: number | undefined, total: number): number {
+  if (!value || !Number.isFinite(value)) return 1
+  return Math.min(Math.max(1, Math.floor(value)), Math.max(1, total))
+}
+
+// Plans are generated for the episodes left; shift their numbering back
+// onto the whole show so week 1 reads "S2 E4", not "Episode 1", and
+// progress reflects how far through the show the viewer will be.
+function offsetPlan(plan: WatchPlan, start: number, total: number): WatchPlan {
+  const shift = start - 1
+  return {
+    ...plan,
+    totalEpisodes: total,
+    startEpisode: start,
+    weeklyBlocks: plan.weeklyBlocks.map((b) => ({
+      ...b,
+      startEpisode: b.startEpisode + shift,
+      endEpisode: b.endEpisode + shift,
+      cumulativePercent: Math.min(
+        100,
+        Math.round(((b.endEpisode + shift) / total) * 100)
+      ),
+    })),
+    milestones: plan.milestones.map((m) => ({
+      ...m,
+      episode: m.episode + shift,
+    })),
   }
 }
 

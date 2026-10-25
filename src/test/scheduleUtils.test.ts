@@ -5,6 +5,7 @@ import {
   weeklyMinutes,
   weeklyEpisodes,
   defaultSchedule,
+  intersectSchedules,
 } from '@/lib/scheduleUtils'
 
 describe('windowMinutes', () => {
@@ -109,5 +110,43 @@ describe('weeklyEpisodes', () => {
     }
     // 360 mins / 47 mins per episode = 7 episodes
     expect(weeklyEpisodes(schedule, 47)).toBe(7)
+  })
+})
+
+describe('intersectSchedules', () => {
+  function only(day: string, start: string, end: string) {
+    const s = defaultSchedule()
+    for (const d of Object.keys(s)) s[d].enabled = false
+    s[day] = { enabled: true, windows: [{ start, end }] }
+    return s
+  }
+
+  it('keeps only the overlapping time on shared days', () => {
+    const result = intersectSchedules(
+      only('Friday', '19:00', '23:00'),
+      only('Friday', '20:30', '23:30')
+    )
+    expect(result['Friday']).toEqual({
+      enabled: true,
+      windows: [{ start: '20:30', end: '23:00' }],
+    })
+    expect(weeklyMinutes(result)).toBe(150)
+  })
+
+  it('turns off days only one person has free', () => {
+    const result = intersectSchedules(
+      only('Friday', '19:00', '23:00'),
+      only('Saturday', '19:00', '23:00')
+    )
+    expect(weeklyMinutes(result)).toBe(0)
+  })
+
+  it('handles windows that run past midnight', () => {
+    const result = intersectSchedules(
+      only('Friday', '22:00', '01:00'),
+      only('Friday', '23:00', '02:00')
+    )
+    expect(result['Friday'].windows).toEqual([{ start: '23:00', end: '01:00' }])
+    expect(weeklyMinutes(result)).toBe(120)
   })
 })

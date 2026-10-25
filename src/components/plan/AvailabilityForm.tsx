@@ -8,7 +8,12 @@ import {
   AvailabilityConfig,
   MediaType,
 } from '@/types/media'
-import { defaultSchedule, weeklyMinutes } from '@/lib/scheduleUtils'
+import {
+  defaultSchedule,
+  intersectSchedules,
+  weeklyMinutes,
+} from '@/lib/scheduleUtils'
+import TogetherSection from './TogetherSection'
 import DaySelector from './DaySelector'
 import PaceSelector from './PaceSelector'
 import SmartSuggestions from './SmartSuggestions'
@@ -49,20 +54,37 @@ export default function AvailabilityForm({
   initialConfig,
 }: AvailabilityFormProps) {
   const router = useRouter()
+  // Your own free time; with "watch together" on, the plan uses only the
+  // overlap with theirs
   const [schedule, setSchedule] = useState<WeekSchedule>(
-    initialConfig?.schedule ?? defaultSchedule()
+    initialConfig?.together?.mine ??
+      initialConfig?.schedule ??
+      defaultSchedule()
+  )
+  const [together, setTogether] = useState(Boolean(initialConfig?.together))
+  const [theirs, setTheirs] = useState<WeekSchedule>(
+    initialConfig?.together?.theirs ?? defaultSchedule()
+  )
+  const effectiveSchedule = useMemo(
+    () => (together ? intersectSchedules(schedule, theirs) : schedule),
+    [together, schedule, theirs]
   )
   const [pace, setPace] = useState<PaceMode>(initialConfig?.pace ?? 'balanced')
 
   const kind = listKind(exactItems)
-  const hasFreeTime = weeklyMinutes(schedule) > 0
+  const hasFreeTime = weeklyMinutes(effectiveSchedule) > 0
   // Films are slotted session by session into your real free time, so
   // pace only changes anything when series are involved
   const usesPace = kind !== 'movies'
 
   const config: AvailabilityConfig = useMemo(
-    () => ({ schedule, pace, episodeRuntime }),
-    [schedule, pace, episodeRuntime]
+    () => ({
+      schedule: effectiveSchedule,
+      pace,
+      episodeRuntime,
+      ...(together ? { together: { mine: schedule, theirs } } : {}),
+    }),
+    [effectiveSchedule, pace, episodeRuntime, together, schedule, theirs]
   )
 
   // Same generators the results page uses, so this always matches
@@ -76,7 +98,10 @@ export default function AvailabilityForm({
     return Object.fromEntries(
       PACES.map((p) => {
         const plan = generateListPlan({ ...config, pace: p }, exactItems, p)
-        return [p, `~${plan.totalWeeks} week${plan.totalWeeks === 1 ? '' : 's'}`]
+        return [
+          p,
+          `~${plan.totalWeeks} week${plan.totalWeeks === 1 ? '' : 's'}`,
+        ]
       })
     ) as Partial<Record<PaceMode, string>>
   }, [kind, hasFreeTime, config, exactItems])
@@ -88,7 +113,9 @@ export default function AvailabilityForm({
     const titleEncoded = shareTitle
       ? `&title=${encodeURIComponent(shareTitle)}`
       : ''
-    router.push(`${resultsPath}?config=${encoded}${itemsEncoded}${titleEncoded}`)
+    router.push(
+      `${resultsPath}?config=${encoded}${itemsEncoded}${titleEncoded}`
+    )
   }
 
   const totalHours = Math.round((totalRuntime / 60) * 10) / 10
@@ -117,6 +144,13 @@ export default function AvailabilityForm({
             When are you free?
           </h2>
           <DaySelector schedule={schedule} onChange={setSchedule} />
+          <TogetherSection
+            enabled={together}
+            onToggle={setTogether}
+            theirs={theirs}
+            onTheirsChange={setTheirs}
+            shared={effectiveSchedule}
+          />
         </div>
 
         <div className="flex flex-col gap-4">
@@ -162,7 +196,7 @@ export default function AvailabilityForm({
 
           {usesPace && (
             <SmartSuggestions
-              schedule={schedule}
+              schedule={effectiveSchedule}
               pace={pace}
               episodeRuntime={episodeRuntime}
               totalEpisodes={totalItems}

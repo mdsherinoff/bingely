@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { MediaItem } from '@/types/media'
 import { Badge } from '@/components/ui'
@@ -23,10 +24,12 @@ export default function PosterCard({ item, index = 0 }: PosterCardProps) {
       >
         <div className="bg-ink border-line group-hover:border-gold/40 relative aspect-[2/3] overflow-hidden rounded-sm border transition-colors">
           {item.posterPath ? (
-            <img
+            <Image
               src={item.posterPath}
-              alt={item.title}
-              className="poster-color h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 20vw, (min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
+              className="poster-color object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
             <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-4">
