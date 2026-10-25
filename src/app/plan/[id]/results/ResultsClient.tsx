@@ -6,7 +6,6 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import { useMediaDetails } from '@/hooks/useMediaDetails'
 import CompletionCard from '@/components/results/CompletionCard'
 import RuntimeCard from '@/components/results/RuntimeCard'
-import FilmstripTimeline from '@/components/results/FilmstripTimeline'
 import MilestoneCard from '@/components/results/MilestoneCard'
 import WeekRow from '@/components/results/WeekRow'
 import ExportButton from '@/components/results/ExportButton'
@@ -317,6 +316,8 @@ export default function ResultsPage({
               />
             )}
 
+            <WhereToWatch id={media.id} type={media.mediaType} />
+
             {/* Top row — completion + runtime */}
             <div className="grid gap-6 md:grid-cols-2">
               <CompletionCard plan={plan} title={media.title} />
@@ -324,16 +325,6 @@ export default function ResultsPage({
                 <RuntimeCard plan={plan} />
               </div>
             </div>
-
-            {/* Filmstrip timeline — one frame per week */}
-            {plan.mediaType === 'tv' && plan.weeklyBlocks.length > 1 && (
-              <FilmstripTimeline
-                blocks={plan.weeklyBlocks}
-                completionDate={plan.completionDate}
-              />
-            )}
-
-            <WhereToWatch id={media.id} type={media.mediaType} />
 
             {/* TV Calendar */}
             {plan.mediaType === 'tv' && config && (
