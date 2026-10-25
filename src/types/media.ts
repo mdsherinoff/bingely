@@ -136,6 +136,7 @@ export interface CustomList {
   title: string
   items: CustomListItem[]
   createdAt: string
+  updatedAt?: string
 }
 
 export interface CustomListItem {
@@ -143,6 +144,27 @@ export interface CustomListItem {
   title: string
   mediaType: MediaType
   posterPath: string | null
+  // Whole title: a series' runtime covers every episode
   runtime: number
   releaseYear: string
+  // Series only: total episodes and episodes per regular season, so the
+  // plan books whole episodes and labels them "S2 E3"
+  episodes?: number
+  seasons?: number[]
+  // Series only, 1-based: skip episodes already watched
+  startEpisode?: number
+}
+
+// A list item as carried in a shared link — compact keys, everything
+// beyond title/runtime/type optional so older links still decode
+export interface SharedListItem {
+  title: string
+  runtime: number
+  mediaType: MediaType
+  id?: number
+  poster?: string | null
+  year?: string
+  episodes?: number
+  seasons?: number[]
+  startEpisode?: number
 }

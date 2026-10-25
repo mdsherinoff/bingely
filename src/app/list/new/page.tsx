@@ -1,124 +1,26 @@
 'use client'
 
-import Image from 'next/image'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useCustomLists } from '@/hooks/useCustomLists'
 import { CustomListItem } from '@/types/media'
-import { Button, Badge } from '@/components/ui'
+import { Button } from '@/components/ui'
 import Link from 'next/link'
-
-// Series store their whole-show runtime, so show hours rather than a
-// four-digit minute count
-function formatRuntime(mins: number): string {
-  if (mins < 120) return `${mins}m`
-  const h = Math.floor(mins / 60)
-  const m = mins % 60
-  return m === 0 ? `${h}h` : `${h}h ${m}m`
-}
+import TitleSearch from '@/components/list/TitleSearch'
+import WatchOrder from '@/components/list/WatchOrder'
+import { itemRuntime } from '@/lib/listItems'
 
 export default function NewListPage() {
   const router = useRouter()
   const { createList } = useCustomLists()
 
   const [listTitle, setListTitle] = useState('')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<CustomListItem[]>([])
-  const [searching, setSearching] = useState(false)
-  const [searchError, setSearchError] = useState<string | null>(null)
-  const [searched, setSearched] = useState(false)
   const [items, setItems] = useState<CustomListItem[]>([])
 
-  // Only the newest search may update the results
-  const latest = useRef<AbortController | null>(null)
-
-  const handleSearch = async (q: string = searchQuery) => {
-    if (!q.trim()) return
-    latest.current?.abort()
-    const controller = new AbortController()
-    latest.current = controller
-    const { signal } = controller
-    setSearching(true)
-    setSearchError(null)
-    try {
-      const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`, {
-        signal,
-      })
-      if (!res.ok) throw new Error('search failed')
-      const data = await res.json()
-      // Fetch runtime for each result
-      const withRuntime: CustomListItem[] = await Promise.all(
-        data
-          .slice(0, 8)
-          .map(
-            async (item: {
-              id: number
-              title: string
-              mediaType: string
-              posterPath: string | null
-              releaseYear: string
-            }) => {
-              try {
-                const detail = await fetch(
-                  `/api/media/${item.id}?type=${item.mediaType}`,
-                  { signal }
-                )
-                const d = await detail.json()
-                // For series, runtime is the whole show's total minutes —
-                // the list scheduler treats each item's runtime as its
-                // full watch time
-                const runtime =
-                  item.mediaType === 'tv'
-                    ? (d.episodeRuntime ?? 24) *
-                      Math.max(1, d.episodeCount ?? 1)
-                    : (d.runtime ?? 90)
-                return {
-                  tmdbId: item.id,
-                  title: item.title,
-                  mediaType: item.mediaType,
-                  posterPath: item.posterPath,
-                  runtime,
-                  releaseYear: item.releaseYear,
-                }
-              } catch {
-                return {
-                  tmdbId: item.id,
-                  title: item.title,
-                  mediaType: item.mediaType,
-                  posterPath: item.posterPath,
-                  runtime: 90,
-                  releaseYear: item.releaseYear,
-                }
-              }
-            }
-          )
-      )
-      if (signal.aborted) return
-      setSearchResults(withRuntime)
-      setSearched(true)
-      setSearching(false)
-    } catch {
-      if (signal.aborted) return
-      setSearchResults([])
-      setSearchError("Search isn't working right now. Try again in a moment.")
-      setSearched(true)
-      setSearching(false)
-    }
-  }
-
-  // Search as you type, once typing pauses
-  useEffect(() => {
-    const q = searchQuery.trim()
-    if (q.length < 3) return
-    const timer = setTimeout(() => handleSearch(q), 450)
-    return () => clearTimeout(timer)
-    // handleSearch is recreated each render; the query is what matters
-  }, [searchQuery])
-
-  const addItem = (item: CustomListItem) => {
-    if (items.find((i) => i.tmdbId === item.tmdbId)) return
-    setItems((prev) => [...prev, item])
-  }
+  const addItem = (item: CustomListItem) =>
+    setItems((prev) =>
+      prev.some((i) => i.tmdbId === item.tmdbId) ? prev : [...prev, item]
+    )
 
   const removeItem = (tmdbId: number) => {
     setItems((prev) => prev.filter((i) => i.tmdbId !== tmdbId))
@@ -130,7 +32,7 @@ export default function NewListPage() {
     router.push(`/list/${list.id}/plan`)
   }
 
-  const totalRuntime = items.reduce((acc, i) => acc + i.runtime, 0)
+  const totalRuntime = items.reduce((acc, i) => acc + itemRuntime(i), 0)
   const totalHours = Math.round((totalRuntime / 60) * 10) / 10
 
   return (
@@ -151,7 +53,8 @@ export default function NewListPage() {
             Build your list
           </h1>
           <p className="text-parchment-dim font-sans">
-            Add any mix of films and series, then plan them all at once.
+            Add any mix of films and series in the order you want to watch them,
+            then plan them all at once.
           </p>
         </div>
 
@@ -178,99 +81,11 @@ export default function NewListPage() {
           <div className="flex flex-col gap-4">
             <h2 className="font-display text-parchment text-2xl">Add titles</h2>
 
-            <form
-              role="search"
-              onSubmit={(e) => {
-                e.preventDefault()
-                handleSearch()
-              }}
-              className="flex gap-2"
-            >
-              <input
-                type="search"
-                aria-label="Search films or series to add"
-                placeholder="Search films or series…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="bg-ink border-line-strong text-parchment placeholder:text-parchment-faint focus:border-gold/60 min-w-0 flex-1 rounded-sm border px-4 py-2.5 font-sans text-sm focus:outline-none"
-              />
-              <Button type="submit" disabled={searching} variant="secondary">
-                {searching ? 'Searching…' : 'Search'}
-              </Button>
-            </form>
-
-            {searchError && (
-              <p role="alert" className="text-rose font-sans text-sm">
-                {searchError}
-              </p>
-            )}
-
-            {searched &&
-              !searching &&
-              !searchError &&
-              searchResults.length === 0 && (
-                <p className="text-parchment-dim font-sans text-sm">
-                  No films or series match that. Try a shorter or different
-                  title.
-                </p>
-              )}
-
-            {/* Search results */}
-            {searchResults.length > 0 && (
-              <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
-                {searchResults.map((item) => {
-                  const already = items.find((i) => i.tmdbId === item.tmdbId)
-                  return (
-                    <div
-                      key={item.tmdbId}
-                      className="border-line hover:border-line-strong flex items-center gap-3 rounded-sm border p-3 transition-colors"
-                    >
-                      {item.posterPath && (
-                        <div className="relative aspect-[2/3] w-8 flex-shrink-0 overflow-hidden rounded-sm">
-                          <Image
-                            src={item.posterPath}
-                            alt=""
-                            fill
-                            sizes="32px"
-                            className="poster-color object-cover"
-                          />
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p className="text-parchment truncate font-mono text-sm">
-                          {item.title}
-                        </p>
-                        <div className="mt-0.5 flex items-center gap-2">
-                          <Badge
-                            variant={item.mediaType === 'tv' ? 'rose' : 'gold'}
-                          >
-                            {item.mediaType === 'tv' ? 'Series' : 'Film'}
-                          </Badge>
-                          <span className="text-parchment-faint font-mono text-xs">
-                            {item.releaseYear}
-                          </span>
-                          <span className="text-parchment-faint font-mono text-xs">
-                            {formatRuntime(item.runtime)}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() =>
-                          already ? removeItem(item.tmdbId) : addItem(item)
-                        }
-                        className={`flex-shrink-0 rounded-sm border px-3 py-1.5 font-mono text-xs transition-colors ${
-                          already
-                            ? 'border-rose/30 text-rose hover:bg-rose/10'
-                            : 'border-gold/30 text-gold hover:bg-gold/10'
-                        } `}
-                      >
-                        {already ? 'Remove' : '+ Add'}
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+            <TitleSearch
+              isAdded={(id) => items.some((i) => i.tmdbId === id)}
+              onAdd={addItem}
+              onRemove={removeItem}
+            />
           </div>
 
           {/* Right — current list */}
@@ -295,41 +110,11 @@ export default function NewListPage() {
               </div>
             ) : (
               <div className="flex flex-col gap-2">
-                {items.map((item, i) => (
-                  <div
-                    key={item.tmdbId}
-                    className="border-line flex items-center gap-3 rounded-sm border p-3"
-                  >
-                    <span className="text-parchment-faint w-5 flex-shrink-0 font-mono text-xs">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    {item.posterPath && (
-                      <div className="relative aspect-[2/3] w-6 flex-shrink-0 overflow-hidden rounded-sm">
-                        <Image
-                          src={item.posterPath}
-                          alt=""
-                          fill
-                          sizes="24px"
-                          className="object-cover"
-                        />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-parchment truncate font-mono text-sm">
-                        {item.title}
-                      </p>
-                      <p className="text-parchment-faint font-mono text-xs">
-                        {formatRuntime(item.runtime)}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => removeItem(item.tmdbId)}
-                      className="text-parchment-faint hover:text-rose flex-shrink-0 font-mono text-xs transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
+                <p className="text-parchment-faint font-sans text-xs">
+                  Watched top to bottom. Drag or use the arrows to change the
+                  order.
+                </p>
+                <WatchOrder items={items} onChange={setItems} />
 
                 {/* Total */}
                 <div className="border-line flex justify-between border-t pt-3">

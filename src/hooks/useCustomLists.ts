@@ -9,6 +9,15 @@ function generateId(): string {
   return Math.random().toString(36).slice(2, 9)
 }
 
+function readStored(): CustomList[] {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    return stored ? JSON.parse(stored) : []
+  } catch {
+    return []
+  }
+}
+
 export function useCustomLists() {
   const [lists, setLists] = useState<CustomList[]>([])
   // False until localStorage has been read, so pages can avoid
@@ -16,19 +25,23 @@ export function useCustomLists() {
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY)
-      if (stored) setLists(JSON.parse(stored))
-    } catch {}
+    setLists(readStored())
     setReady(true)
   }, [])
 
-  const save = useCallback((updated: CustomList[]) => {
-    setLists(updated)
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
-    } catch {}
-  }, [])
+  // Every write starts from what's stored now, not this hook's copy:
+  // several components hold their own copy, and a stale one would
+  // otherwise overwrite another's edits
+  const write = useCallback(
+    (change: (current: CustomList[]) => CustomList[]) => {
+      const updated = change(readStored())
+      setLists(updated)
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
+      } catch {}
+    },
+    []
+  )
 
   const createList = useCallback(
     (title: string, items: CustomListItem[]): CustomList => {
@@ -38,10 +51,23 @@ export function useCustomLists() {
         items,
         createdAt: new Date().toISOString(),
       }
-      save([...lists, list])
+      write((current) => [...current, list])
       return list
     },
-    [lists, save]
+    [write]
+  )
+
+  const updateList = useCallback(
+    (id: string, changes: Partial<Pick<CustomList, 'title' | 'items'>>) => {
+      write((current) =>
+        current.map((l) =>
+          l.id === id
+            ? { ...l, ...changes, updatedAt: new Date().toISOString() }
+            : l
+        )
+      )
+    },
+    [write]
   )
 
   const getList = useCallback(
@@ -53,10 +79,10 @@ export function useCustomLists() {
 
   const deleteList = useCallback(
     (id: string) => {
-      save(lists.filter((l) => l.id !== id))
+      write((current) => current.filter((l) => l.id !== id))
     },
-    [lists, save]
+    [write]
   )
 
-  return { lists, ready, createList, getList, deleteList }
+  return { lists, ready, createList, updateList, getList, deleteList }
 }

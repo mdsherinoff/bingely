@@ -4,11 +4,11 @@ import {
   WeeklyBlock,
   Milestone,
   WeekSchedule,
-  PaceMode,
   WatchGoal,
 } from '@/types/media'
 import { weeklyMinutes, windowMinutes } from './scheduleUtils'
 import { DAYS } from '@/lib/scheduleUtils'
+import { generateQueuePlan, QueueItem } from './queue'
 
 const paceMultiplier: Record<string, number> = {
   casual: 0.6,
@@ -326,88 +326,6 @@ export function checkFeasibility(
   }
 }
 
-export function generateListPlan(
-  config: AvailabilityConfig,
-  items: { title: string; runtime: number }[],
-  pace: PaceMode
-): WatchPlan {
-  const multiplier = paceMultiplier[pace] ?? 1.0
-  const availableWeeklyMins = weeklyMinutes(config.schedule) * multiplier
-  const totalMinutes = items.reduce((acc, i) => acc + i.runtime, 0)
-  const totalHours = Math.round((totalMinutes / 60) * 10) / 10
-
-  // Walk the content minute by minute in weekly chunks, so items longer
-  // than one week's availability correctly span multiple weeks
-  const weeklyBlocks: WeeklyBlock[] = []
-
-  if (availableWeeklyMins > 0 && totalMinutes > 0) {
-    let minutesWatched = 0
-    let itemsFinished = 0
-    let week = 1
-
-    while (minutesWatched < totalMinutes && week <= 520) {
-      const weekEnd = Math.min(
-        totalMinutes,
-        minutesWatched + availableWeeklyMins
-      )
-
-      // Count items fully finished by the end of this week
-      let cumulative = 0
-      let finished = 0
-      for (const item of items) {
-        cumulative += item.runtime
-        if (cumulative <= weekEnd) finished++
-        else break
-      }
-
-      const startEpisode = Math.min(itemsFinished + 1, items.length)
-      weeklyBlocks.push({
-        week,
-        episodes: finished - itemsFinished,
-        startEpisode,
-        endEpisode: Math.min(Math.max(finished, startEpisode), items.length),
-        hoursWatched:
-          Math.round(((weekEnd - minutesWatched) / 60) * 10) / 10,
-        cumulativePercent: Math.min(
-          100,
-          Math.round((weekEnd / totalMinutes) * 100)
-        ),
-      })
-
-      itemsFinished = finished
-      minutesWatched = weekEnd
-      week++
-    }
-  } else {
-    // No availability configured — everything lands in a single week
-    weeklyBlocks.push({
-      week: 1,
-      episodes: items.length,
-      startEpisode: 1,
-      endEpisode: items.length,
-      hoursWatched: totalHours,
-      cumulativePercent: 100,
-    })
-  }
-
-  const episodesPerWeek = Math.max(
-    1,
-    Math.round(items.length / Math.max(1, weeklyBlocks.length))
-  )
-
-  return {
-    totalEpisodes: items.length,
-    totalWeeks: weeklyBlocks.length,
-    totalHours,
-    episodesPerWeek,
-    completionDate: getCompletionDate(weeklyBlocks.length),
-    weeklyBlocks,
-    milestones: generateMilestones(items.length, weeklyBlocks),
-    pace,
-    mediaType: 'movie',
-  }
-}
-
 export interface MovieSession {
   sessionNumber: number
   date: Date
@@ -516,145 +434,6 @@ export function generateMoviePlan(
   }
 }
 
-export function generateListMoviePlan(
-  config: AvailabilityConfig,
-  items: { title: string; runtime: number }[]
-): MoviePlan {
-  const sessions: MovieSession[] = []
-  let sessionNumber = 1
-
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-
-  // Build available slots
-  const slots: {
-    date: Date
-    dayName: string
-    start: string
-    end: string
-    availableMins: number
-  }[] = []
-
-  for (let dayOffset = 0; dayOffset < 365; dayOffset++) {
-    const date = new Date(today)
-    date.setDate(today.getDate() + dayOffset)
-    const dayName = DAYS[date.getDay() === 0 ? 6 : date.getDay() - 1]
-    const daySchedule = config.schedule[dayName]
-    if (!daySchedule?.enabled) continue
-    for (const window of daySchedule.windows) {
-      const mins = windowMinutes(window)
-      if (mins <= 0) continue
-      slots.push({
-        date: new Date(date),
-        dayName,
-        start: window.start,
-        end: window.end,
-        availableMins: mins,
-      })
-    }
-    if (slots.length >= 200) break
-  }
-
-  // Assign each item across slots
-  let slotIndex = 0
-  let slotMinsRemaining = slots[0]?.availableMins ?? 0
-
-  for (const item of items) {
-    let itemMinsRemaining = item.runtime
-    let minuteStart = 1
-
-    while (itemMinsRemaining > 0 && slotIndex < slots.length) {
-      const slot = slots[slotIndex]
-      const watchMins = Math.min(slotMinsRemaining, itemMinsRemaining)
-      const minuteEnd = minuteStart + watchMins - 1
-
-      sessions.push({
-        sessionNumber,
-        date: slot.date,
-        dayName: slot.dayName,
-        start: slot.start,
-        end: slot.end,
-        minuteStart,
-        minuteEnd,
-        durationMins: watchMins,
-        isComplete: itemMinsRemaining - watchMins <= 0,
-      })
-
-      itemMinsRemaining -= watchMins
-      slotMinsRemaining -= watchMins
-      minuteStart = minuteEnd + 1
-      sessionNumber++
-
-      if (slotMinsRemaining <= 0) {
-        slotIndex++
-        slotMinsRemaining = slots[slotIndex]?.availableMins ?? 0
-      }
-    }
-  }
-
-  const lastSession = sessions[sessions.length - 1]
-  const totalRuntime = items.reduce((acc, i) => acc + i.runtime, 0)
-
-  return {
-    title: '',
-    totalRuntime,
-    totalSessions: sessions.length,
-    sessions,
-    completionDate: lastSession
-      ? lastSession.date.toLocaleDateString('en-US', {
-          weekday: 'long',
-          month: 'long',
-          day: 'numeric',
-        })
-      : 'Unknown',
-  }
-}
-
-export interface MixedListPlan {
-  moviePlan: MoviePlan | null
-  tvPlan: WatchPlan | null
-  totalHours: number
-  overallCompletionDate: string
-  movieItems: { title: string; runtime: number }[]
-  tvItems: { title: string; runtime: number }[]
-}
-
-export function generateMixedListPlan(
-  config: AvailabilityConfig,
-  items: { title: string; runtime: number; mediaType: string }[]
-): MixedListPlan {
-  const movieItems = items.filter((i) => i.mediaType === 'movie')
-  const tvItems = items.filter((i) => i.mediaType === 'tv')
-
-  const moviePlan =
-    movieItems.length > 0 ? generateListMoviePlan(config, movieItems) : null
-
-  const tvPlan =
-    tvItems.length > 0 ? generateListPlan(config, tvItems, config.pace) : null
-
-  const totalHours =
-    Math.round((items.reduce((acc, i) => acc + i.runtime, 0) / 60) * 10) / 10
-
-  // Overall completion is whichever finishes last
-  const movieWeeks = moviePlan
-    ? Math.ceil(
-        movieItems.reduce((acc, i) => acc + i.runtime, 0) /
-          (weeklyMinutes(config.schedule) || 1)
-      )
-    : 0
-  const tvWeeks = tvPlan?.totalWeeks ?? 0
-  const totalWeeks = Math.max(movieWeeks, tvWeeks)
-
-  return {
-    moviePlan,
-    tvPlan,
-    totalHours,
-    overallCompletionDate: getCompletionDate(totalWeeks),
-    movieItems,
-    tvItems,
-  }
-}
-
 // The single source of truth for a one-title plan. The results page
 // and the planner's live preview both call this, so the estimate a
 // user sees before generating always matches the plan they get.
@@ -754,35 +533,22 @@ export function listKind(items: { mediaType: string }[]): ListKind {
 
 export interface ListPreview {
   completionDate: string
-  // e.g. "9 sessions" for films, "~4 weeks" for series
+  // e.g. "9 sittings · ~4 weeks"
   summary: string
 }
 
-// Mirrors exactly which generator the list/challenge results page uses
-// for each kind of list, so the planner preview matches the result.
+// Exactly the schedule the list/challenge results page shows, so the
+// planner preview and shared-link cards always match it
 export function buildListPreview(
   config: AvailabilityConfig,
-  items: { title: string; runtime: number; mediaType: string }[]
+  items: QueueItem[]
 ): ListPreview | null {
   if (items.length === 0 || weeklyMinutes(config.schedule) <= 0) return null
-  const kind = listKind(items)
-
-  if (kind === 'movies') {
-    const plan = generateListMoviePlan(config, items)
-    return {
-      completionDate: plan.completionDate,
-      summary: `${plan.totalSessions} session${plan.totalSessions === 1 ? '' : 's'}`,
-    }
-  }
-
-  if (kind === 'mixed') {
-    const plan = generateMixedListPlan(config, items)
-    return { completionDate: plan.overallCompletionDate, summary: '' }
-  }
-
-  const plan = generateListPlan(config, items, config.pace)
+  const plan = generateQueuePlan(config, items)
+  if (!plan.complete) return null
+  const sittings = plan.sessions.length
   return {
     completionDate: plan.completionDate,
-    summary: `~${plan.totalWeeks} week${plan.totalWeeks === 1 ? '' : 's'}`,
+    summary: `${sittings} sitting${sittings === 1 ? '' : 's'} · ~${plan.totalWeeks} week${plan.totalWeeks === 1 ? '' : 's'}`,
   }
 }

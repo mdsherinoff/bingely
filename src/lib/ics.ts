@@ -2,6 +2,7 @@ import { Season } from '@/types/media'
 import { SeriesSession } from './sessions'
 import { MovieSession } from './scheduler'
 import { episodeRangeLabel } from './episodes'
+import { QueueSession } from './queue'
 
 export interface CalendarEvent {
   uid: string
@@ -39,7 +40,9 @@ function fold(line: string): string {
   const parts: string[] = []
   let current = ''
   for (const ch of line) {
-    if (new TextEncoder().encode(current + ch).length > (parts.length ? 74 : 75)) {
+    if (
+      new TextEncoder().encode(current + ch).length > (parts.length ? 74 : 75)
+    ) {
       parts.push(current)
       current = ch
     } else {
@@ -50,7 +53,10 @@ function fold(line: string): string {
   return parts.join('\r\n ')
 }
 
-export function buildIcs(events: CalendarEvent[], calendarName: string): string {
+export function buildIcs(
+  events: CalendarEvent[],
+  calendarName: string
+): string {
   const now = icsStamp(new Date())
   const lines = [
     'BEGIN:VCALENDAR',
@@ -83,7 +89,12 @@ function at(date: Date, minute: number): Date {
 }
 
 function slug(s: string): string {
-  return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'plan'
+  return (
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'plan'
+  )
 }
 
 export function seriesEvents(
@@ -147,6 +158,48 @@ export function filmEvents(
     }
   })
   return events
+}
+
+// What one sitting of a list plan is: "Dune", "Dune (part 2)",
+// "Severance · S1 E1–E3"
+export function queueSessionLabel(
+  s: QueueSession,
+  title: string,
+  seasons?: Season[],
+  splitFilm = false
+): string {
+  if (s.fromEpisode !== undefined && s.toEpisode !== undefined)
+    return `${title} · ${episodeRangeLabel(s.fromEpisode, s.toEpisode, seasons)}`
+  return splitFilm ? `${title} (part ${s.part})` : title
+}
+
+export function queueEvents(
+  sessions: QueueSession[],
+  items: { title: string; seasons?: Season[] }[]
+): CalendarEvent[] {
+  const split = new Set(
+    sessions
+      .filter((s) => s.part > 1 && s.fromEpisode === undefined)
+      .map((s) => s.itemIndex)
+  )
+  return sessions.map((s, i) => {
+    const item = items[s.itemIndex]
+    const title = item?.title ?? 'Watch'
+    const isEpisodes = s.fromEpisode !== undefined
+    const isSplit = !isEpisodes && split.has(s.itemIndex)
+    const count = isEpisodes ? s.toEpisode! - s.fromEpisode! + 1 : 0
+    return {
+      uid: `${slug(title)}-${i + 1}-${s.part}@bingely`,
+      start: at(s.date, s.startMinute),
+      end: at(s.date, s.endMinute),
+      title: queueSessionLabel(s, title, item?.seasons, isSplit),
+      description: isEpisodes
+        ? `${count} episode${count === 1 ? '' : 's'} — from your Bingely watch plan`
+        : isSplit
+          ? `Minutes ${s.minuteFrom}–${s.minuteTo} — from your Bingely watch plan`
+          : 'From your Bingely watch plan',
+    }
+  })
 }
 
 export function downloadIcs(events: CalendarEvent[], title: string) {

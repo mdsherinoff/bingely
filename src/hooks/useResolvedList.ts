@@ -3,19 +3,16 @@
 import { useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useCustomLists } from './useCustomLists'
-import { CustomList } from '@/types/media'
+import { CustomList, SharedListItem } from '@/types/media'
 import { decodeState } from '@/lib/urlState'
-
-interface SharedListItem {
-  title: string
-  runtime: number
-  mediaType: 'movie' | 'tv'
-}
+import { fromSharedItem } from '@/lib/listItems'
 
 // Custom lists only ever live in the creator's localStorage. A shared
 // link carries the title + items in its own query params, so anyone
 // opening it — including on a device that's never seen this list —
 // can still resolve a working list instead of hitting "not found".
+// `saved` says whether it's in this device's library (and so editable
+// in place) or rebuilt from the link.
 export function useResolvedList(id: string) {
   const { getList, ready } = useCustomLists()
   const searchParams = useSearchParams()
@@ -23,9 +20,9 @@ export function useResolvedList(id: string) {
   const rawItems = searchParams.get('items')
   const rawTitle = searchParams.get('title')
 
-  const list: CustomList | null = useMemo(() => {
+  const resolved = useMemo((): { list: CustomList | null; saved: boolean } => {
     const stored = getList(id)
-    if (stored) return stored
+    if (stored) return { list: stored, saved: true }
 
     // searchParams.get() has already decoded this; decoding again would
     // throw on a title like "100% Scary"
@@ -33,22 +30,18 @@ export function useResolvedList(id: string) {
     const sharedItems = rawItems
       ? decodeState<SharedListItem[]>(rawItems)
       : null
-    if (!sharedTitle || !sharedItems) return null
+    if (!sharedTitle || !sharedItems) return { list: null, saved: false }
 
     return {
-      id,
-      title: sharedTitle,
-      createdAt: new Date().toISOString(),
-      items: sharedItems.map((item, i) => ({
-        tmdbId: -1 - i,
-        title: item.title,
-        mediaType: item.mediaType,
-        posterPath: null,
-        runtime: item.runtime,
-        releaseYear: '',
-      })),
+      list: {
+        id,
+        title: sharedTitle,
+        createdAt: new Date().toISOString(),
+        items: sharedItems.map(fromSharedItem),
+      },
+      saved: false,
     }
   }, [id, rawTitle, rawItems, getList])
 
-  return { list, ready }
+  return { ...resolved, ready }
 }

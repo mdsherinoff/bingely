@@ -4,15 +4,11 @@ import { use, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { getChallengeById } from '@/lib/challenges'
 import { AvailabilityConfig } from '@/types/media'
-import {
-  generateListMoviePlan,
-  generateListPlan,
-  MoviePlan,
-} from '@/lib/scheduler'
-import ListMovieResults from '@/components/results/ListMovieResults'
+import { generateQueuePlan, queueToWatchPlan } from '@/lib/queue'
+import QueueResults from '@/components/results/QueueResults'
 import PlanActionBar from '@/components/results/PlanActionBar'
 import PlanUnavailable from '@/components/results/PlanUnavailable'
-import { filmEvents } from '@/lib/ics'
+import { queueEvents } from '@/lib/ics'
 import { CustomList } from '@/types/media'
 import { decodeState, toQuery } from '@/lib/urlState'
 
@@ -33,30 +29,29 @@ export default function ChallengeResultsPage({
     return decodeState<AvailabilityConfig>(rawConfig)
   }, [rawConfig])
 
-  // Build exact items from challenge for the movie calendar
   const exactItems = useMemo(() => {
     if (!challenge) return null
     return challenge.items.map((i) => ({
       title: i.title,
       runtime: i.runtime,
+      mediaType: i.mediaType,
     }))
   }, [challenge])
 
-  // Films are scheduled session by session into real free slots; the
-  // week-based plan only backs the summary stats in the PDF export
-  const moviePlan: MoviePlan | null = useMemo(() => {
+  // Booked film by film, in order, into real free time
+  const queue = useMemo(() => {
     if (!config || !exactItems) return null
-    return generateListMoviePlan(config, exactItems)
+    return generateQueuePlan(config, exactItems)
   }, [config, exactItems])
 
   const plan = useMemo(() => {
-    if (!config || !exactItems) return null
-    return generateListPlan(config, exactItems, config.pace)
-  }, [config, exactItems])
+    if (!config || !exactItems || !queue) return null
+    return queueToWatchPlan(queue, exactItems, config.pace)
+  }, [config, exactItems, queue])
 
   const editHref = `/challenges/${id}/plan${toQuery({ config: rawConfig })}`
 
-  // Convert challenge to CustomList shape for ListMovieResults
+  // Challenge films in the list shape the results view takes
   const challengeAsList: CustomList | null = useMemo(() => {
     if (!challenge) return null
     return {
@@ -74,7 +69,7 @@ export default function ChallengeResultsPage({
     }
   }, [challenge])
 
-  if (!plan || !challenge || !moviePlan || !challengeAsList) {
+  if (!plan || !challenge || !queue || !challengeAsList) {
     return (
       <PlanUnavailable
         retryHref={challenge ? `/challenges/${id}/plan` : '/challenges'}
@@ -109,9 +104,9 @@ export default function ChallengeResultsPage({
                   editHref={editHref}
                   title={challenge.title}
                   calendarEvents={() =>
-                    filmEvents(
-                      moviePlan.sessions,
-                      challenge.items.map((i) => i.title)
+                    queueEvents(
+                      queue.sessions,
+                      challenge.items.map((i) => ({ title: i.title }))
                     )
                   }
                 />
@@ -123,10 +118,11 @@ export default function ChallengeResultsPage({
           </div>
         </div>
 
-        <ListMovieResults
-          moviePlan={moviePlan}
-          list={challengeAsList}
-          exportPlan={plan}
+        <QueueResults
+          items={challengeAsList.items}
+          queue={queue}
+          watchPlan={plan}
+          title={challenge.title}
         />
       </div>
     </main>

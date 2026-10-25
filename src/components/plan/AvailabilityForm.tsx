@@ -6,7 +6,7 @@ import {
   WeekSchedule,
   PaceMode,
   AvailabilityConfig,
-  MediaType,
+  SharedListItem,
 } from '@/types/media'
 import {
   defaultSchedule,
@@ -18,7 +18,8 @@ import DaySelector from './DaySelector'
 import PaceSelector from './PaceSelector'
 import SmartSuggestions from './SmartSuggestions'
 import { Button } from '@/components/ui'
-import { buildListPreview, generateListPlan, listKind } from '@/lib/scheduler'
+import { buildListPreview, listKind } from '@/lib/scheduler'
+import { generateQueuePlan } from '@/lib/queue'
 import { encodeState } from '@/lib/urlState'
 
 interface AvailabilityFormProps {
@@ -28,7 +29,9 @@ interface AvailabilityFormProps {
   episodeRuntime: number
   mediaType: 'movie' | 'tv'
   resultsPath: string
-  exactItems: { title: string; runtime: number; mediaType: MediaType }[]
+  // In watch order. Carried whole in the results link (posters and
+  // episode data included) so a shared plan rebuilds the list exactly.
+  exactItems: SharedListItem[]
   // Custom lists live only in the creator's localStorage, so a shared
   // results link can't look the title up by id on another device —
   // carry it in the URL so the results page can rebuild the list
@@ -94,20 +97,24 @@ export default function AvailabilityForm({
   )
 
   const paceEstimates = useMemo(() => {
-    if (kind !== 'tv' || !hasFreeTime) return undefined
+    if (!usesPace || !hasFreeTime || exactItems.length === 0) return undefined
     return Object.fromEntries(
       PACES.map((p) => {
-        const plan = generateListPlan({ ...config, pace: p }, exactItems, p)
+        const plan = generateQueuePlan({ ...config, pace: p }, exactItems)
         return [
           p,
-          `~${plan.totalWeeks} week${plan.totalWeeks === 1 ? '' : 's'}`,
+          plan.complete
+            ? `~${plan.totalWeeks} week${plan.totalWeeks === 1 ? '' : 's'}`
+            : 'Too long',
         ]
       })
     ) as Partial<Record<PaceMode, string>>
-  }, [kind, hasFreeTime, config, exactItems])
+  }, [usesPace, hasFreeTime, config, exactItems])
+
+  const canGenerate = hasFreeTime && exactItems.length > 0
 
   const handleGenerate = () => {
-    if (!hasFreeTime) return
+    if (!canGenerate) return
     const encoded = encodeState(config)
     const itemsEncoded = `&items=${encodeState(exactItems)}`
     const titleEncoded = shareTitle
@@ -207,9 +214,13 @@ export default function AvailabilityForm({
           <Button
             onClick={handleGenerate}
             className="mt-2 w-full"
-            disabled={!hasFreeTime}
+            disabled={!canGenerate}
           >
-            {hasFreeTime ? 'Generate Watch Plan →' : 'Pick at least one day'}
+            {exactItems.length === 0
+              ? 'Add at least one title'
+              : hasFreeTime
+                ? 'Generate Watch Plan →'
+                : 'Pick at least one day'}
           </Button>
         </div>
       </div>
