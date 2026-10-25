@@ -3,6 +3,7 @@
 import { use, useMemo } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useResolvedList } from '@/hooks/useResolvedList'
+import { useSeriesBackfill } from '@/hooks/useSeriesBackfill'
 import {
   AvailabilityConfig,
   CustomListItem,
@@ -37,11 +38,12 @@ export default function ListResultsPage({
 
   // Items from the link win — they're exactly what was planned; links
   // made before items were carried fall back to the list on this device
-  const items: CustomListItem[] | null = useMemo(() => {
+  const givenItems: CustomListItem[] | null = useMemo(() => {
     const fromUrl = rawItems ? decodeState<SharedListItem[]>(rawItems) : null
     if (fromUrl?.length) return fromUrl.map(fromSharedItem)
     return list?.items ?? null
   }, [rawItems, list])
+  const items = useSeriesBackfill(givenItems)
 
   // Carry every param forward so editing a shared plan pre-fills the
   // planner with these settings — and, since the visitor may not have

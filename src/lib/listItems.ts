@@ -60,6 +60,60 @@ export function seasonsFromCounts(counts?: number[]): Season[] | undefined {
   }))
 }
 
+// A series' episode count, season sizes and whole-show runtime, so the
+// list scheduler can book it in whole episodes
+export async function fetchSeriesDetails(
+  tmdbId: number,
+  signal?: AbortSignal
+): Promise<Pick<CustomListItem, 'runtime' | 'episodes' | 'seasons'>> {
+  const res = await fetch(`/api/media/${tmdbId}?type=tv`, { signal })
+  if (!res.ok) throw new Error('details failed')
+  const d = await res.json()
+  const episodes = Math.max(1, d.episodeCount ?? 1)
+  const seasons: number[] = ((d.seasons ?? []) as Season[])
+    .filter((s) => s.seasonNumber > 0 && s.episodeCount > 0)
+    .sort((a, b) => a.seasonNumber - b.seasonNumber)
+    .map((s) => s.episodeCount)
+  // A series' runtime is the whole show, every episode
+  return {
+    runtime: (d.episodeRuntime || 24) * episodes,
+    episodes,
+    ...(seasons.length ? { seasons } : {}),
+  }
+}
+
+// Series saved before lists carried episode counts can only be split
+// into "parts" like a long film
+function missingEpisodes(item: CustomListItem): boolean {
+  return item.mediaType === 'tv' && !item.episodes && item.tmdbId > 0
+}
+
+// Fills in episode data for any series that lacks it, keeping its
+// runtime; null when nothing needed (or could get) filling
+export async function withSeriesDetails(
+  items: CustomListItem[],
+  signal?: AbortSignal
+): Promise<CustomListItem[] | null> {
+  if (!items.some(missingEpisodes)) return null
+  let changed = false
+  const filled = await Promise.all(
+    items.map(async (item) => {
+      if (!missingEpisodes(item)) return item
+      try {
+        const { episodes, seasons } = await fetchSeriesDetails(
+          item.tmdbId,
+          signal
+        )
+        changed = true
+        return { ...item, episodes, ...(seasons ? { seasons } : {}) }
+      } catch {
+        return item
+      }
+    })
+  )
+  return changed ? filled : null
+}
+
 // Minutes left to watch of a list item, after any skipped episodes
 export function itemRuntime(item: SharedListItem | CustomListItem): number {
   return remainingRuntime(toQueueItem(item))

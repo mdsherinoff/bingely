@@ -2,9 +2,9 @@
 
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
-import { CustomListItem, Season } from '@/types/media'
+import { CustomListItem } from '@/types/media'
 import { Button, Badge } from '@/components/ui'
-import { formatRuntime } from '@/lib/listItems'
+import { fetchSeriesDetails, formatRuntime } from '@/lib/listItems'
 
 interface TitleSearchProps {
   isAdded: (tmdbId: number) => boolean
@@ -35,24 +35,11 @@ async function withDetails(
     releaseYear: hit.releaseYear,
   }
   try {
-    const res = await fetch(`/api/media/${hit.id}?type=${hit.mediaType}`, {
-      signal,
-    })
+    if (hit.mediaType === 'tv')
+      return { ...base, ...(await fetchSeriesDetails(hit.id, signal)) }
+    const res = await fetch(`/api/media/${hit.id}?type=movie`, { signal })
     const d = await res.json()
-    if (hit.mediaType !== 'tv') return { ...base, runtime: d.runtime || 90 }
-
-    const episodes = Math.max(1, d.episodeCount ?? 1)
-    const seasons: number[] = ((d.seasons ?? []) as Season[])
-      .filter((s) => s.seasonNumber > 0 && s.episodeCount > 0)
-      .sort((a, b) => a.seasonNumber - b.seasonNumber)
-      .map((s) => s.episodeCount)
-    // A series' runtime is the whole show, every episode
-    return {
-      ...base,
-      runtime: (d.episodeRuntime || 24) * episodes,
-      episodes,
-      ...(seasons.length ? { seasons } : {}),
-    }
+    return { ...base, runtime: d.runtime || 90 }
   } catch (e) {
     if (signal.aborted) throw e
     return { ...base, runtime: hit.mediaType === 'tv' ? 24 : 90 }

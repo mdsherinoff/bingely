@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { CustomList, CustomListItem } from '@/types/media'
+import { withSeriesDetails } from '@/lib/listItems'
 
 const STORAGE_KEY = 'bingely_custom_lists'
 
@@ -42,6 +43,40 @@ export function useCustomLists() {
     },
     []
   )
+
+  // Lists saved before series carried episode counts get them filled in
+  // once, so their plans book (and name) whole episodes
+  useEffect(() => {
+    const controller = new AbortController()
+    Promise.all(
+      readStored().map(async (l) => ({
+        id: l.id,
+        items: await withSeriesDetails(l.items, controller.signal),
+      }))
+    ).then((results) => {
+      if (controller.signal.aborted) return
+      const fills = results.filter((r) => r.items)
+      if (!fills.length) return
+      // Only fill series still missing data, so edits made meanwhile stand
+      write((current) =>
+        current.map((l) => {
+          const fill = fills.find((f) => f.id === l.id)?.items
+          if (!fill) return l
+          return {
+            ...l,
+            items: l.items.map((item) => {
+              if (item.episodes) return item
+              const f = fill.find((x) => x.tmdbId === item.tmdbId)
+              return f?.episodes
+                ? { ...item, episodes: f.episodes, seasons: f.seasons }
+                : item
+            }),
+          }
+        })
+      )
+    })
+    return () => controller.abort()
+  }, [write])
 
   const createList = useCallback(
     (title: string, items: CustomListItem[]): CustomList => {
