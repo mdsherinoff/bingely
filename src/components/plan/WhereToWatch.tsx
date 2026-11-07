@@ -103,13 +103,14 @@ export default function WhereToWatch({ id, type }: { id: number; type: 'movie' |
             onChange={(e) => changeRegion(e.target.value)}
             className="bg-ink border-line-strong text-parchment-dim focus:border-gold/60 max-w-[12rem] rounded-sm border px-2 py-1 font-sans text-xs focus:outline-none"
           >
-            {(data.regions.includes(region) ? data.regions : [region, ...data.regions]).map(
-              (code) => (
+            {(data.regions.includes(region) ? data.regions : [region, ...data.regions])
+              .map((code) => ({ code, name: regionName(code) }))
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(({ code, name }) => (
                 <option key={code} value={code}>
-                  {regionName(code)}
+                  {name}
                 </option>
-              )
-            )}
+              ))}
           </select>
         </label>
       </div>
